@@ -16,21 +16,20 @@
                     <div class="col-lg-6 align-self-center">
                         <div class="about-us-info-wrap">
                             <div class="section-title-area ltn__section-title-2">
-                                <h6 class="section-subtitle ltn__secondary-color">Know More About Shop</h6>
-                                <h1 class="section-title">Trusted Organic <br class="d-none d-md-block"> Food Store</h1>
-                                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
-                                    incididunt ut labore</p>
+                                <h6 class="section-subtitle ltn__secondary-color">Tìm hiểu thêm về cửa hàng</h6>
+                                <h1 class="section-title">Cửa hàng thực phẩm<br class="d-none d-md-block"> Hữu cơ uy tín</h1>
+                                <p>Chúng tôi cam kết mang đến những sản phẩm chất lượng, an toàn và tốt cho sức khỏe</p>
                             </div>
-                            <p>sellers who aspire to be good, do good, and spread goodness. We
-                                democratic, self-sustaining, two-sided marketplace which thrives
-                                on trust and is built on community and quality content.</p>
+                            <p>Những người bán hàng luôn hướng tới điều tốt đẹp, lan tỏa giá trị tích cực.
+                                Chúng tôi là một thị trường dân chủ, tự duy trì, hoạt động dựa trên niềm tin, cộng đồng và chất lượng.
+                            </p>
                             <div class="about-author-info d-flex">
                                 <div class="author-name-designation  align-self-center">
-                                    <h4 class="mb-0">Jerry Henson</h4>
-                                    <small>/ Shop Director</small>
+                                    <h4 class="mb-0">Đào Hùng</h4>
+                                    <small>/ Giám đốc cửa hàng</small>
                                 </div>
                                 <div class="author-sign">
-                                    <img src="img/icons/icon-img/author-sign.png" alt="#">
+                                    <img src="{{ asset('assets/clients/icons/icon-img/author-sign.png') }}" alt="#">
                                 </div>
                             </div>
                         </div>
@@ -46,8 +45,8 @@
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="section-title-area ltn__section-title-2 text-center">
-                            <h6 class="section-subtitle ltn__secondary-color">// features //</h6>
-                            <h1 class="section-title">Why Choose Us<span>.</span></h1>
+                            <h6 class="section-subtitle ltn__secondary-color">// Đặc điểm //</h6>
+                            <h1 class="section-title">Tại sao chọn chúng tôi<span>.</span></h1>
                         </div>
                     </div>
                 </div>
@@ -58,11 +57,10 @@
                                 <div class="ltn__feature-icon">
                                     <span><img src="img/icons/icon-img/21.png" alt="#"></span>
                                 </div>
-                                <h3><a href="service-details.html">All Kind Brand</a></h3>
+                                <h3><a href="service-details.html">Đa dạng thương hiệu</a></h3>
                             </div>
                             <div class="ltn__feature-info">
-                                <p>Lorem ipsum dolor sit ame it, consectetur adipisicing elit, sed do eiusmod te mp or
-                                    incididunt ut labore.</p>
+                                <p>Chúng tôi cung cấp nhiều thương hiệu uy tín, đảm bảo chất lượng và nguồn gốc rõ ràng.</p>
                             </div>
                         </div>
                     </div>
@@ -72,11 +70,10 @@
                                 <div class="ltn__feature-icon">
                                     <span><img src="img/icons/icon-img/22.png" alt="#"></span>
                                 </div>
-                                <h3><a href="service-details.html">Curated Products</a></h3>
+                                <h3><a href="service-details.html">Sản phẩm tuyển chọn</a></h3>
                             </div>
                             <div class="ltn__feature-info">
-                                <p>Lorem ipsum dolor sit ame it, consectetur adipisicing elit, sed do eiusmod te mp or
-                                    incididunt ut labore.</p>
+                                <p>Mỗi sản phẩm đều được chọn lọc kỹ lưỡng, mang đến sự an tâm và hài lòng cho khách hàng</p>
                             </div>
                         </div>
                     </div>
@@ -86,11 +83,10 @@
                                 <div class="ltn__feature-icon">
                                     <span><img src="img/icons/icon-img/23.png" alt="#"></span>
                                 </div>
-                                <h3><a href="service-details.html">Pesticide Free Goods</a></h3>
+                                <h3><a href="service-details.html">Không chứa thuốc trừ sâu</a></h3>
                             </div>
                             <div class="ltn__feature-info">
-                                <p>Lorem ipsum dolor sit ame it, consectetur adipisicing elit, sed do eiusmod te mp or
-                                    incididunt ut labore.</p>
+                                <p>Chúng tôi cam kết cung cấp sản phẩm hoàn toàn tự nhiên, không chứa hóa chất độc hại.</p>
                             </div>
                         </div>
                     </div>
@@ -99,91 +95,5 @@
         </div>
         <!-- FEATURE AREA END -->
 
-        <!-- TEAM AREA START (Team - 3) -->
-        <div class="ltn__team-area pt-115 pb-90">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="section-title-area ltn__section-title-2 text-center">
-                            <h1 class="section-title white-color---">Team Member</h1>
-                        </div>
-                    </div>
-                </div>
-                <div class="row justify-content-center">
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
-                        <div class="ltn__team-item">
-                            <div class="team-img">
-                                <img src="img/team/1.jpg" alt="Image">
-                            </div>
-                            <div class="team-info">
-                                <h6 class="ltn__secondary-color">// founder //</h6>
-                                <h4><a href="team-details.html">Rosalina D. William</a></h4>
-                                <div class="ltn__social-media">
-                                    <ul>
-                                        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-linkedin"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
-                        <div class="ltn__team-item">
-                            <div class="team-img">
-                                <img src="img/team/2.jpg" alt="Image">
-                            </div>
-                            <div class="team-info">
-                                <h6 class="ltn__secondary-color">// founder //</h6>
-                                <h4><a href="team-details.html">Rosalina D. William</a></h4>
-                                <div class="ltn__social-media">
-                                    <ul>
-                                        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-linkedin"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
-                        <div class="ltn__team-item">
-                            <div class="team-img">
-                                <img src="img/team/3.jpg" alt="Image">
-                            </div>
-                            <div class="team-info">
-                                <h6 class="ltn__secondary-color">// founder //</h6>
-                                <h4><a href="team-details.html">Rosalina D. William</a></h4>
-                                <div class="ltn__social-media">
-                                    <ul>
-                                        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-linkedin"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-xl-3 col-lg-4 col-sm-6">
-                        <div class="ltn__team-item">
-                            <div class="team-img">
-                                <img src="img/team/4.jpg" alt="Image">
-                            </div>
-                            <div class="team-info">
-                                <h6 class="ltn__secondary-color">// founder //</h6>
-                                <h4><a href="team-details.html">Rosalina D. William</a></h4>
-                                <div class="ltn__social-media">
-                                    <ul>
-                                        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                        <li><a href="#"><i class="fab fa-linkedin"></i></a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- TEAM AREA END -->
+        
 @endsection
