@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Clients\AuthController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,3 +18,5 @@ Route::get('/team', function () {
 Route::get('/faq', function () {
     return view('clients.pages.faq');
 });
+Route::get('/register', [AuthController::class,'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class,'register'])->name('post-register');
