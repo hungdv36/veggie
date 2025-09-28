@@ -22,6 +22,8 @@
     <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
     <!-- Responsive css -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
+
+    
 </head>
 
 <body>

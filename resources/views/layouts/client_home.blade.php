@@ -1,13 +1,10 @@
 <!doctype html>
 <html class="no-js" lang="zxx">
 
-
-<!-- Mirrored from tunatheme.com/tf/html/broccoli-preview/broccoli/index-8.html by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 12 Feb 2025 04:54:29 GMT -->
-
 <head>
     <meta charset="utf-8">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <title>@yield(section: 'title')</title>
+    <title>@yield('title')</title>
     <meta name="robots" content="noindex, follow" />
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -22,6 +19,9 @@
     <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
     <!-- Responsive css -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
+
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 </head>
 
 <body>
@@ -44,11 +44,37 @@
     </div>
     <!-- preloader area end -->
 
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <!-- All JS Plugins -->
     <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
     <!-- Main JS -->
     <script src="{{ asset('assets/clients/js/main.js') }}"></script>
+    <!-- Custom JS -->
+    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
 
+    {{-- Toastr Notifications --}}
+    <script>
+        @if (session('success'))
+            toastr.success("{{ session('success') }}", "Thành công");
+        @endif
+        @if (session('error'))
+            toastr.error("{{ session('error') }}", "Lỗi");
+        @endif
+        @if (session('warning'))
+            toastr.warning("{{ session('warning') }}", "Cảnh báo");
+        @endif
+        @if (session('info'))
+            toastr.info("{{ session('info') }}", "Thông tin");
+        @endif
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                toastr.error("{{ $error }}", "Lỗi");
+            @endforeach
+        @endif
+    </script>
 </body>
 
 </html>
