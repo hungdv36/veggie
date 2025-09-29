@@ -38,3 +38,5 @@ Route::get('/faq', function () {
 });
 Route::get('/register', [AuthController::class,'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class,'register'])->name('post-register');
+
+require __DIR__.'/admin.php';
