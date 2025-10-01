@@ -2,24 +2,6 @@
 
 use App\Http\Controllers\Clients\AuthController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\ForgotPasswordController;
-
-
-Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
-    ->middleware('guest')
-    ->name('password.request');
-
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
-    ->middleware('guest')
-    ->name('password.email');
-
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
-    ->middleware('guest')
-    ->name('password.reset');
-
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
-    ->middleware('guest')
-    ->name('password.update');
 
 Route::get('/', function () {
     return view('clients.pages.home');
@@ -38,5 +20,7 @@ Route::get('/faq', function () {
 });
 Route::get('/register', [AuthController::class,'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class,'register'])->name('post-register');
+
+Route::get('/activate/{token}', [AuthController::class,'activate'])->name('activate');
 
 require __DIR__.'/admin.php';

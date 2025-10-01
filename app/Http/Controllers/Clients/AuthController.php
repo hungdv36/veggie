@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ActivationMail;
 
 class AuthController extends Controller
 {
@@ -51,10 +53,29 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'status' => 'pending',
-            'role_id' => 2,
+            'role_id' => 3,
             'activation_token' => $token,
         ]);
 
+        Mail::to($user->email)->send(new ActivationMail($token, $user));
+
        return redirect()->route('register')->with('success', 'Đăng ký tài khoản thành công. Vui lòng kiểm tra email để kích hoạt');
+    }
+
+    public function activate($token)
+    {
+        $user = User::where('activation_token', $token)->first();
+
+        if (!$user) {
+            $user->status = 'active';
+            $user->activation_token = null;
+            $user->save();
+
+            toastr()->success('Tài khoản của bạn đã được kích hoạt. Bạn có thể đăng nhập ngay bây giờ.');
+            return redirect()->back();
+        }
+
+        toastr()->error('Tài khoản đã được kích hoạt trước đó.');
+        return redirect()->back();
     }
 }
