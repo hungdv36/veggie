@@ -34,7 +34,7 @@
                             <button class="theme-btn-1 btn btn-block" type="submit">ĐĂNG NHẬP</button>
                         </div>
                         <div class="go-to-btn mt-20">
-                            <a href="#"><small>BẠN QUÊN MẬT KHẨU?</small></a>
+                            <a href="{{ route('password.request') }}"><small>BẠN QUÊN MẬT KHẨU?</small></a>
                         </div>
                     </form>
                 </div>
