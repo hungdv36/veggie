@@ -14,8 +14,8 @@ $(document).ready(function () {
 
         let errorMessage = "";
 
-        if (name.length < 5) {
-            errorMessage += "Họ tên phải có ít nhất 5 ký tự.<br>";
+        if (name.length < 3) {
+            errorMessage += "Họ tên phải có ít nhất 3 ký tự.<br>";
         }
 
         let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,9 +37,27 @@ $(document).ready(function () {
 
         if (errorMessage != "") {
             toastr.error(errorMessage, "Lỗi");
-        } else {
-            // Không có lỗi thì submit form thật
-            this.submit();
+            e.preventDefault();
+        } 
+    });
+    // Validate login form
+    $("#login-form").submit(function (e) {
+        toastr.clear();
+        let email = $('input[name="email"]').val();
+        let password = $('input[name="password"]').val();
+        let errorMessage = "";
+
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            errorMessage += "Email không hợp lý.<br>";
+        }
+        if (password.length < 6) {
+            errorMessage += "Mật khẩu phải có ít nhất 6 ký tự.<br>";
+        }
+
+        if (errorMessage != "") {
+            toastr.error(errorMessage, "Lỗi");
+            e.preventDefault();
         }
     });
 });
