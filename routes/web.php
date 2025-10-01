@@ -5,21 +5,21 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 
 
-Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
-    ->middleware('guest')
-    ->name('password.request');
+// Route::get('/forgot-password', [ForgotPasswordController::class, 'showLinkRequestForm'])
+//     ->middleware('guest')
+//     ->name('password.request');
 
-Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
-    ->middleware('guest')
-    ->name('password.email');
+// Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail'])
+//     ->middleware('guest')
+//     ->name('password.email');
 
-Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
-    ->middleware('guest')
-    ->name('password.reset');
+// Route::get('/reset-password/{token}', [ForgotPasswordController::class, 'showResetForm'])
+//     ->middleware('guest')
+//     ->name('password.reset');
 
-Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
-    ->middleware('guest')
-    ->name('password.update');
+// Route::post('/reset-password', [ForgotPasswordController::class, 'reset'])
+//     ->middleware('guest')
+//     ->name('password.update');
 
 Route::get('/', function () {
     return view('clients.pages.home');
