@@ -90,12 +90,11 @@
                             <p>Khi tạo tài khoản, bạn đồng ý với:</p>
                             <p><a href="#">Điều khoản sử dụng &nbsp; &nbsp; | &nbsp; &nbsp; Chính sách bảo mật</a></p>
                             <div class="go-to-btn mt-50">
-                                <a href="#">Bạn đã có tài khoản? Đăng nhập ngay</a>
+                                <a href="{{ route('login') }}">Bạn đã có tài khoản? Đăng nhập ngay</a>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
     </div>
 @endsection
