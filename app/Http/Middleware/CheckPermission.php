@@ -14,18 +14,13 @@ class CheckPermission
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    // public function handle(Request $request, Closure $next, $permission): Response
-    // {
-    //     $user = Auth::guard('admin')->user();
-
-    //     if (!$user || !$user->role->permissions->contains('name', $permission)) {
-    //         abort(403, 'Bạn không có quyền truy cập');
-    //     }
-    //     return $next($request);
-    // }
-    public function handle(Request $request, Closure $next, $permission = null): Response
+    public function handle(Request $request, Closure $next, $permission): Response
     {
-        // 🚨 Tạm bỏ qua check quyền + đăng nhập
+        $user = Auth::guard('admin')->user();
+
+        if (!$user || !$user->role->permissions->contains('name', $permission)) {
+            abort(403, 'Bạn không có quyền truy cập');
+        }
         return $next($request);
     }
 }
