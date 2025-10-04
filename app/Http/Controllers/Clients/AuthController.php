@@ -115,7 +115,7 @@ class AuthController extends Controller
         }
 
         toastr()->error('Thông tin đăng nhập không hợp lệ hoặc tài khoản chưa được kích hoạt');
-        return redirect()->back();
+        return redirect()->route('home');
     }
 
     public function logout(Request $request)
