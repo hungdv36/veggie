@@ -23,6 +23,10 @@
 
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    {{-- Import custom CSS --}}
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
+
 </head>
 
 <body>
