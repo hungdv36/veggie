@@ -36,13 +36,36 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
 });
 
-Route::get('/activate/{token}', [AuthController::class,'activate'])->name('activate');
+Route::get('/activate/{token}', [AuthController::class, 'activate'])->name('activate');
 
 Route::middleware(['auth.custom'])->group(function () {
+    // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::prefix('account')->group(function(){
+
+    // Account
+    Route::prefix('account')->group(function () {
+        // Trang chính account
         Route::get('/', [AccountController::class, 'index'])->name('account');
+
+        // Đổi mật khẩu
+        Route::post('/change-password', [AccountController::class, 'changePassword'])
+            ->name('account.change-password');
+
+        // Thêm địa chỉ
+        Route::post('/addresses', [AccountController::class, 'addAddress'])
+            ->name('account.addresses.add');
+
+        // Cập nhật địa chỉ mặc định
+        Route::put('/addresses/{id}/default', [AccountController::class, 'updatePrimaryAddress'])
+            ->name('account.addresses.update');
+
+        // Xóa địa chỉ
+        Route::delete('/addresses/{id}', [AccountController::class, 'deleteAddress'])
+            ->name('account.addresses.delete');
     });
 });
 
-require __DIR__.'/admin.php';
+
+
+
+require __DIR__ . '/admin.php';

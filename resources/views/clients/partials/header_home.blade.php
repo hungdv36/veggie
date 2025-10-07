@@ -102,9 +102,6 @@
                             <li>
                                 <a href="#">
                                     <i class="icon-user"></i>
-                                    @auth
-                                        {{ Auth::user()->name }}
-                                    @endauth
                                 </a>
 
                                 <ul>

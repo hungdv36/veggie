@@ -20,13 +20,15 @@
     <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
     <!-- Responsive css -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
+    <!-- ✅ Toastr CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/toastr.min.css') }}">
 
-    <!-- Toastr CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     {{-- Import custom CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
-
+    <script src="{{ asset('assets/clients/js/jquery.min.js') }}"></script>
+    <!-- ✅ Toastr CSS -->
+    <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
 </head>
 
 <body>
@@ -39,47 +41,13 @@
     </div>
 
     <!-- preloader area start -->
-    <div class="preloader d-none" id="preloader">
-        <div class="preloader-inner">
-            <div class="spinner">
-                <div class="dot1"></div>
-                <div class="dot2"></div>
-            </div>
-        </div>
-    </div>
+    <script src="{{ asset('assets/clients/js/vendor/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
+
+    <!-- ✅ Script đổi mật khẩu -->
+    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
     <!-- preloader area end -->
 
-    <!-- Jquery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Toastr JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <!-- All JS Plugins -->
-    <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
-    <!-- Main JS -->
-    <script src="{{ asset('assets/clients/js/main.js') }}"></script>
-    <!-- Custom JS -->
-    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
-
-    {{-- Toastr Notifications --}}
-    <script>
-        @if (session('success'))
-            toastr.success("{{ session('success') }}", "Thành công");
-        @endif
-        @if (session('error'))
-            toastr.error("{{ session('error') }}", "Lỗi");
-        @endif
-        @if (session('warning'))
-            toastr.warning("{{ session('warning') }}", "Cảnh báo");
-        @endif
-        @if (session('info'))
-            toastr.info("{{ session('info') }}", "Thông tin");
-        @endif
-        @if ($errors->any())
-            @foreach ($errors->all() as $error)
-                toastr.error("{{ $error }}", "Lỗi");
-            @endforeach
-        @endif
-    </script>
 </body>
 
 </html>
