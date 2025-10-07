@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string(column: 'name');
             $table->string(column: 'email')->unique();
             $table->string(column: 'password');
-            $table->enum(column: 'status', allowed: ['pending', 'active', 'suspended'])->default(value: 'pending');
+            $table->enum(column: 'status', allowed: ['pending', 'active', 'banned','deleted'])->default(value: 'pending');
             $table->string(column: 'phone_number')->nullable();
             $table->string(column: 'avatar')->nullable();
             $table->text(column: 'address')->nullable();
