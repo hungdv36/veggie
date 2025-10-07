@@ -35,7 +35,7 @@
         <div class="login_wrapper">
             <div class="animate form login_form">
                 <section class="login_content">
-                    <form action="" method="POST">
+                    <form action="{{route('admin.login.post')}}" method="POST">
                         @csrf
                         <h1>Đăng nhập</h1>
                         <div>
@@ -45,7 +45,8 @@
                             <input type="password" class="form-control" name="password" placeholder="Mật khẩu" required="" />
                         </div>
                         <div>
-                            <a class="btn btn-default submit" type="submit" >Đăng nhập</a>
+                            <button type="submit" class="btn btn-default submit">Đăng nhập</button>
+
                            
                         </div>
 
