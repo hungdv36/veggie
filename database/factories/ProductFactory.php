@@ -18,43 +18,18 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        $name = $this->faker->randomElement([
-            'Cà chua bi',
-            'Rau muống',
-            'Bí đỏ',
-            'Khoai tây',
-            'Táo xanh',
-            'Xà lách',
-            'Dưa leo',
-            'Ớt chuông đỏ',
-            'Cà rốt',
-            'Bắp cải',
-            'Nho đen',
-            'Chuối chín',
-            'Bưởi da xanh',
-            'Cam sành',
-            'Dưa hấu',
-            'Hành lá',
-            'Tỏi Lý Sơn',
-            'Gừng tươi',
-            'Khoai lang',
-            'Mướp đắng',
-            'Thịt heo ba rọi',
-            'Thịt bò Úc',
-            'Cá hồi phi lê',
-            'Tôm sú',
-            'Gà ta nguyên con'
-        ]);
+        $name = $this->faker->words(2, true); // tạo tên sản phẩm
 
         return [
             'name'        => ucfirst($name),
             'slug'        => Str::slug($name) . '-' . $this->faker->unique()->numberBetween(1, 1000),
-            'category_id' => Category::inRandomOrder()->first()->id,
+            'category_id' => Category::inRandomOrder()->first()?->id ?? 1, // fallback nếu chưa có category
             'description' => $this->faker->sentence(10),
-            'price'       => $this->faker->randomFloat(2, 10000, 200000),
-            'stock'       => $this->faker->numberBetween(0, 100),
+            'price'       => $this->faker->randomFloat(2, 150000, 1200000),
+            'stock'       => $this->faker->numberBetween(10, 100),
             'status'      => $this->faker->randomElement(['in-stock', 'out-of-stock']),
-            'unit'        => $this->faker->randomElement(['kg', 'bó', 'túi', 'hộp']),
+            'unit'        => 'cái',
+            'image'       => $this->faker->imageUrl(400, 400, 'clothes', true),
         ];
     }
 }
