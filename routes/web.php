@@ -3,13 +3,11 @@
 use App\Http\Controllers\Clients\AccountController;
 use App\Http\Controllers\Clients\AuthController;
 use App\Http\Controllers\Clients\ForgotPasswordController;
+use App\Http\Controllers\Clients\HomeController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 
-
-Route::get('/', function () {
-    return view('clients.pages.home');
-})->name('home');
+Route::get('/',[HomeController::class,'index'])->name('home');
 Route::get('/about', function () {
     return view('clients.pages.about');
 });
@@ -64,8 +62,6 @@ Route::middleware(['auth.custom'])->group(function () {
             ->name('account.addresses.delete');
     });
 });
-
-
 
 
 require __DIR__ . '/admin.php';

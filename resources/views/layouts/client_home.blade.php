@@ -30,6 +30,53 @@
     <!-- ✅ Toastr CSS -->
     <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
 </head>
+<style>
+    .category-container {
+        display: flex;
+        flex-wrap: wrap;
+        /* cho phép xuống hàng nếu hết chỗ */
+        gap: 20px;
+        /* khoảng cách giữa các ô */
+        justify-content: flex-start;
+        /* canh trái, hoặc center */
+        height: auto;
+    }
+
+    .category-item {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        text-align: center;
+        width: 180px;
+        /* chiều ngang mỗi ô */
+        padding: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .category-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .category-item-img img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .category-item-name h5 {
+        margin: 5px 0;
+        font-size: 16px;
+    }
+
+    .category-item-name h6 {
+        margin: 0;
+        font-size: 14px;
+        color: #555;
+    }
+</style>
 
 <body>
     <div class="body-wrapper">
