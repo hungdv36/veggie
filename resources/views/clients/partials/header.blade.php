@@ -50,7 +50,7 @@
                 <div class="col">
                     <div class="site-logo-wrap">
                         <div class="site-logo">
-                            <a href="index.html"><img src="img/logo-2.png" alt="Logo"></a>
+                            <a href="\"><img src="img/logo-2.png" alt="Logo"></a>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                         <nav>
                             <div class="ltn__main-menu">
                                 <ul>
-                                    <li class="menu-icon"><a href="index.html">Trang chủ</a> </li>
+                                    <li class="menu-icon"><a href="\">Trang chủ</a> </li>
                                     <li class="menu-icon"><a href="#">Về chúng tôi</a>
                                         <ul>
                                             <li><a href="about.html">Về chúng tôi</a></li>
