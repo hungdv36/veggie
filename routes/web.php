@@ -6,6 +6,7 @@ use App\Http\Controllers\Clients\ForgotPasswordController;
 use App\Http\Controllers\Clients\HomeController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Clients\ProductController;
 
 Route::get('/',[HomeController::class,'index'])->name('home');
 Route::get('/about', function () {
@@ -63,5 +64,7 @@ Route::middleware(['auth.custom'])->group(function () {
     });
 });
 
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/filter', [ProductController::class, 'filter'])->name('products.filter');
 
 require __DIR__ . '/admin.php';
