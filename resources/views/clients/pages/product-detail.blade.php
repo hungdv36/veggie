@@ -5,6 +5,9 @@
 @section('breadcrumb', 'Chi tiết sản phẩm')
 
 @section('content')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
     <!-- SHOP DETAILS AREA START -->
     <div class="ltn__shop-details-area pb-85">
         <div class="container">
@@ -64,13 +67,16 @@
                                         <ul>
                                             <li>
                                                 <div class="cart-plus-minus">
-                                                    <input type="text" value="02" name="qtybutton"
-                                                        class="cart-plus-minus-box">
+                                                    <div class="dec qtybutton">-</div>
+                                                    <input type="text" value="1" name="qtybutton"
+                                                        class="cart-plus-minus-box" readonly
+                                                         data-max="{{ $product->stock }}">
+                                                        <div class="inc qtybutton">+</div>
                                                 </div>
                                             </li>
                                             <li>
-                                                <a href="#" class="theme-btn-1 btn btn-effect-1" title="Thêm vào giỏ hàng"
-                                                    data-bs-toggle="modal" data-bs-target="#add_to_cart_modal">
+                                                <a href="#" class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
+                                                 title="Thêm vào giỏ hàng" data-id="{{ $product->id }}">
                                                     <i class="fas fa-shopping-cart"></i>
                                                     <span>THÊM VÀO GIỎ HÀNG</span>
                                                 </a>
