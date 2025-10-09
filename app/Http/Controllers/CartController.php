@@ -12,7 +12,7 @@ class CartController extends Controller
 {
     public function addToCart(Request $request)
     {
-        $request->merge(['quantity' => (int) $request->quantity]);
+        $request->merge(['quantity' => (int)$request->quantity]);
 
         $request->validate([
             'product_id' => 'required|exists:products,id',
@@ -22,53 +22,33 @@ class CartController extends Controller
         $product = Product::findOrFail($request->product_id);
 
         if ($request->quantity > $product->stock) {
-            return response()->json([
-                'message' => 'Số lượng vượt quá tồn kho'
-            ], 400);
+            return response()->json(['message' => 'Số lượng vượt quá tồn kho'], 400);
         }
 
-        // Nếu đã đăng nhập => lưu vào database
         if (Auth::check()) {
-            $cartItem = CartItem::where('user_id', Auth::id())
-                ->where('product_id', $request->product_id)
-                ->first();
+            // Nếu đã đăng nhập, lưu vào DB với đúng số lượng chọn
+            CartItem::updateOrCreate(
+                ['user_id' => Auth::id(), 'product_id' => $request->product_id],
+                ['quantity' => $request->quantity]
+            );
 
-            if ($cartItem) {
-                $cartItem->quantity += $request->quantity;
-                $cartItem->save();
-            } else {
-                CartItem::create([
-                    'user_id' => Auth::id(),
-                    'product_id' => $request->product_id,
-                    'quantity' => $request->quantity
-                ]);
-            }
-
-            $cartCount = CartItem::where('user_id', Auth::id())->count();
+            $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
         } else {
-            // Nếu chưa đăng nhập => lưu vào session
+            // Nếu chưa đăng nhập, lưu vào session
             $cart = session()->get('cart', []);
-
-            if (isset($cart[$request->product_id])) {
-                $cart[$request->product_id]['quantity'] += $request->quantity;
-            } else {
-                $cart[$request->product_id] = [
-                    'product_id' => $request->product_id,
-                    'name' => $product->name,
-                    'price' => $product->price,
-                    'quantity' => $request->quantity,
-                    'stock' => $product->stock,
-                    'image' => $product->images->first()->image ?? 'uploads/products/default-product.png'
-                ];
-            }
-
+            $cart[$request->product_id] = [
+                'product_id' => $request->product_id,
+                'name' => $product->name,
+                'price' => $product->price,
+                'quantity' => $request->quantity,
+                'stock' => $product->stock,
+                'image' => $product->images->first()->image ?? 'uploads/products/default-product.png'
+            ];
             session()->put('cart', $cart);
-            $cartCount = count($cart);
+
+            $cartCount = array_sum(array_column($cart, 'quantity'));
         }
 
-        return response()->json([
-            'message' => true,
-            'cart_count' => $cartCount
-        ]);
+        return response()->json(['message' => true, 'cart_count' => $cartCount]);
     }
 }

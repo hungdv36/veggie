@@ -5,8 +5,8 @@
 @section('breadcrumb', 'Chi tiết sản phẩm')
 
 @section('content')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <!-- SHOP DETAILS AREA START -->
     <div class="ltn__shop-details-area pb-85">
@@ -50,7 +50,7 @@
                                     </div>
                                     <h3>{{ $product->name }}</h3>
                                     <div class="product-price">
-                                        <span>{{ number_format($product->price, 0 , ',', '.') }} VNĐ</span>
+                                        <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
                                     </div>
                                     <div class="modal-product-meta ltn__product-details-menu-1">
                                         <ul>
@@ -58,7 +58,7 @@
                                                 <strong>Danh mục:</strong>
                                                 <span>
                                                     <a href="javascript:void(0)">{{ $product->category->name }}</a>
-                                                    
+
                                                 </span>
                                             </li>
                                         </ul>
@@ -70,13 +70,13 @@
                                                     <div class="dec qtybutton">-</div>
                                                     <input type="text" value="1" name="qtybutton"
                                                         class="cart-plus-minus-box" readonly
-                                                         data-max="{{ $product->stock }}">
-                                                        <div class="inc qtybutton">+</div>
+                                                        data-max="{{ $product->stock }}">
+                                                    <div class="inc qtybutton">+</div>
                                                 </div>
                                             </li>
                                             <li>
                                                 <a href="#" class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
-                                                 title="Thêm vào giỏ hàng" data-id="{{ $product->id }}">
+                                                    title="Thêm vào giỏ hàng" data-id="{{ $product->id }}">
                                                     <i class="fas fa-shopping-cart"></i>
                                                     <span>THÊM VÀO GIỎ HÀNG</span>
                                                 </a>
@@ -111,7 +111,8 @@
                                     <hr>
                                     <div class="ltn__safe-checkout">
                                         <h5>Đảm bảo thanh toán an toàn</h5>
-                                        <img src="{{ asset('assets/clients/img/icons/payment-2.png') }}" alt="Payment Image">
+                                        <img src="{{ asset('assets/clients/img/icons/payment-2.png') }}"
+                                            alt="Payment Image">
                                     </div>
                                 </div>
                             </div>
@@ -244,48 +245,117 @@
             <div class="row ltn__related-product-slider-one-active slick-arrow-1">
                 @foreach ($relatedProducts as $product)
                     <div class="col-lg-12">
-                    <div class="ltn__product-item ltn__product-item-3 text-center">
-                        <div class="product-img">
-                            <a href="{{ route('products.detail', $product->slug) }}"><img src="{{ $product->image_url }}" alt="{{ $product->name }}"></a>
-                            <div class="product-hover-action">
-                            <ul>
-                                <li>
-                                    <a href="javascript:void(0)" title="Xem nhanh" data-bs-toggle="modal"
-                                        data-bs-target="#quick_view_modal-{{ $product->id }}">
-                                        <i class="far fa-eye"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0)" title="Thêm vào giỏ hàng" data-bs-toggle="modal"
-                                        data-bs-target="#add_to_cart_modal-{{ $product->id }}">
-                                        <i class="fas fa-shopping-cart"></i>
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="javascript:void(0)" title="Yêu thích" data-bs-toggle="modal"
-                                        data-bs-target="#liton_wishlist_modal-{{ $product->id }}">
-                                        <i class="far fa-heart"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        </div>
-                        <div class="product-info">
-                            <div class="product-ratting">
-                                <ul>
-                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                </ul>
+                        <div class="ltn__product-item ltn__product-item-3 text-center">
+                            <div class="product-img">
+                                <a href="{{ route('products.detail', $product->slug) }}"><img
+                                        src="{{ $product->image_url }}" alt="{{ $product->name }}"></a>
+                                <div class="product-hover-action">
+                                    <ul>
+                                        <li>
+                                            <a href="javascript:void(0)" title="Xem nhanh" data-bs-toggle="modal"
+                                                data-bs-target="#quick_view_modal-{{ $product->id }}">
+                                                <i class="far fa-eye"></i>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0)" title="Thêm vào giỏ hàng" data-bs-toggle="modal"
+                                                data-bs-target="#add_to_cart_modal-{{ $product->id }}">
+                                                <i class="fas fa-shopping-cart"></i>
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="javascript:void(0)" title="Yêu thích" data-bs-toggle="modal"
+                                                data-bs-target="#liton_wishlist_modal-{{ $product->id }}">
+                                                <i class="far fa-heart"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
-                           <h2 class="product-title"><a href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a></h2>
-                        <div class="product-price">
-                            <span>{{ number_format($product->price, 0 , ',', '.') }} VNĐ</span>
-                        </div>
+                            <div class="product-info">
+                                <div class="product-ratting">
+                                    <ul>
+                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                    </ul>
+                                </div>
+                                <h2 class="product-title"><a
+                                        href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
+                                </h2>
+                                <div class="product-price">
+                                    <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
                 @endforeach
             </div>
         </div>
     </div>
     <!-- PRODUCT SLIDER AREA END -->
 @endsection
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+
+        // Nút +/- số lượng
+        document.querySelectorAll('.cart-plus-minus').forEach(wrapper => {
+            const decBtn = wrapper.querySelector('.dec');
+            const incBtn = wrapper.querySelector('.inc');
+            const input = wrapper.querySelector('.cart-plus-minus-box');
+            const max = parseInt(input.dataset.max);
+
+            decBtn.addEventListener('click', () => {
+                let val = parseInt(input.value);
+                if (val > 1) input.value = val - 1;
+            });
+
+            incBtn.addEventListener('click', () => {
+                let val = parseInt(input.value);
+                if (val < max) input.value = val + 1;
+            });
+        });
+
+        // Nút thêm vào giỏ hàng
+        const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
+        addToCartBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (btn.disabled) return;
+                btn.disabled = true;
+
+                const productId = this.dataset.id;
+                const quantityInput = this.closest('.ltn__product-details-menu-2')
+                    .querySelector('.cart-plus-minus-box');
+                const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute(
+                    'content');
+
+                fetch('/cart/add', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': token
+                        },
+                        body: JSON.stringify({
+                            product_id: productId,
+                            quantity: quantity
+                        })
+                    })
+                    .then(res => {
+                        if (res.status === 401) window.location.href = '/login';
+                        else return res.json();
+                    })
+                    .then(data => {
+                        if (data.message === true) {
+                            const cartCountElem = document.querySelector('#cart-count');
+                            if (cartCountElem) cartCountElem.innerText = data.cart_count;
+                            alert('Đã thêm vào giỏ hàng! Số lượng: ' + quantity);
+                        } else {
+                            alert(data.message || 'Có lỗi xảy ra');
+                        }
+                    })
+                    .finally(() => btn.disabled = false);
+            });
+        });
+
+    });
+</script>
