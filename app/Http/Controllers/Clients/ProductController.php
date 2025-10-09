@@ -58,8 +58,8 @@ class ProductController extends Controller
 
         // Trả về kết quả (tuỳ mục đích có thể là JSON hoặc view)
         $products = $query->paginate(9);
-        
-         foreach ($products as $product) {
+
+        foreach ($products as $product) {
             foreach ($products as $product) {
                 $product->image_url = $product->firstImage?->image
                     ? asset('storage/uploads/' . $product->firstImage->image)
@@ -72,5 +72,22 @@ class ProductController extends Controller
                 'pagination' => $products->links('clients.components.pagination.pagination_custom')
             ]
         );
+    }
+
+    public function detail($slug)
+    {
+        // Lấy sản phẩm theo slug, kèm theo category và images
+        $product = Product::with(['category', 'images'])
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        // Lấy các sản phẩm liên quan (cùng category, khác id)
+        $relatedProducts = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->limit(6)
+            ->get();
+
+        // Trả dữ liệu ra view
+        return view('clients.pages.product-detail', compact('product', 'relatedProducts'));
     }
 }
