@@ -46,4 +46,9 @@ class Product extends Model
     {
         return $this->hasMany(Variant::class);
     }
+    // Quan hệ với nhiều ảnh sản phẩm
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class);
+    }
 }
