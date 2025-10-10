@@ -8,6 +8,12 @@
     <title>@yield('title', 'Admin')</title>
 
     <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Bootstrap JS (cần Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Bootstrap CSS -->
     <link href="{{ asset('assets/admin/vendors/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="{{ asset('assets/admin/vendors/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
@@ -23,6 +29,11 @@
     <link href="{{ asset('assets/admin/build/css/custom.min.css') }}" rel="stylesheet">
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- jQuery (nếu chưa load) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
 
 <body class="nav-md">
@@ -95,6 +106,28 @@
             }
         });
     </script>
+    <style>
+        <style>.file-input {
+            display: none;
+            /* Ẩn input gốc */
+        }
+
+        .custom-file-label {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .file-name {
+            margin-left: 10px;
+            font-style: italic;
+            color: #555;
+        }
+    </style>
+    </style>
 
 </body>
 
