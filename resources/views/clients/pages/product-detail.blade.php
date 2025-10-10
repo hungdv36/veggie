@@ -53,14 +53,10 @@
                                         <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
                                     </div>
                                     <div class="modal-product-meta ltn__product-details-menu-1">
-                                        <ul>
-                                            <li>
-                                                <strong>Danh mục:</strong>
-                                                <span>
-                                                    <a href="javascript:void(0)">{{ $product->category->name }}</a>
-
-                                                </span>
-                                            </li>
+                                        <strong>Danh mục:</strong>
+                                        <span>
+                                        </span>
+                                        </li>
                                         </ul>
                                     </div>
                                     <div class="ltn__product-details-menu-2">
