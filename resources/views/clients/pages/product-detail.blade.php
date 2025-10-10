@@ -53,16 +53,70 @@
                                         <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
                                     </div>
                                     <div class="modal-product-meta ltn__product-details-menu-1">
-                                        <ul>
-                                            <li>
+                                        <ul class="list-unstyled mb-0">
+                                            <!-- Danh mục -->
+                                            <li class="mb-3">
                                                 <strong>Danh mục:</strong>
                                                 <span>
-                                                    <a href="javascript:void(0)">{{ $product->category->name }}</a>
-
+                                                    <a href="javascript:void(0)" class="text-decoration-none text-primary">
+                                                        {{ $product->category->name }}
+                                                    </a>
                                                 </span>
+                                            </li>
+
+                                            @php
+                                                $colors = $product->variants->pluck('color')->unique()->filter();
+                                                $sizes = $product->variants->pluck('size')->unique()->filter();
+                                            @endphp
+
+                                            <!-- Biến thể -->
+                                            <li>
+                                                <div class="row g-3">
+                                                    <!-- Màu sắc -->
+                                                    <div class="col-md-6 col-12">
+                                                        <div class="mb-2">
+                                                            <label for="variant-color"
+                                                                class="form-label fw-semibold d-block">Màu sắc:</label>
+                                                            @if ($colors->count() > 0)
+                                                                <select id="variant-color" class="form-select variant-color"
+                                                                    name="color">
+                                                                    <option value="">-- Chọn màu --</option>
+                                                                    @foreach ($colors as $color)
+                                                                        <option value="{{ $color }}">
+                                                                            {{ ucfirst($color) }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @else
+                                                                <p class="text-muted mb-0">Không có</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Kích thước -->
+                                                    <div class="col-md-6 col-12">
+                                                        <div class="mb-2">
+                                                            <label for="variant-size"
+                                                                class="form-label fw-semibold d-block">Kích thước:</label>
+                                                            @if ($sizes->count() > 0)
+                                                                <select id="variant-size" class="form-select variant-size"
+                                                                    name="size">
+                                                                    <option value="">-- Chọn size --</option>
+                                                                    @foreach ($sizes as $size)
+                                                                        <option value="{{ $size }}">
+                                                                            {{ strtoupper($size) }}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            @else
+                                                                <p class="text-muted mb-0">Không có</p>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </li>
                                         </ul>
                                     </div>
+
+
                                     <div class="ltn__product-details-menu-2">
                                         <ul>
                                             <li>

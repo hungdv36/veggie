@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Product extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = ['name', 'slug', 'category_id', 'description', 'price', 'stock', 'status', 'unit'];
 
     public function category(): BelongsTo
@@ -27,7 +27,13 @@ class Product extends Model
     {
         return $this->hasMany(related: CartItem::class);
     }
-    public function firstImage(){
-        return $this->hasOne(ProductImage::class)->orderBy('id','ASC');
+    
+    public function firstImage()
+    {
+        return $this->hasOne(ProductImage::class)->orderBy('id', 'ASC');
+    }
+    public function variants()
+    {
+        return $this->hasMany(Variant::class);
     }
 }
