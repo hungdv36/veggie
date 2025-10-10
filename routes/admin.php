@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\CategoryController;
+use Illuminate\Support\Facades\Auth;
 
 Route::prefix('admin')->name('admin.')->group(function () {
     // Dashboard
@@ -24,8 +25,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/user/toggleDelete', [UsersController::class, 'toggleDelete'])->name('user.toggleDelete');
     });
 
-    // Categories
-    Route::middleware(['auth', 'check.admin'])->group(function () {
-        Route::resource('categories', CategoryController::class);
+    Route::middleware(['permission:manage_categories'])->group(function () {
+        Route::get('/categories', [CategoryController::class, 'index'])
+            ->name('categories.index');
+        Route::get('/categories/add', [CategoryController::class, 'showFormAddCate'])
+            ->name('categories.add');
+        Route::post('/categories/add', [CategoryController::class, 'addCategory'])
+            ->name('categories.store');
+        Route::post('/categories/update', [CategoryController::class, 'updateCategory'])
+            ->name('categories.update');
+        Route::post('/categories/delete', [CategoryController::class, 'deleteCategory'])
+            ->name('categories.delete');
+        Route::get('/categories/trash', [CategoryController::class, 'trash'])
+            ->name('categories.trash');
+        Route::post('/categories/restore', [CategoryController::class, 'restoreCategory'])
+            ->name('categories.restore');
+        Route::post('/categories/force-delete', [CategoryController::class, 'forceDeleteCategory'])
+            ->name('categories.forceDelete');
     });
 });

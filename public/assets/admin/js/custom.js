@@ -116,4 +116,161 @@ $(document).ready(function () {
             },
         });
     });
+
+    /********************************
+     * MANAGE CATEGORIES
+     ******************************/
+    $("#image").change(function () {
+        let file = this.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $("#image-preview").attr("src", e.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $("#image-preview").attr("src", "").hide();
+        }
+    });
+    $(".image-input").change(function () {
+        let file = this.files[0];
+        let categoryId = $(this).data("id");
+        let reader = new FileReader();
+
+        reader.onload = function (e) {
+            // Ẩn ảnh cũ
+            $("#old-" + categoryId).hide();
+            // Hiển thị preview mới
+            $("#preview-" + categoryId)
+                .attr("src", e.target.result)
+                .show();
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        } else {
+            // Nếu bỏ chọn file
+            $("#preview-" + categoryId).hide();
+            $("#old-" + categoryId).show();
+        }
+    });
+
+    //UPDATE CATEGORY
+    $(document).on("click", ".btn-update-submit-category", function (e) {
+        e.preventDefault();
+        let button = $(this);
+        let categoryId = button.data("id");
+        let form = button.closest(".modal").find("form");
+        let formData = new FormData(form[0]);
+
+        formData.append("category_id", categoryId);
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+        });
+
+        $.ajax({
+            url: "categories/update",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                button.prop("disabled", true);
+                button.text("Đang cập nhật...");
+            },
+            success: function (response) {
+                if (response.status) {
+                    toastr.success(response.message, "", {
+                        timeOut: 10000,
+                        extendedTimeOut: 2000,
+                    });
+                    $("#modalUpdate-" + categoryId).modal("hide");
+                    location.reload();
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("Có lỗi xảy ra, vui lòng thử lại");
+            },
+        });
+    });
+
+    // DELETE CATEGORY
+    $(document).on("click", ".btn-delete-category", function (e) {
+        e.preventDefault();
+        let button = $(this);
+        let categoryId = button.data("id");
+        let row = button.closest("tr");
+
+        if (confirm("Bạn có chắc muốn xóa danh mục này?")) {
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                        "content"
+                    ),
+                },
+            });
+
+            $.ajax({
+                url: "categories/delete",
+                type: "POST",
+                data: {
+                    category_id: categoryId,
+                },
+                success: function (response) {
+                    if (response.status) {
+                        toastr.success(response.message);
+                        row.fadeOut(500, function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        toastr.error(response.message);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    alert("Có lỗi xảy ra, vui lòng thử lại");
+                },
+            });
+        }
+    });
+    // Khôi phục
+    $(document).on("click", ".btn-restore-category", function () {
+        let id = $(this).data("id");
+        $.post(
+            "/admin/categories/restore",
+            {
+                category_id: id,
+                _token: $('meta[name="csrf-token"]').attr("content"),
+            },
+            function (res) {
+                if (res.status) {
+                    toastr.success(res.message);
+                    location.reload();
+                } else toastr.error(res.message);
+            }
+        );
+    });
+
+    // Xóa vĩnh viễn
+    $(document).on("click", ".btn-force-delete-category", function () {
+        let id = $(this).data("id");
+        if (confirm("Bạn có chắc muốn xóa vĩnh viễn danh mục này?")) {
+            $.post(
+                "/admin/categories/force-delete",
+                {
+                    category_id: id,
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                },
+                function (res) {
+                    if (res.status) {
+                        toastr.success(res.message);
+                        location.reload();
+                    } else toastr.error(res.message);
+                }
+            );
+        }
+    });
 });
