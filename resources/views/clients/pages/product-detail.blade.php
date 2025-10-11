@@ -115,18 +115,18 @@
                                             </li>
                                         </ul>
                                     </div>
-
-
                                     <div class="ltn__product-details-menu-2">
                                         <ul>
                                             <li>
                                                 <div class="cart-plus-minus">
                                                     <div class="dec qtybutton">-</div>
-                                                    <input type="text" value="1" name="qtybutton"
+                                                    <input id="cart-qty-box" type="text" value="1" name="qtybutton"
                                                         class="cart-plus-minus-box" readonly
                                                         data-max="{{ $product->stock }}">
                                                     <div class="inc qtybutton">+</div>
                                                 </div>
+                                                <p class="text-muted small mt-1">Kho: <span
+                                                        id="variant-stock">{{ $product->stock ?? '--' }}</span></p>
                                             </li>
                                             <li>
                                                 <a href="#" class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
@@ -349,39 +349,106 @@
 @endsection
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const variants = @json($jsVariants ?? []);
+        console.log('variants', variants);
 
-        // Nút +/- số lượng
+        function norm(v) {
+            return (v === null || v === undefined) ? '' : String(v).toLowerCase().trim();
+        }
+
+        function findVariant(color, size) {
+            const nc = norm(color),
+                ns = norm(size);
+            return variants.find(v => {
+                if (nc && norm(v.color) !== nc) return false;
+                if (ns && norm(v.size) !== ns) return false;
+                return true;
+            }) || null;
+        }
+
+        function formatPrice(vnd) {
+            return new Intl.NumberFormat('vi-VN').format(vnd) + ' VNĐ';
+        }
+
+        function updateVariantUI() {
+            const color = document.getElementById('variant-color') ? document.getElementById('variant-color')
+                .value : '';
+            const size = document.getElementById('variant-size') ? document.getElementById('variant-size')
+                .value : '';
+            const variant = findVariant(color, size);
+
+            const priceEl = document.querySelector('.modal-product-info .product-price span');
+            const stockEl = document.getElementById('variant-stock');
+            const qtyBox = document.getElementById('cart-qty-box');
+
+            if (variant) {
+                if (priceEl) priceEl.textContent = formatPrice(variant.price);
+                if (stockEl) stockEl.textContent = variant.stock;
+                if (qtyBox) {
+                    qtyBox.dataset.max = variant.stock;
+                    let val = parseInt(qtyBox.value) || 1;
+                    if (val > variant.stock) qtyBox.value = Math.max(1, variant.stock);
+                }
+            } else {
+                if (priceEl) priceEl.textContent = formatPrice({{ $product->price ?? 0 }});
+                if (stockEl) stockEl.textContent = '{{ $product->stock ?? '--' }}';
+                if (qtyBox) qtyBox.dataset.max = '{{ $product->stock ?? 0 }}';
+            }
+        }
+
+        const selColor = document.getElementById('variant-color');
+        const selSize = document.getElementById('variant-size');
+        if (selColor) selColor.addEventListener('change', updateVariantUI);
+        if (selSize) selSize.addEventListener('change', updateVariantUI);
+
+        // quantity controls
         document.querySelectorAll('.cart-plus-minus').forEach(wrapper => {
             const decBtn = wrapper.querySelector('.dec');
             const incBtn = wrapper.querySelector('.inc');
             const input = wrapper.querySelector('.cart-plus-minus-box');
-            const max = parseInt(input.dataset.max);
+            if (!decBtn || !incBtn || !input) return;
 
             decBtn.addEventListener('click', () => {
-                let val = parseInt(input.value);
+                let val = parseInt(input.value) || 1;
                 if (val > 1) input.value = val - 1;
             });
-
             incBtn.addEventListener('click', () => {
-                let val = parseInt(input.value);
+                let val = parseInt(input.value) || 1;
+                const max = parseInt(input.dataset.max) || 9999;
                 if (val < max) input.value = val + 1;
             });
         });
 
-        // Nút thêm vào giỏ hàng
-        const addToCartBtns = document.querySelectorAll('.add-to-cart-btn');
-        addToCartBtns.forEach(btn => {
+        // add to cart
+        document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 if (btn.disabled) return;
                 btn.disabled = true;
 
                 const productId = this.dataset.id;
-                const quantityInput = this.closest('.ltn__product-details-menu-2')
-                    .querySelector('.cart-plus-minus-box');
-                const quantity = quantityInput ? parseInt(quantityInput.value) : 1;
+                const qtyInput = document.getElementById('cart-qty-box');
+                const quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
                 const token = document.querySelector('meta[name="csrf-token"]').getAttribute(
                     'content');
+
+                const hasVariants = variants.length > 0;
+                const selectedColor = selColor ? selColor.value : '';
+                const selectedSize = selSize ? selSize.value : '';
+                const chosenVariant = hasVariants ? findVariant(selectedColor, selectedSize) :
+                    null;
+
+                if (hasVariants && !chosenVariant) {
+                    alert('Vui lòng chọn thuộc tính sản phẩm (màu / size) hợp lệ.');
+                    btn.disabled = false;
+                    return;
+                }
+
+                if (chosenVariant && chosenVariant.stock < quantity) {
+                    alert('Số lượng vượt quá tồn kho của biến thể.');
+                    btn.disabled = false;
+                    return;
+                }
 
                 fetch('/cart/add', {
                         method: 'POST',
@@ -391,25 +458,30 @@
                         },
                         body: JSON.stringify({
                             product_id: productId,
+                            variant_id: chosenVariant ? chosenVariant.id : null,
                             quantity: quantity
                         })
                     })
                     .then(res => {
                         if (res.status === 401) window.location.href = '/login';
-                        else return res.json();
+                        return res.json();
                     })
                     .then(data => {
-                        if (data.message === true) {
+                        if (data.success || data.message === true) {
                             const cartCountElem = document.querySelector('#cart-count');
-                            if (cartCountElem) cartCountElem.innerText = data.cart_count;
+                            if (cartCountElem && data.cart_count !== undefined)
+                                cartCountElem.innerText = data.cart_count;
                             alert('Đã thêm vào giỏ hàng! Số lượng: ' + quantity);
                         } else {
                             alert(data.message || 'Có lỗi xảy ra');
                         }
                     })
+                    .catch(() => alert('Lỗi mạng, thử lại sau.'))
                     .finally(() => btn.disabled = false);
             });
         });
 
+        // init
+        updateVariantUI();
     });
 </script>
