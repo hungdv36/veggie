@@ -76,18 +76,28 @@ class ProductController extends Controller
 
     public function detail($slug)
     {
-        // Lấy sản phẩm theo slug, kèm theo category và images
-        $product = Product::with(['category', 'images'])
+        // load product with relations
+        $product = Product::with(['category','images','variants'])
             ->where('slug', $slug)
             ->firstOrFail();
 
-        // Lấy các sản phẩm liên quan (cùng category, khác id)
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->limit(6)
             ->get();
 
-        // Trả dữ liệu ra view
-        return view('clients.pages.product-detail', compact('product', 'relatedProducts'));
+        // prepare JS-safe variants array (no closure in blade)
+        $jsVariants = $product->variants->map(function($v){
+            return [
+                'id'    => $v->id,
+                'color' => $v->color ?? null,
+                'size'  => $v->size ?? null,
+                'price' => (float) ($v->price ?? 0),
+                'stock' => (int) ($v->stock ?? 0),
+                'image' => $v->image ?? null,
+            ];
+        })->toArray();
+
+        return view('clients.pages.product-detail', compact('product', 'relatedProducts', 'jsVariants'));
     }
 }

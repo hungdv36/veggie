@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -20,7 +21,13 @@ class Product extends Model
         'price',
         'stock',
         'status',
-        'unit'
+        'unit',
+    ];
+
+    protected $casts = [
+        'price' => 'float',
+        'stock' => 'integer',
+        'status' => 'boolean',
     ];
 
     // Quan hệ với danh mục
@@ -41,14 +48,21 @@ class Product extends Model
         return $this->hasOne(ProductImage::class)->orderBy('id', 'ASC');
     }
 
+    // Quan hệ với nhiều ảnh sản phẩm
+    public function images(): HasMany
+    {
+        return $this->hasMany(ProductImage::class);
+    }
+
     // Quan hệ với biến thể
     public function variants(): HasMany
     {
         return $this->hasMany(Variant::class);
     }
-    // Quan hệ với nhiều ảnh sản phẩm
-    public function images(): HasMany
+
+    // Helper: kiểm tra product có biến thể không
+    public function hasVariants(): bool
     {
-        return $this->hasMany(ProductImage::class);
+        return $this->variants()->exists();
     }
 }
