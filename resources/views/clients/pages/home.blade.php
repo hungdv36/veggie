@@ -67,8 +67,8 @@
                                     </div>
                                 </div>
                                 <!-- <div class="slide-item-img slide-img-left">
-                                                                                    <img src="img/slider/22.png" alt="#">
-                                                                                </div> -->
+                                                                                        <img src="img/slider/22.png" alt="#">
+                                                                                    </div> -->
                             </div>
                         </div>
                     </div>
@@ -265,21 +265,21 @@
                                                         <div class="product-hover-action">
                                                             <ul>
                                                                 <li>
-                                                                    <a href="#" title="Xem nhanh"
+                                                                    <a href="javascript:void(0)" title="Xem nhanh"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#quick_view_modal-{{ $product->id }}">
                                                                         <i class="far fa-eye"></i>
                                                                     </a>
                                                                 </li>
                                                                 <li>
-                                                                    <a href="#" title="Thêm vào giỏ hàng"
+                                                                    <a href="javascript:void(0)" title="Thêm vào giỏ hàng"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#add_to_cart_modal-{{ $product->id }}">
                                                                         <i class="fas fa-shopping-cart"></i>
                                                                     </a>
                                                                 </li>
                                                                 <li>
-                                                                    <a href="#" title="Yêu thích"
+                                                                    <a href="javascript:void(0)" title="Yêu thích"
                                                                         data-bs-toggle="modal"
                                                                         data-bs-target="#liton_wishlist_modal-{{ $product->id }}">
                                                                         <i class="far fa-heart"></i>
@@ -311,6 +311,9 @@
                                             </div>
                                         @endforeach
                                     </div>
+                                    @foreach ($category->products as $product)
+                                        @include('clients.components.includes.include-modals')
+                                    @endforeach
                                 </div>
                             </div>
                         @endforeach

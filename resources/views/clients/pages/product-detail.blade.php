@@ -129,7 +129,8 @@
                                                         id="variant-stock">{{ $product->stock ?? '--' }}</span></p>
                                             </li>
                                             <li>
-                                                <a href="#" class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
+                                                <a href="javascript:void(0)"
+                                                    class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
                                                     title="Thêm vào giỏ hàng" data-id="{{ $product->id }}">
                                                     <i class="fas fa-shopping-cart"></i>
                                                     <span>THÊM VÀO GIỎ HÀNG</span>
@@ -343,6 +344,9 @@
                     </div>
                 @endforeach
             </div>
+            @foreach ($relatedProducts as $product)
+                @include('clients.components.includes.include-modals')
+            @endforeach
         </div>
     </div>
     <!-- PRODUCT SLIDER AREA END -->
