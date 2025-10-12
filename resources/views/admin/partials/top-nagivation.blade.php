@@ -9,18 +9,19 @@
                     <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown"
                         data-toggle="dropdown" aria-expanded="false">
                         <img src="{{ asset('images/img.jpg') }}" alt="">
-                        {{ Auth::user()->name }}
+                        {{ Auth::guard('admin')->check() ? Auth::guard('admin')->user()->name : 'Guest' }}
                     </a>
-                      <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
-                          <a class="dropdown-item" href="{{ route('admin.logout') }}"
-                              onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                              <i class="fa fa-sign-out pull-right"></i> Log Out
-                          </a>
+                    <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ route('admin.logout') }}"
+                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            <i class="fa fa-sign-out pull-right"></i> Log Out
+                        </a>
 
-                          <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
-                              @csrf
-                          </form>
-                      </div>
+                        <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
+                            style="display: none;">
+                            @csrf
+                        </form>
+                    </div>
                 </li>
 
                 <li role="presentation" class="nav-item dropdown open">
