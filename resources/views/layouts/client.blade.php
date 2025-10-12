@@ -55,6 +55,7 @@
     <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
     <!-- Main JS -->
     <script src="{{ asset('assets/clients/js/main.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
 
 </body>
 

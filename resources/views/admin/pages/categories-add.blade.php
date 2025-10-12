@@ -1,85 +1,78 @@
 @extends('layouts.admin')
-@section('title', 'Quản lý người dùng')
+
+@section('title', 'Quản lý danh mục')
 
 @section('content')
-    <!-- page content -->
-    <div class="right_col" role="main">
-        <div class="">
-            <div class="page-title">
-                <div class="title_left">
-                    <h3>Tạo Danh Mục Sản Phẩm</h3>
-                </div>
-            </div>
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-            <div class="clearfix"></div>
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">{{ isset($category) ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới' }}</h4>
+                    </div>
+                    <div class="card-body">
+                        <form id="add-category"
+                            action="{{ isset($category) ? route('admin.categories.update', $category->id) : route('admin.categories.store') }}"
+                            method="POST" enctype="multipart/form-data">
+                            @csrf
+                            @if (isset($category))
+                                @method('PUT')
+                            @endif
 
-            <div class="row">
-                <div class="col-md-12 col-sm-12 ">
-                    <div class="x_panel">
-                        <div class="x_title">
-                            <h2>Thêm Danh Mục <small>different form elements</small></h2>
-                            <ul class="nav navbar-right panel_toolbox">
-                                <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a>
-                                </li>
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Tên danh mục <span
+                                        class="text-danger">*</span></label>
+                                <input type="text" name="name" id="name" class="form-control"
+                                    value="{{ old('name', $category->name ?? '') }}" required>
+                            </div>
 
-                                <li><a class="close-link"><i class="fa fa-close"></i></a>
-                                </li>
-                            </ul>
-                            <div class="clearfix"></div>
-                        </div>
-                        <div class="x_content">
-                            <br />
-                            <form action="{{ route('admin.categories.add') }}" id="add-category" method="post" class="form-horizontal form-label-left"
-                                enctype="multipart/form-data">
-                                @csrf
-                                <div class="item form-group">
-                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="category-name">Tên Danh
-                                        Mục
-                                        <span class="required">*</span>
-                                    </label>
-                                    <div class="col-md-6 col-sm-6 ">
-                                        <input type="text" id="category-name" name="name" required="required"
-                                            class="form-control ">
-                                    </div>
-                                </div>
-                                <div class="item form-group">
-                                    <label class="col-form-label col-md-3 col-sm-3 label-align"
-                                        for="category-description">Mô tả
-                                        <span class="required">*</span>
-                                    </label>
-                                    <div class="col-md-6 col-sm-6 ">
-                                        <input type="text" id="category-descripton" name="description"
-                                            required="required" class="form-control">
-                                    </div>
+                            <div class="mb-3">
+                                <label for="description" class="form-label">Mô tả</label>
+                                <textarea name="description" id="description" class="form-control" rows="4">{{ old('description', $category->description ?? '') }}</textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="image" class="form-label">Ảnh danh mục</label>
+                                <div class="custom-file-wrapper">
+                                    <label for="image" class="btn btn-primary">Chọn ảnh</label>
+                                    <input type="file" name="image" id="image" accept="image/*"
+                                        style="display:none;">
+                                    <img id="image-preview"
+                                        src="{{ isset($category) && $category->image ? asset($category->image) : '' }}"
+                                        alt="Ảnh xem trước"
+                                        style="height: 150px; margin-top: 10px; {{ isset($category) && $category->image ? '' : 'display:none;' }}">
                                 </div>
 
-                                <div class="item form-group">
-                                    <label class="col-form-label col-md-3 col-sm-3 label-align" for="category-image">Hình
-                                        ảnh</label>
-                                    <div class="col-md-6 col-sm-6 ">
-
-                                        <label class="custom-file-upload" for="category-image">
-                                            Chọn ảnh
-                                        </label>
-                                        <input type="file" name="image" id="category-image" accept="image/">
-                                        <img src="" alt="Ảnh xem trước" id="image-preview" class="image-preview">
-                                    </div>
-                                </div>
-
-                                <div class="ln_solid"></div>
-                                <div class="item form-group">
-                                    <div class="col-md-6 col-sm-6 offset-md-3">
-
-                                        <button class="btn btn-primary btn_reset" type="reset">Reset</button>
-                                        <button type="submit" class="btn btn-success">Thêm danh mục</button>
-                                    </div>
-                                </div>
-
-                            </form>
-                        </div>
+                            </div>
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Hủy</a>
+                                <button type="submit"
+                                    class="btn btn-success">{{ isset($category) ? 'Cập nhật' : 'Thêm mới' }}</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- /page content -->
-    @endsection
+    </div>
+
+    <script>
+        (() => {
+            'use strict'
+            const forms = document.querySelectorAll('.needs-validation')
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        })();
+    </script>
+@endsection

@@ -20,14 +20,63 @@
     <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
     <!-- Responsive css -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
+    <!-- ✅ Toastr CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/toastr.min.css') }}">
 
-    <!-- Toastr CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
     {{-- Import custom CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
-
+    <script src="{{ asset('assets/clients/js/jquery.min.js') }}"></script>
+    <!-- ✅ Toastr CSS -->
+    <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
 </head>
+<style>
+    .category-container {
+        display: flex;
+        flex-wrap: wrap;
+        /* cho phép xuống hàng nếu hết chỗ */
+        gap: 20px;
+        /* khoảng cách giữa các ô */
+        justify-content: flex-start;
+        /* canh trái, hoặc center */
+        height: auto;
+    }
+
+    .category-item {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        text-align: center;
+        width: 180px;
+        /* chiều ngang mỗi ô */
+        padding: 15px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s;
+    }
+
+    .category-item:hover {
+        transform: translateY(-5px);
+    }
+
+    .category-item-img img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+        margin-bottom: 10px;
+    }
+
+    .category-item-name h5 {
+        margin: 5px 0;
+        font-size: 16px;
+    }
+
+    .category-item-name h6 {
+        margin: 0;
+        font-size: 14px;
+        color: #555;
+    }
+</style>
 
 <body>
     <div class="body-wrapper">
@@ -39,47 +88,13 @@
     </div>
 
     <!-- preloader area start -->
-    <div class="preloader d-none" id="preloader">
-        <div class="preloader-inner">
-            <div class="spinner">
-                <div class="dot1"></div>
-                <div class="dot2"></div>
-            </div>
-        </div>
-    </div>
+    <script src="{{ asset('assets/clients/js/vendor/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
+
+    <!-- ✅ Script đổi mật khẩu -->
+    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
     <!-- preloader area end -->
 
-    <!-- Jquery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Toastr JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-    <!-- All JS Plugins -->
-    <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
-    <!-- Main JS -->
-    <script src="{{ asset('assets/clients/js/main.js') }}"></script>
-    <!-- Custom JS -->
-    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
-
-    {{-- Toastr Notifications --}}
-    <script>
-        @if (session('success'))
-            toastr.success("{{ session('success') }}", "Thành công");
-        @endif
-        @if (session('error'))
-            toastr.error("{{ session('error') }}", "Lỗi");
-        @endif
-        @if (session('warning'))
-            toastr.warning("{{ session('warning') }}", "Cảnh báo");
-        @endif
-        @if (session('info'))
-            toastr.info("{{ session('info') }}", "Thông tin");
-        @endif
-        @if ($errors->any())
-            @foreach ($errors->all() as $error)
-                toastr.error("{{ $error }}", "Lỗi");
-            @endforeach
-        @endif
-    </script>
 </body>
 
 </html>

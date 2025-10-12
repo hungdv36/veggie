@@ -3,49 +3,140 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
+use App\Models\Category;
+use Illuminate\Support\Facades\Storage;
 
 class CategoryController extends Controller
 {
-    public function ShowForm()
+    public function index()
     {
-        return view('admin.pages.categories-add');
+        $categories = Category::orderBy('id', 'desc')->paginate(10);
+        return view('admin.pages.categories', compact('categories'));
+    }
+    public function showFormAddCate()
+    {
+        $categories = Category::latest()->paginate(10);
+        return view('admin.pages.categories-add', compact('categories'));
+    }
+    public function addCategory(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name',
+            'description' => 'nullable|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ]);
+
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('assets/admin/img/category'), $fileName);
+            $imagePath = $fileName; // 👈 chỉ lưu tên file để hiển thị
+        }
+
+        Category::create([
+            'name' => $request->name,
+            'description' => $request->description,
+            'image' => $imagePath,
+        ]);
+
+        return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
+    }
+    public function updateCategory(Request $request)
+    {
+        try {
+            $category = Category::findOrFail($request->category_id);
+            if (!$category) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Danh mục không tồn tại'
+                ], 404);
+            }
+
+            $category->name = $request->name;
+            $category->description = $request->description;
+
+            if ($request->hasFile("image")) {
+                if ($category->image) {
+                    // Delete old image
+                    Storage::disk('public')->delete('category/' . $category->image);
+                }
+
+                $imagePath = $request->file('image');
+                $fileName = now()->timestamp . '_' . uniqid() . '.' . $imagePath->getClientOriginalExtension();
+                $imagePath->move(public_path('assets/admin/img/category'), $fileName);
+                $category->image = $fileName;
+            }
+            $category->save();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Cập nhật danh mục thành công',
+                'category' => $category
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Cập nhật danh mục thất bại'
+            ], 500);
+        }
+    }
+    public function deleteCategory(Request $request)
+    {
+        try {
+            $category = Category::findOrFail($request->category_id);
+
+            // Chỉ soft delete, không xóa file
+            $category->delete();
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Đã đưa danh mục vào thùng rác'
+            ]);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Xóa danh mục thất bại'
+            ], 500);
+        }
     }
 
-   public function addCategory(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string|max:255',
-        'description' => 'nullable|string',
-        'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-    ]);
-
-    $imagePath = null;
-
-    if ($request->hasFile('image')) {
-        $file = $request->file('image');
-        $fileName = now()->timestamp . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        $imagePath = $file->storeAs('upload/categories', $fileName, 'public');
+    public function trash()
+    {
+        $categories = Category::onlyTrashed()->orderBy('id', 'desc')->paginate(10);
+        return view('admin.pages.categories-trash', compact('categories'));
     }
 
-    Category::create([
-        'name' => $request->input('name'),
-        'description' => $request->input('description'),
-        'image' => $imagePath,
-    ]);
+    public function restoreCategory(Request $request)
+    {
+        try {
+            $category = Category::onlyTrashed()->findOrFail($request->category_id);
+            $category->restore();
 
-    return redirect()
-        ->route('admin.categories.add')
-        ->with('success', 'Danh mục đã được thêm thành công!');
-}
+            return response()->json(['status' => true, 'message' => 'Khôi phục danh mục thành công']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => 'Khôi phục thất bại'], 500);
+        }
+    }
 
-public function index()
-{
-    $categories = Category::all();
-    return view('admin.pages.categories', compact('categories'));
-}
+    public function forceDeleteCategory(Request $request)
+    {
+        try {
+            $category = Category::onlyTrashed()->findOrFail($request->category_id);
 
+            if ($category->image) {
+                $imagePath = public_path('assets/admin/img/category/' . $category->image);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath); // Xóa file thật sự
+                }
+            }
 
+            $category->forceDelete();
+
+            return response()->json(['status' => true, 'message' => 'Xóa vĩnh viễn thành công']);
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => 'Xóa vĩnh viễn thất bại'], 500);
+        }
+    }
 }

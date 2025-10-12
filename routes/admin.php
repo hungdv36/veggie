@@ -27,27 +27,43 @@
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UsersController;
-use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
-Route::prefix('admin')->group(function () {
-
-    // ====== Trang Dashboard ======
+Route::prefix('admin')->name('admin.')->group(function () {
+    // Dashboard
     Route::get('/dashboard', function () {
         return view('admin.pages.dashboard');
-    })->name('admin.dashboard');
+    })->name('dashboard');
 
-    // ====== Đăng nhập Admin ======
-    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/login', [AdminAuthController::class, 'login'])->name('admin.login.post');
+    // Login
+    Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminAuthController::class, 'login'])->name('login.post');
+    Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout'); // sửa ở đây
 
+    // Users
+    Route::middleware(['permission:manage_users'])->group(function () {
+        Route::get('/users', [UsersController::class, 'index'])->name('users.index');
+        Route::post('/user/upgrade', [UsersController::class, 'upgrade'])->name('user.upgrade');
+        Route::post('/user/updateStatus', [UsersController::class, 'updateStatus'])->name('user.updateStatus');
+        Route::post('/user/toggleDelete', [UsersController::class, 'toggleDelete'])->name('user.toggleDelete');
+    });
 
-    Route::get('/users', [UsersController::class, 'index'])->name('admin.users.index');
-    Route::post('/user/upgrade', [UsersController::class, 'upgrade'])->name('admin.user.upgrade');
-    Route::post('/user/updateStatus', [UsersController::class, 'updateStatus'])->name('admin.user.updateStatus');
-    Route::post('/user/toggleDelete', [UsersController::class, 'toggleDelete'])->name('admin.user.toggleDelete');
-
-    Route::get('/categories/add', [CategoryController::class, 'ShowForm'])->name('admin.categories.add');
-    Route::post('/categories/add', [CategoryController::class, 'addCategory'])->name('admin.categories.add');
-     Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
-   
+    Route::middleware(['permission:manage_categories'])->group(function () {
+        Route::get('/categories', [CategoryController::class, 'index'])
+            ->name('categories.index');
+        Route::get('/categories/add', [CategoryController::class, 'showFormAddCate'])
+            ->name('categories.add');
+        Route::post('/categories/add', [CategoryController::class, 'addCategory'])
+            ->name('categories.store');
+        Route::post('/categories/update', [CategoryController::class, 'updateCategory'])
+            ->name('categories.update');
+        Route::post('/categories/delete', [CategoryController::class, 'deleteCategory'])
+            ->name('categories.delete');
+        Route::get('/categories/trash', [CategoryController::class, 'trash'])
+            ->name('categories.trash');
+        Route::post('/categories/restore', [CategoryController::class, 'restoreCategory'])
+            ->name('categories.restore');
+        Route::post('/categories/force-delete', [CategoryController::class, 'forceDeleteCategory'])
+            ->name('categories.forceDelete');
+    });
 });
