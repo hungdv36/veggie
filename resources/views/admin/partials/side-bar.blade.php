@@ -13,7 +13,7 @@
              </div>
              <div class="profile_info">
                  <span>Welcome,</span>
-                 <h2>{{ Auth::user()->name }}</h2>
+                 <h2>{{ Auth::guard('admin')->user()->name ?? 'Guest' }}</h2>
              </div>
          </div>
          <!-- /menu profile quick info -->
@@ -33,7 +33,7 @@
                          </a>
                      </li>
                      <li>
-                         <a >
+                         <a>
                              <i class="fa fa-list"></i> Quản lý danh mục
                              <span class="fa fa-chevron-down"></span>
                          </a>
@@ -50,7 +50,7 @@
                          </a>
                          <ul class="nav child_menu">
                              <li><a href="#">Thêm sản phẩm</a></li>
-                             <li><a href="#">Danh sách sản phẩm</a></li>
+                             <li><a href="{{ route('admin.products.index') }}">Danh sách sản phẩm</a></li>
                              <li><a href="#">Thùng rác</a></li>
                          </ul>
                      </li>

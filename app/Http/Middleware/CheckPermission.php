@@ -16,7 +16,7 @@ class CheckPermission
      */
     public function handle(Request $request, Closure $next, $permission)
     {
-        $user = Auth::user();
+        $user = Auth::guard('admin')->user();
 
         if (!$user || !$user->role || !$user->role->permissions->pluck('name')->contains($permission)) {
             abort(403, 'Bạn không có quyền truy cập');
