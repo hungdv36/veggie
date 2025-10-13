@@ -50,7 +50,7 @@
                          </a>
                          <ul class="nav child_menu">
                              <li><a href="#">Thêm sản phẩm</a></li>
-                             <li><a href="{{ route('admin.products.index') }}">Danh sách sản phẩm</a></li>
+                             <li><a href="#">Danh sách sản phẩm</a></li>
                              <li><a href="#">Thùng rác</a></li>
                          </ul>
                      </li>

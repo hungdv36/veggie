@@ -4,7 +4,7 @@
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\UsersController;
-use App\Http\Controllers\Admin\ProductController;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -44,9 +44,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('categories.restore');
         Route::post('/categories/force-delete', [CategoryController::class, 'forceDeleteCategory'])
             ->name('categories.forceDelete');
-    });
-    Route::middleware(['permission:manage_products'])->group(function () {
-        Route::get('/products', [ProductController::class, 'index'])
-            ->name('products.index');
     });
 });
