@@ -54,6 +54,17 @@
                              <li><a href="#">Thùng rác</a></li>
                          </ul>
                      </li>
+                     <li>
+                         <a>
+                             <i class="fa fa-cubes"></i> Quản lý biến thể
+                             <span class="fa fa-chevron-down"></span>
+                         </a>
+                         <ul class="nav child_menu">
+                             <li><a href="{{ route('admin.variants.add') }}">Thêm biến thể</a></li>
+                             <li><a href="{{ route('admin.variants.index') }}">Danh sách biến thể</a></li>
+                             <li><a href="#">Thùng rác</a></li>
+                         </ul>
+                     </li>
 
                  </ul>
              </div>

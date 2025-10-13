@@ -107,7 +107,7 @@
         });
     </script>
     <style>
-        <style>.file-input {
+        .file-input {
             display: none;
             /* Ẩn input gốc */
         }
@@ -126,7 +126,27 @@
             font-style: italic;
             color: #555;
         }
-    </style>
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            /* div bọc nội dung page */
+            flex: 1 0 auto;
+            /* chiếm không gian còn lại */
+        }
+
+        footer {
+            flex-shrink: 0;
+            /* luôn nằm dưới */
+        }
     </style>
 
 </body>

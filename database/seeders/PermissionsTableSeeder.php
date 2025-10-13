@@ -19,11 +19,11 @@ class PermissionsTableSeeder extends Seeder
             'manage_orders',
             'manage_categories',
             'manage_contacts',
+            'manage_variants',
         ];
 
-        foreach($permissions as $permission)
-        {
-            Permission::create(attributes: ['name' => $permission]);
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission]);
         }
     }
 }
