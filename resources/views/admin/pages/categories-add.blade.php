@@ -41,12 +41,12 @@
                                     <label for="image" class="btn btn-primary">Chọn ảnh</label>
                                     <input type="file" name="image" id="image" accept="image/*"
                                         style="display:none;">
+
                                     <img id="image-preview"
                                         src="{{ isset($category) && $category->image ? asset($category->image) : '' }}"
                                         alt="Ảnh xem trước"
                                         style="height: 150px; margin-top: 10px; {{ isset($category) && $category->image ? '' : 'display:none;' }}">
                                 </div>
-
                             </div>
                             <div class="d-flex justify-content-end gap-2">
                                 <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">Hủy</a>
@@ -61,18 +61,23 @@
     </div>
 
     <script>
-        (() => {
-            'use strict'
-            const forms = document.querySelectorAll('.needs-validation')
-            Array.from(forms).forEach(form => {
-                form.addEventListener('submit', event => {
-                    if (!form.checkValidity()) {
-                        event.preventDefault()
-                        event.stopPropagation()
-                    }
-                    form.classList.add('was-validated')
-                }, false)
-            })
-        })();
+        $(document).ready(function() {
+            $('#image').change(function() {
+                let file = this.files[0];
+                let preview = $('#image-preview');
+
+                if (file) {
+                    let reader = new FileReader();
+                    reader.onload = function(e) {
+                        preview.attr('src', e.target.result);
+                        preview.show(); // Hiển thị ảnh
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.attr('src', '');
+                    preview.hide(); // Ẩn ảnh nếu không chọn file
+                }
+            });
+        });
     </script>
 @endsection

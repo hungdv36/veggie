@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+//use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Variant extends Model
 {
     use HasFactory;
+   // use SoftDeletes;
 
     /**
      * Table (mặc định là 'variants' nên khai báo tùy chọn).
@@ -24,7 +26,6 @@ class Variant extends Model
      */
     protected $fillable = [
         'product_id',
-        'sku',
         'color',
         'size',
         'price',

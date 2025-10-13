@@ -77,7 +77,7 @@
                                     </div>
                                 </div>
 
-                                
+
                                 <div class="item form-group">
                                     <label class="col-form-label col-md-3 col-sm-3 label-align" for="product-unit">
                                         Đơn vị <span class="required">*</span>
@@ -108,10 +108,52 @@
                                         <label class="custom-file-upload" for="product-images">
                                             Chọn ảnh
                                         </label>
-                                        <input type="file" name="images[]" id="product-images" accept="image/" multiple required>
+                                        <input type="file" name="images[]" id="product-images" accept="image/" multiple
+                                            required>
                                         <div id="image-preview-container"></div>
                                     </div>
                                 </div>
+
+                                {{-- ========== PHẦN BIẾN THỂ ========== --}}
+                                {{-- <div class="item form-group">
+                                    <label class="col-form-label col-md-3 col-sm-3 label-align">Biến thể sản phẩm</label>
+                                    <div class="col-md-6 col-sm-6">
+
+                                        <table class="table table-bordered" id="variants-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Màu sắc</th>
+                                                    <th>Kích thước</th>
+                                                    <th>Giá</th>
+                                                    <th>Tồn kho</th>
+                                                    <th>Ảnh</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><input type="text" name="variants[0][color]"
+                                                            class="form-control" placeholder="VD: Đỏ"></td>
+                                                    <td><input type="text" name="variants[0][size]"
+                                                            class="form-control" placeholder="VD: M, L, XL"></td>
+                                                    <td><input type="number" name="variants[0][price]"
+                                                            class="form-control" placeholder="Giá"></td>
+                                                    <td><input type="number" name="variants[0][stock]"
+                                                            class="form-control" placeholder="Tồn kho"></td>
+                                                    <td><input type="file" name="variants[0][image]" accept="image/*"
+                                                            class="form-control"></td>
+                                                    <td><button type="button"
+                                                            class="btn btn-danger btn-sm remove-variant"><i
+                                                                class="fa fa-trash"></i></button></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+
+                                        <button type="button" class="btn btn-info" id="add-variant-btn"><i
+                                                class="fa fa-plus"></i> Thêm biến thể</button>
+                                    </div>
+                                </div> --}}
+                                {{-- ========== HẾT PHẦN BIẾN THỂ ========== --}}
 
                                 <div class="ln_solid"></div>
                                 <div class="item form-group">
