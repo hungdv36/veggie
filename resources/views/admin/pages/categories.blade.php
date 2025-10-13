@@ -7,7 +7,7 @@
         <div class="page-title mb-4">
             <div class="title_left">
                 <h3>Quản lý danh mục</h3>
-                <a href="{{ route('admin.categories.trash') }}" class="btn btn-outline-danger me-2">
+                {{-- <a href="{{ route('admin.categories.trash') }}" class="btn btn-outline-danger me-2"> --}}
                     <i class="fa fa-trash"></i> Thùng rác
                 </a>
                 </a>

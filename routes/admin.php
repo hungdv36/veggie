@@ -24,8 +24,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AdminAuthController::class, 'logout'])->name('logout');
 
     // Category
-    Route::get('/categories/add', [CategoryController::class, 'ShowForm'])->name('categories.add');
-    Route::post('/categories/add', [CategoryController::class, 'addCategory'])->name('categories.add');
+    Route::get('/categories/add', [CategoryController::class, 'showFormAddCate'])->name('categories.add');
+    Route::post('/categories/add', [CategoryController::class, 'showFormAddCate'])->name('categories.store');
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
 
     // Product
