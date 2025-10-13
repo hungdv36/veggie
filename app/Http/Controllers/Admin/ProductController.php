@@ -67,11 +67,10 @@ class ProductController extends Controller
     }
 
     public function index()
-{
-    // Lấy danh sách sản phẩm kèm category và ảnh
-    $products = Product::with(['category', 'images'])->get();
+    {
+        // Lấy danh sách sản phẩm kèm category và ảnh
+        $products = Product::with(['category', 'images'])->get();
 
-    return view('admin.pages.products', compact('products'));
-}
-
+        return view('admin.pages.products', compact('products'));
+    }
 }
