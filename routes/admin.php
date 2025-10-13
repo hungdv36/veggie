@@ -26,6 +26,7 @@
 
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\UsersController;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,11 @@ Route::prefix('admin')->group(function () {
 
     Route::get('/categories/add', [CategoryController::class, 'ShowForm'])->name('admin.categories.add');
     Route::post('/categories/add', [CategoryController::class, 'addCategory'])->name('admin.categories.add');
-     Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
-   
+    Route::get('/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
+
+      Route::get('/product/add', [ProductController::class, 'ShowFormAddProduct'])->name('admin.product.add');
+    Route::post('/product/add', [ProductController::class, 'addProduct'])->name('admin.product.add');
+    Route::get('/products', [ProductController::class, 'index'])->name('admin.categories.index');
+
+
 });

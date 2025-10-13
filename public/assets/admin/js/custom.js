@@ -117,16 +117,53 @@ $(document).ready(function () {
         });
     });
     $('#category-image').change(function () {
-    let file = this.files[0];
-    if (file) {
-        let reader = new FileReader();
-        reader.onload = function (e) {
-            $('#image-preview').attr('src', e.target.result);
-        };
-        reader.readAsDataURL(file);
-    } else {
-        $('#image-preview').attr('src', '');
-    }
-});
+        let file = this.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $('#image-preview').attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#image-preview').attr('src', '');
+        }
+    });
+
+
+    $("#product-images").change(function (e) {
+        let files = e.target.files;
+        console.log(files);
+
+        let previewContainer = $("#image-preview-container");
+        previewContainer.empty(); // Xóa ảnh cũ trước khi hiển thị ảnh mới
+
+        if (files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+                if (file) {
+                    let reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        let img = $("<img>")
+                            .attr("src", e.target.result)
+                            .addClass("image-preview")
+                            .css({
+                                "max-width": "150px",
+                                "max-height": "150px",
+                                "margin": "5px",
+                                "border-radius": "5px"
+                            });
+
+                        previewContainer.append(img);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            }
+        } else {
+            previewContainer.html("");
+        }
+    });
+
 
 });
