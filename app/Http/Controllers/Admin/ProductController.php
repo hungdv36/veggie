@@ -62,7 +62,7 @@ class ProductController extends Controller
 
 
         return redirect()
-            ->route('admin.product.add')
+            ->route('admin.product.index')
             ->with('success', 'Thêm sản phẩm thành công.');
     }
 
