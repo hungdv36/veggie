@@ -14,7 +14,7 @@
     background-color: blueviolet;
 }
 
-#category-image {
+#category-image, #product-images {
     display: none;
 }
 
