@@ -1,15 +1,15 @@
 <?php
 
+use App\Http\Controllers\Clients\CartController;
 use App\Http\Controllers\Clients\AccountController;
 use App\Http\Controllers\Clients\AuthController;
 use App\Http\Controllers\Clients\ForgotPasswordController;
+use App\Http\Controllers\Clients\HomeController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Clients\ProductController;
 
-
-Route::get('/', function () {
-    return view('clients.pages.home');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
     return view('clients.pages.about');
 });
@@ -36,13 +36,41 @@ Route::middleware('guest')->group(function () {
     Route::post('/reset-password', [ResetPasswordController::class, 'resetPassword'])->name('password.update');
 });
 
-Route::get('/activate/{token}', [AuthController::class,'activate'])->name('activate');
+Route::get('/activate/{token}', [AuthController::class, 'activate'])->name('activate');
 
 Route::middleware(['auth.custom'])->group(function () {
+    // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-    Route::prefix('account')->group(function(){
+
+    // Account
+    Route::prefix('account')->group(function () {
+        // Trang chính account
         Route::get('/', [AccountController::class, 'index'])->name('account');
+
+        // Đổi mật khẩu
+        Route::post('/change-password', [AccountController::class, 'changePassword'])
+            ->name('account.change-password');
+
+        // Thêm địa chỉ
+        Route::post('/addresses', [AccountController::class, 'addAddress'])
+            ->name('account.addresses.add');
+
+        // Cập nhật địa chỉ mặc định
+        Route::put('/addresses/{id}/default', [AccountController::class, 'updatePrimaryAddress'])
+            ->name('account.addresses.update');
+
+        // Xóa địa chỉ
+        Route::delete('/addresses/{id}', [AccountController::class, 'deleteAddress'])
+            ->name('account.addresses.delete');
     });
 });
 
-require __DIR__.'/admin.php';
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/filter', [ProductController::class, 'filter'])->name('products.filter');
+
+// Detail
+Route::get('/products/{slug}', [ProductController::class, 'detail'])->name('products.detail');
+
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+
+require __DIR__ . '/admin.php';

@@ -11,7 +11,7 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-
+    use Notifiable;
     use HasFactory, Notifiable;
 
     public $timestamps = true;
@@ -83,5 +83,15 @@ class User extends Authenticatable
     public function isDeleted(): bool
     {
         return $this->status === 'deleted';
+    }
+    public function hasRole($roleName): bool
+    {
+        // Kiểm tra xem user có role liên kết với tên role
+        return optional($this->role)->name === $roleName;
+    }
+    public function hasAnyPermission(array $permissions)
+    {
+        $userPermissions = $this->permissions ?? []; // cột permissions kiểu JSON
+        return count(array_intersect($permissions, $userPermissions)) > 0;
     }
 }

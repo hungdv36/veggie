@@ -9,8 +9,8 @@
                         <ul>
                             <li><a href="locations.html"><i class="icon-placeholder"></i> Ngu Hanh Son, Da
                                     Nang</a></li>
-                            <li><a href="mailto:minhdien.dev@gmail.com?Subject=Contact%20with%20to%20you"><i
-                                        class="icon-mail"></i> minhdien.dev@gmail.com</a></li>
+                            <li><a href="mailto:clothstore.dev@gmail.com?Subject=Contact%20with%20to%20you"><i
+                                        class="icon-mail"></i> clothstore.dev@gmail.com</a></li>
                         </ul>
                     </div>
                 </div>
@@ -50,7 +50,7 @@
                 <div class="col">
                     <div class="site-logo-wrap">
                         <div class="site-logo">
-                            <a href="index.html"><img src="img/logo-2.png" alt="Logo"></a>
+                            <a href="\"><img src="img/logo-2.png" alt="Logo"></a>
                         </div>
                     </div>
                 </div>
@@ -59,7 +59,7 @@
                         <nav>
                             <div class="ltn__main-menu">
                                 <ul>
-                                    <li class="menu-icon"><a href="index.html">Trang chủ</a> </li>
+                                    <li class="menu-icon"><a href="\">Trang chủ</a> </li>
                                     <li class="menu-icon"><a href="#">Về chúng tôi</a>
                                         <ul>
                                             <li><a href="about.html">Về chúng tôi</a></li>
@@ -101,9 +101,6 @@
                             <li>
                                 <a href="#">
                                     <i class="icon-user"></i>
-                                    @auth
-                                        {{ Auth::user()->name }}
-                                    @endauth
                                 </a>
 
                                 <ul>
@@ -136,7 +133,6 @@
                     <div class="mini-cart-icon">
                         <a href="#ltn__utilize-cart-menu" class="ltn__utilize-toggle">
                             <i class="icon-shopping-cart"></i>
-                            <sup>2</sup>
                         </a>
                     </div>
                     <!-- mini-cart -->
