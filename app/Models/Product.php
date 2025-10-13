@@ -16,7 +16,6 @@ class Product extends Model
 
     protected $fillable = [
         'name',
-        'image',
         'slug',
         'category_id',
         'description',
@@ -66,18 +65,5 @@ class Product extends Model
     public function hasVariants(): bool
     {
         return $this->variants()->exists();
-    }
-    public function getImageUrlAttribute()
-    {
-        $image = $this->images()->first(); // Lấy ảnh đầu tiên trong quan hệ images
-        if ($image) {
-            // Nếu là URL đầy đủ thì dùng trực tiếp, nếu là tên file local thì dùng asset
-            return Str::startsWith($image->url, ['http://', 'https://'])
-                ? $image->url
-                : asset('assets/admin/img/product/' . $image->url);
-        }
-
-        // fallback ảnh mặc định
-        return asset('assets/admin/img/product/default.png');
     }
 }
