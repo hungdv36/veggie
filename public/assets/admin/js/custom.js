@@ -457,4 +457,116 @@ $(document).ready(function () {
             }
         );
     });
+
+    $('.product-images').change(function (e) {
+        let files = e.target.files;
+        let productId = $(this).data("id");
+        let previewContainer = $("#image-preview-container-" + productId);
+        previewContainer.empty();
+
+        if (files.length > 0) {
+            for (let i = 0; i < files.length; i++) {
+                let file = files[i];
+
+                if (file) {
+                    let reader = new FileReader();
+
+                    reader.onload = function (e) {
+                        let img = $("<img>")
+                            .attr("src", e.target.result)
+                            .addClass("image-preview");
+
+                        img.css({
+                            "max-width": "150px",
+                            "max-height": "150px",
+                            "margin": "5px",
+                            "border-radius": "5px"
+                        });
+
+                        previewContainer.append(img);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            }
+        } else {
+            previewContainer.html("");
+        }
+    });
+
+    // ==================== XỬ LÝ CẬP NHẬT SẢN PHẨM ====================
+    $(document).on("click", ".btn-update-submit-product", function (e) {
+    e.preventDefault();
+
+    let button = $(this);
+    let productId = button.data("id");
+    let form = button.closest(".modal").find("form");
+    let formData = new FormData(form[0]);
+
+    formData.append("product_id", productId);
+
+    $.ajaxSetup({
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+    });
+
+    $.ajax({
+        url: "/admin/product/update",
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        beforeSend: function () {
+            button.prop("disabled", true);
+            button.text("Đang cập nhật...");
+        },
+        success: function (response) {
+            if (response.status) {
+                toastr.success(response.message);
+                let product = response.data;
+                let productId = product.id;
+                let imageSrc = product.image ? product.image : "storage/products/default-product.png";
+
+                let newRow = `
+<tr id="product-row-${productId}">
+    <td><img src="${imageSrc}" alt="${product.name}" class="image-product" width="80"></td>
+    <td>${product.name}</td>
+    <td>${product.category.name}</td>
+    <td>${product.slug}</td>
+    <td>${product.description}</td>
+    <td>${product.stock}</td>
+    <td>${number_format(product.price, 0, '.', '.')} VND</td>
+    <td>${product.unit}</td>
+    <td>${product.status}</td>
+    <td>
+        <a class="btn btn-app btn-update-product" data-toggle="modal" 
+           data-target="#modalUpdate-${productId}">
+            <i class="fa fa-edit"></i> Chỉnh sửa
+        </a>
+    </td>
+    <td>
+        <a class="btn btn-app btn-delete-product" data-id="${productId}">
+            <i class="fa fa-trash"></i> Xóa
+        </a>
+    </td>
+</tr>
+`;
+
+                $("#product-row-" + productId).replaceWith(newRow);
+                $("#modalUpdate-" + productId).modal("hide");
+            } else {
+                toastr.error(response.message);
+            }
+        },
+        error: function (xhr, status, error) {
+            alert("Lỗi: " + error);
+        },
+        complete: function () {
+            button.prop("disabled", false);
+            button.text("Chỉnh sửa");
+        },
+    });
+});
+
 });
