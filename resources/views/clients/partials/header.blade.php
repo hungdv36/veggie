@@ -7,8 +7,7 @@
                 <div class="col-md-7">
                     <div class="ltn__top-bar-menu">
                         <ul>
-                            <li><a href="locations.html"><i class="icon-placeholder"></i> Ngu Hanh Son, Da
-                                    Nang</a></li>
+                            <li><a href="locations.html"><i class="icon-placeholder"></i>Trịnh Văn Bô, Hà Nội</a></li>
                             <li><a href="mailto:clothstore.dev@gmail.com?Subject=Contact%20with%20to%20you"><i
                                         class="icon-mail"></i> clothstore.dev@gmail.com</a></li>
                         </ul>
