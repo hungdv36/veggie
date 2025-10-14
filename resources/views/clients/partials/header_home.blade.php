@@ -7,8 +7,7 @@
                 <div class="col-md-7">
                     <div class="ltn__top-bar-menu">
                         <ul>
-                            <li><a href="locations.html"><i class="icon-placeholder"></i> Ngu Hanh Son, Da
-                                    Nang</a></li>
+                            <li><a href="locations.html"><i class="icon-placeholder"></i>Trịnh Văn Bô, Hà Nội</a></li>
                             <li><a href="mailto:clothstore.dev@gmail.com?Subject=Contact%20with%20to%20you"><i
                                         class="icon-mail"></i> clothstore.dev@gmail.com</a></li>
                         </ul>
@@ -49,9 +48,13 @@
         <div class="container">
             <div class="row">
                 <div class="col">
-                    <div class="site-logo-wrap">
-                        <div class="site-logo">
-                            <a href="\"><img src="img/logo.png" alt="Logo"></a>
+                    <div class="site-logo-wrap"
+                        style="height: 80px; overflow: hidden; display: flex; align-items: center;">
+                        <div class="site-logo" style="line-height: 0;">
+                            <a href="/">
+                                <img src="{{ asset('assets/clients/img/logo1.png') }}" alt="Logo"
+                                    style="width: 200px; height: 120px; object-fit: contain;">
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -60,14 +63,16 @@
                         <nav>
                             <div class="ltn__main-menu">
                                 <ul>
-                                    <li class="menu-icon"><a href="\">Trang chủ</a> </li>
-                                    <li class="menu-icon"><a href="#">Về chúng tôi</a>
-                                        <ul>
-                                            <li><a href="#">Về chúng tôi</a></li>
-                                            <li><a href="#">Dịch vụ</a></li>
-                                            <li><a href="#">Team</a></li>
-                                            <li><a href="#">FAQ</a></li>
-                                        </ul>
+                                    <li class="menu-icon"><a
+                                            href="\">Trang chủ</a> </li>
+                                    <li class="menu-icon"><a
+                                                href="#">Về chúng tôi</a>
+                                            <ul>
+                                                <li><a href="#">Về chúng tôi</a></li>
+                                                <li><a href="#">Dịch vụ</a></li>
+                                                <li><a href="#">Team</a></li>
+                                                <li><a href="#">FAQ</a></li>
+                                            </ul>
                                     </li>
                                     <li class="menu-icon"><a href="{{ route('products.index') }}">Cửa hàng</a>
                                     </li>
