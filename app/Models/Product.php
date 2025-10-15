@@ -17,12 +17,14 @@ class Product extends Model
     protected $fillable = [
         'name',
         'slug',
+        'image',
+        'brand',
         'category_id',
         'description',
         'price',
         'stock',
-        'status',
-        'unit',
+        'status'
+
     ];
 
     protected $casts = [
@@ -55,15 +57,17 @@ class Product extends Model
         return $this->hasMany(ProductImage::class);
     }
 
-    // Quan hệ với biến thể
-    public function variants(): HasMany
-    {
-        return $this->hasMany(Variant::class);
-    }
-
     // Helper: kiểm tra product có biến thể không
     public function hasVariants(): bool
     {
         return $this->variants()->exists();
+    }
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
+    public function variants()
+    {
+        return $this->hasMany(ProductVariant::class);
     }
 }

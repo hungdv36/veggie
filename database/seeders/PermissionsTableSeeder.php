@@ -19,7 +19,9 @@ class PermissionsTableSeeder extends Seeder
             'manage_orders',
             'manage_categories',
             'manage_contacts',
-            'manage_variants',
+            'manage_colors',
+            'manage_sizes',
+            'manage_product_variations',
         ];
 
         foreach ($permissions as $permission) {

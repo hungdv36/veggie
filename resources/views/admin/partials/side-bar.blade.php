@@ -40,7 +40,7 @@
                          <ul class="nav child_menu">
                              <li><a href="{{ route('admin.categories.add') }}">Thêm danh mục</a></li>
                              <li><a href="{{ route('admin.categories.index') }}">Danh sách danh mục</a></li>
-                             <li><a href="#">Thùng rác</a></li>
+                             <li><a href="{{ route('admin.categories.trash') }}">Thùng rác</a></li>
                          </ul>
                      </li>
                      <li>
@@ -49,7 +49,7 @@
                              <span class="fa fa-chevron-down"></span>
                          </a>
                          <ul class="nav child_menu">
-                             <li><a href="{{ route('admin.product.add') }}">Thêm sản phẩm</a></li>
+                             <li><a href="{{ route('admin.products.add') }}">Thêm sản phẩm</a></li>
 
                              <li><a href="{{ route('admin.products.index') }}">Danh sách sản phẩm</a></li>
 
@@ -58,13 +58,23 @@
                      </li>
                      <li>
                          <a>
-                             <i class="fa fa-cubes"></i> Quản lý biến thể
+                             <i class="fa fa-arrows-v"></i> Quản lý kích thước
                              <span class="fa fa-chevron-down"></span>
                          </a>
                          <ul class="nav child_menu">
-                             <li><a href="{{ route('admin.variants.add') }}">Thêm biến thể</a></li>
-                             <li><a href="{{ route('admin.variants.index') }}">Danh sách biến thể</a></li>
-                             <li><a href="#">Thùng rác</a></li>
+                             <li><a href="{{ route('admin.sizes.add') }}">Thêm kích thước</a></li>
+                             <li><a href="{{ route('admin.sizes.index') }}">Danh sách kích thước</a></li>
+                         </ul>
+                     </li>
+
+                     <li>
+                         <a>
+                             <i class="fa fa-paint-brush"></i> Quản lý màu sắc
+                             <span class="fa fa-chevron-down"></span>
+                         </a>
+                         <ul class="nav child_menu">
+                             <li><a href="{{ route('admin.colors.add') }}">Thêm màu sắc</a></li>
+                             <li><a href="{{ route('admin.color.index') }}">Danh sách màu sắc</a></li>
                          </ul>
                      </li>
 

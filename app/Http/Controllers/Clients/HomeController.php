@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 use function Laravel\Prompts\select;
 
@@ -13,6 +14,9 @@ class HomeController extends Controller
 {
     public function index()
     {
+        DB::listen(function ($query) {
+            Log::info('🔥 SQL: ' . $query->sql);
+        });
         $categories = Category::with('products.firstImage')->get();
 
         foreach ($categories as $category) {
