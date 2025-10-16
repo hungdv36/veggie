@@ -12,12 +12,12 @@ class CategoryController extends Controller
     public function index()
     {
         $categories = Category::orderBy('id', 'desc')->paginate(10);
-        return view('admin.pages.categories', compact('categories'));
+        return view('admin.pages.category.categories', compact('categories'));
     }
     public function showFormAddCate()
     {
         $categories = Category::latest()->paginate(10);
-        return view('admin.pages.categories-add', compact('categories'));
+        return view('admin.pages.category.categories-add', compact('categories'));
     }
     public function addCategory(Request $request)
     {
@@ -41,7 +41,7 @@ class CategoryController extends Controller
             'image' => $imagePath,
         ]);
 
-        return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
+        return redirect()->route('admin.category.categories.index')->with('success', 'Thêm danh mục thành công!');
     }
     public function updateCategory(Request $request)
     {
@@ -87,17 +87,25 @@ class CategoryController extends Controller
         try {
             $category = Category::findOrFail($request->category_id);
 
-            // Chỉ soft delete, không xóa file
+            // Kiểm tra danh mục có sản phẩm nào không
+            if ($category->products()->exists()) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Không thể xóa danh mục vì có sản phẩm thuộc danh mục này'
+                ], 400);
+            }
+
+            // Soft delete
             $category->delete();
 
             return response()->json([
                 'status' => true,
-                'message' => 'Đã đưa danh mục vào thùng rác'
+                'message' => 'Xóa danh mục thành công'
             ]);
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => false,
-                'message' => 'Xóa danh mục thất bại'
+                'message' => 'Xóa danh mục thất bại: ' . $th->getMessage()
             ], 500);
         }
     }
@@ -105,7 +113,7 @@ class CategoryController extends Controller
     public function trash()
     {
         $categories = Category::onlyTrashed()->orderBy('id', 'desc')->paginate(10);
-        return view('admin.pages.categories-trash', compact('categories'));
+        return view('admin.pages.category.categories-trash', compact('categories'));
     }
 
     public function restoreCategory(Request $request)

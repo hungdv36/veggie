@@ -297,246 +297,53 @@ $(document).ready(function () {
         });
     });
 
-    $("#product-images").change(function (e) {
-        let files = e.target.files;
-        console.log(files);
-
-        let previewContainer = $("#image-preview-container");
-        previewContainer.empty(); // Xóa ảnh cũ trước khi hiển thị ảnh mới
-
-        if (files.length > 0) {
-            for (let i = 0; i < files.length; i++) {
-                let file = files[i];
-                if (file) {
-                    let reader = new FileReader();
-
-                    reader.onload = function (e) {
-                        let img = $("<img>")
-                            .attr("src", e.target.result)
-                            .addClass("image-preview")
-                            .css({
-                                "max-width": "150px",
-                                "max-height": "150px",
-                                margin: "5px",
-                                "border-radius": "5px",
-                            });
-
-                        previewContainer.append(img);
-                    };
-
-                    reader.readAsDataURL(file);
-                }
-            }
-        } else {
-            previewContainer.html("");
-        }
-    });
-    // UPDATE VARIANT
-    $(document).on("click", ".btn-update-variant", function (e) {
-        e.preventDefault();
-        let button = $(this);
-        let variantId = button.data("id");
-        let form = button.closest(".modal").find("form");
-
-        if (!form.length) return;
-
-        let formData = new FormData(form[0]);
-        formData.append("variant_id", variantId);
-
-        $.ajaxSetup({
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-            },
-        });
-
-        button.prop("disabled", true).text("Đang cập nhật...");
-
-        $.ajax({
-            url: form.attr("action") || "/admin/variants/update", // fallback nếu Blade chưa render
-            type: "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
-            success: function (response) {
-                console.log(response); // debug xem JSON trả về
-                if (response.status) {
-                    toastr.success(response.message, "", {
-                        timeOut: 5000,
-                        extendedTimeOut: 1000,
-                    });
-                    $("#modalUpdate-" + variantId).modal("hide");
-                    location.reload();
-                } else {
-                    toastr.error(response.message || "Cập nhật thất bại");
-                }
-            },
-            error: function (xhr) {
-                toastr.error("Có lỗi xảy ra, vui lòng thử lại");
-            },
-            complete: function () {
-                button.prop("disabled", false).text("Cập nhật");
-            },
-        });
-    });
-
-    // DELETE VARIANT
-    // Xóa mềm
-    $(document).on("click", ".btn-delete-variant", function (e) {
-        e.preventDefault();
-        if (!confirm("Bạn có chắc muốn xóa biến thể này?")) return;
-
-        let variantId = $(this).data("id");
-
-        $.ajaxSetup({
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-            },
-        });
-
-        $.post(
-            "/admin/variants/delete",
-            { variant_id: variantId },
-            function (response) {
-                if (response.status) {
-                    toastr.success(response.message);
-                    $("#variant-row-" + variantId).fadeOut();
-                } else {
-                    toastr.error(response.message);
-                }
-            }
-        );
-    });
-    // Khôi phục
-    $(document).on("click", ".btn-restore-variant", function (e) {
-        e.preventDefault();
-        let variantId = $(this).data("id");
-
-        $.ajaxSetup({
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-            },
-        });
-
-        $.post(
-            "/admin/variants/restore",
-            { variant_id: variantId },
-            function (response) {
-                if (response.status) {
-                    toastr.success(response.message);
-                    location.reload();
-                } else {
-                    toastr.error(response.message);
-                }
-            }
-        );
-    });
-
-    // Xóa vĩnh viễn
-    $(document).on("click", ".btn-force-delete-variant", function (e) {
-        e.preventDefault();
-        if (!confirm("Bạn có chắc muốn xóa vĩnh viễn biến thể này?")) return;
-
-        let variantId = $(this).data("id");
-
-        $.ajaxSetup({
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-            },
-        });
-
-        $.post(
-            "/admin/variants/force-delete",
-            { variant_id: variantId },
-            function (response) {
-                if (response.status) {
-                    toastr.success(response.message);
-                    $("#variant-row-" + variantId).fadeOut();
-                } else {
-                    toastr.error(response.message);
-                }
-            }
-        );
-    });
-
-    $('.product-images').change(function (e) {
-        let files = e.target.files;
-        let productId = $(this).data("id");
-        let previewContainer = $("#image-preview-container-" + productId);
-        previewContainer.empty();
-
-        if (files.length > 0) {
-            for (let i = 0; i < files.length; i++) {
-                let file = files[i];
-
-                if (file) {
-                    let reader = new FileReader();
-
-                    reader.onload = function (e) {
-                        let img = $("<img>")
-                            .attr("src", e.target.result)
-                            .addClass("image-preview");
-
-                        img.css({
-                            "max-width": "150px",
-                            "max-height": "150px",
-                            "margin": "5px",
-                            "border-radius": "5px"
-                        });
-
-                        previewContainer.append(img);
-                    };
-
-                    reader.readAsDataURL(file);
-                }
-            }
-        } else {
-            previewContainer.html("");
-        }
-    });
-
     // ==================== XỬ LÝ CẬP NHẬT SẢN PHẨM ====================
     $(document).on("click", ".btn-update-submit-product", function (e) {
-    e.preventDefault();
+        e.preventDefault();
 
-    let button = $(this);
-    let productId = button.data("id");
-    let form = button.closest(".modal").find("form");
-    let formData = new FormData(form[0]);
+        let button = $(this);
+        let productId = button.data("id");
+        let form = button.closest(".modal").find("form");
+        let formData = new FormData(form[0]);
 
-    formData.append("product_id", productId);
+        formData.append("product_id", productId);
 
-    $.ajaxSetup({
-        headers: {
-            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-        },
-    });
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+        });
 
-    $.ajax({
-        url: "/admin/product/update",
-        type: "POST",
-        data: formData,
-        contentType: false,
-        processData: false,
-        beforeSend: function () {
-            button.prop("disabled", true);
-            button.text("Đang cập nhật...");
-        },
-        success: function (response) {
-            if (response.status) {
-                toastr.success(response.message);
-                let product = response.data;
-                let productId = product.id;
-                let imageSrc = product.image ? product.image : "storage/products/default-product.png";
+        $.ajax({
+            url: "/admin/product/update",
+            type: "POST",
+            data: formData,
+            contentType: false,
+            processData: false,
+            beforeSend: function () {
+                button.prop("disabled", true);
+                button.text("Đang cập nhật...");
+            },
+            success: function (response) {
+                if (response.status) {
+                    toastr.success(response.message);
+                    let product = response.data;
+                    let productId = product.id;
+                    let imageSrc = product.image
+                        ? product.image
+                        : "storage/products/default-product.png";
 
-                let newRow = `
+                    let newRow = `
 <tr id="product-row-${productId}">
-    <td><img src="${imageSrc}" alt="${product.name}" class="image-product" width="80"></td>
+    <td><img src="${imageSrc}" alt="${
+                        product.name
+                    }" class="image-product" width="80"></td>
     <td>${product.name}</td>
     <td>${product.category.name}</td>
     <td>${product.slug}</td>
     <td>${product.description}</td>
     <td>${product.stock}</td>
-    <td>${number_format(product.price, 0, '.', '.')} VND</td>
+    <td>${number_format(product.price, 0, ".", ".")} VND</td>
     <td>${product.unit}</td>
     <td>${product.status}</td>
     <td>
@@ -553,20 +360,86 @@ $(document).ready(function () {
 </tr>
 `;
 
-                $("#product-row-" + productId).replaceWith(newRow);
-                $("#modalUpdate-" + productId).modal("hide");
-            } else {
-                toastr.error(response.message);
-            }
-        },
-        error: function (xhr, status, error) {
-            alert("Lỗi: " + error);
-        },
-        complete: function () {
-            button.prop("disabled", false);
-            button.text("Chỉnh sửa");
-        },
+                    $("#product-row-" + productId).replaceWith(newRow);
+                    $("#modalUpdate-" + productId).modal("hide");
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function (xhr, status, error) {
+                alert("Lỗi: " + error);
+            },
+            complete: function () {
+                button.prop("disabled", false);
+                button.text("Chỉnh sửa");
+            },
+        });
     });
-});
 
+    // DELETE COLOR
+    $(document).on("click", ".btn-delete-color", function (e) {
+        e.preventDefault();
+
+        const btn = $(this);
+        const colorId = btn.data("id");
+
+        if (!confirm("Bạn có chắc chắn muốn xóa màu này?")) return;
+
+        btn.prop("disabled", true).html(
+            '<i class="fa fa-spinner fa-spin"></i>'
+        );
+
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+        });
+
+        $.post("/admin/colors/delete", { color_id: colorId }, function (res) {
+            btn.prop("disabled", false).html('<i class="fa fa-trash"></i>');
+
+            if (res.status) {
+                toastr.success(res.message);
+                $("#color-row-" + colorId).fadeOut();
+            } else {
+                toastr.error(res.message);
+            }
+        }).fail(function () {
+            btn.prop("disabled", false).html('<i class="fa fa-trash"></i>');
+            toastr.error("Có lỗi xảy ra!");
+        });
+    });
+    // DELETE SIZE
+    $(document).on("click", ".btn-delete-size", function (e) {
+        e.preventDefault();
+
+        const btn = $(this);
+        const sizeId = btn.data("id");
+
+        if (!confirm("Bạn có chắc chắn muốn xóa size này?")) return;
+
+        btn.prop("disabled", true).html(
+            '<i class="fa fa-spinner fa-spin"></i>'
+        );
+
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+        });
+
+        $.post("/admin/sizes/delete", { size_id: sizeId }, function (res) {
+            btn.prop("disabled", false).html('<i class="fa fa-trash"></i>');
+
+            if (res.status) {
+                toastr.success(res.message);
+                $("#size-row-" + sizeId).fadeOut();
+            } else {
+                toastr.error(res.message);
+            }
+        }).fail(function () {
+            btn.prop("disabled", false).html('<i class="fa fa-trash"></i>');
+            toastr.error("Có lỗi xảy ra!");
+        });
+    });
 });
