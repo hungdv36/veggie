@@ -74,7 +74,7 @@
                          </a>
                          <ul class="nav child_menu">
                              <li><a href="{{ route('admin.colors.add') }}">Thêm màu sắc</a></li>
-                             <li><a href="{{ route('admin.color.index') }}">Danh sách màu sắc</a></li>
+                             <li><a href="{{ route('admin.colors.index') }}">Danh sách màu sắc</a></li>
                          </ul>
                      </li>
 

@@ -42,10 +42,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['permission:manage_products'])->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::get('/products/add', [ProductController::class, 'showFormAddProduct'])->name('products.add');
-        Route::post('/product/add', [ProductController::class, 'addProduct'])->name('products.store');
+        Route::post('/products/adds', [ProductController::class, 'addProduct'])->name('products.adds');
     });
+    Route::get('/test-add-product', [ProductController::class, 'addProduct']);
     // Variants (cần permission: manage_variants)
-Route::middleware(['permission:manage_sizes'])->group(function () {
+    Route::middleware(['permission:manage_sizes'])->group(function () {
         Route::get('sizes/', [SizeController::class, 'index'])->name('sizes.index');
         Route::get('/sizes/add', [SizeController::class, 'showSizeForm'])->name('sizes.add');
         Route::post('/sizes/add', [SizeController::class, 'addSize'])->name('sizes.store');
@@ -53,7 +54,7 @@ Route::middleware(['permission:manage_sizes'])->group(function () {
         Route::post('/sizes/delete', [SizeController::class, 'deleteSize'])->name('sizes.delete');
     });
     Route::middleware(['permission:manage_colors'])->group(function () {
-        Route::get('colors/', [ColorController::class, 'index'])->name('color.index');
+        Route::get('colors/', [ColorController::class, 'index'])->name('colors.index');
         Route::get('/colors/add', [ColorController::class, 'showColorForm'])->name('colors.add');
         Route::post('/colors/add', [ColorController::class, 'addColor'])->name('colors.store');
         Route::post('/colors/update', [ColorController::class, 'updateColor'])->name('colors.update');

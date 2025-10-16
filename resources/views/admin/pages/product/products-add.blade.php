@@ -2,6 +2,7 @@
 @section('title', 'Thêm Sản Phẩm')
 
 @section('content')
+
     <!-- page content -->
     <div class="right_col" role="main">
         <div class="">
@@ -18,7 +19,7 @@
                     <div class="x_panel">
                         <div class="x_content">
                             <br />
-                            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('admin.products.adds') }}" method="POST" enctype="multipart/form-data">
                                 @csrf
 
                                 <div class="row">
@@ -183,7 +184,6 @@
                                     <button type="submit" class="btn btn-primary">Thêm mới</button>
                                 </div>
                             </form>
-
                         </div>
                     </div>
                 </div>

@@ -41,6 +41,7 @@
                                                     <th>Giá (dao động)</th>
                                                     <th>Tồn kho</th>
                                                     <th>Trạng thái</th>
+                                                    <th>Biến thể</th>
                                                     <th>Hành động</th>
                                                 </tr>
                                             </thead>
@@ -50,8 +51,12 @@
                                                         <td>{{ $index + 1 }}</td>
                                                         <td>
                                                             @if ($product->image)
-                                                                <img src="{{ asset('uploads/products/' . $product->image) }}"
-                                                                    style="width:80px; height:80px; object-fit:cover;">
+                                                                <img src="{{ asset('assets/img/product/' . $product->image) }}"
+                                                                    alt="{{ $product->name }}"
+                                                                    style="height:100px;width:100px; object-fit:cover;">
+                                                            @else
+                                                                <img src="{{ asset('assets/img/product/default.png') }}"
+                                                                    alt="Default" width="80">
                                                             @endif
                                                         </td>
                                                         <td>{{ $product->name }}</td>
@@ -77,6 +82,20 @@
                                                             <button class="btn btn-sm btn-info" data-bs-toggle="modal"
                                                                 data-bs-target="#variantsModal-{{ $product->id }}">
                                                                 Xem biến thể
+                                                            </button>
+                                                        </td>
+                                                        <td
+                                                            style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                                            <button type="button" class="btn btn-sm btn-outline-primary"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#modalUpdate-{{ $product->id }}"
+                                                                title="Sửa">
+                                                                <i class="fa fa-edit"></i>
+                                                            </button>
+                                                            <button type="button"
+                                                                class="btn btn-sm btn-outline-danger btn-delete-product"
+                                                                data-id="{{ $product->id }}" title="Xóa">
+                                                                <i class="fa fa-trash"></i>
                                                             </button>
                                                         </td>
                                                     </tr>
@@ -114,7 +133,7 @@
                                                                                 </td>
                                                                                 <td>{{ number_format($variant->sale_price ?? 0) }}
                                                                                 </td>
-                                                                                <td>{{ $variant->stock }}</td>
+                                                                                <td>{{ $variant->quantity }}</td>
                                                                             </tr>
                                                                         @endforeach
                                                                     </tbody>
