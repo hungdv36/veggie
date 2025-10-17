@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ColorController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\ProductController;
@@ -44,7 +45,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/products/add', [ProductController::class, 'showFormAddProduct'])->name('products.add');
         Route::post('/products/adds', [ProductController::class, 'addProduct'])->name('products.adds');
     });
-    Route::get('/test-add-product', [ProductController::class, 'addProduct']);
     // Variants (cần permission: manage_variants)
     Route::middleware(['permission:manage_sizes'])->group(function () {
         Route::get('sizes/', [SizeController::class, 'index'])->name('sizes.index');
@@ -59,5 +59,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/colors/add', [ColorController::class, 'addColor'])->name('colors.store');
         Route::post('/colors/update', [ColorController::class, 'updateColor'])->name('colors.update');
         Route::post('/colors/delete', [ColorController::class, 'deleteColor'])->name('colors.delete');
+    });
+    Route::middleware(['permission:manage_coupons'])->group(function () {
+        Route::get('coupons/', [CouponController::class, 'index'])->name('coupons.index');
+        Route::get('/coupons/add', [CouponController::class, 'showCouponForm'])->name('coupons.add');
+        Route::post('/coupons/add', [CouponController::class, 'addCoupon'])->name('coupons.store');
+        Route::post('/coupons/update', [CouponController::class, 'updateCoupon'])->name('coupons.update');
+        Route::post('/coupons/delete', [CouponController::class, 'deleteCoupon'])->name('coupons.delete');
     });
 });

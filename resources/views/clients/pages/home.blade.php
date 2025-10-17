@@ -3,11 +3,11 @@
 @section('title', 'Trang chủ')
 
 @section('content')
-<link rel="stylesheet" href="{{ asset('assets/clients/css/slick.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/clients/css/slick-theme.css') }}">
-<script src="{{ asset('assets/clients/js/jquery-3.6.0.min.js') }}"></script>
-<script src="{{ asset('assets/clients/js/slick.min.js') }}"></script>
-<script src="{{ asset('assets/clients/js/main.js') }}"></script>
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/slick.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/slick-theme.css') }}">
+    <script src="{{ asset('assets/clients/js/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/slick.min.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/main.js') }}"></script>
 
     <!-- SLIDER AREA START (slider-3) -->
     {{-- <div class="ltn__slider-area ltn__slider-3  section-bg-1">
@@ -82,255 +82,257 @@
         </div>
     </div> --}}
     <!-- ============ SLIDER START ============ -->
-<style>
-    .fashion-slider {
-        position: relative;
-        overflow: hidden;
-        width: 100%;
-    }
-
-    .fashion-slide {
-        position: relative;
-        width: 100%;
-        height: 650px;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        color: #fff;
-        text-align: center;
-        transition: opacity 1s ease-in-out;
-    }
-
-    .fashion-slide.active {
-        display: flex;
-        animation: fadeIn 1s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
+    <style>
+        .fashion-slider {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
         }
-        to {
+
+        .fashion-slide {
+            position: relative;
+            width: 100%;
+            height: 650px;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .fashion-slide.active {
+            display: flex;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .fashion-slide::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .fashion-slide-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+        }
+
+        .fashion-slide h1 {
+            font-size: 56px;
+            font-weight: 700;
+            line-height: 1.2;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .fashion-slide p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: #f1f1f1;
+        }
+
+        .fashion-btn {
+            background-color: #ff5a5f;
+            color: #fff;
+            padding: 14px 32px;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .fashion-btn:hover {
+            background-color: #e0484c;
+        }
+
+        /* Arrows */
+        .fashion-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 40px;
+            color: #fff;
+            cursor: pointer;
+            z-index: 10;
+            opacity: 0.7;
+            transition: 0.3s;
+        }
+
+        .fashion-arrow:hover {
             opacity: 1;
         }
-    }
 
-    .fashion-slide::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 1;
-    }
-
-    .fashion-slide-content {
-        position: relative;
-        z-index: 2;
-        max-width: 800px;
-    }
-
-    .fashion-slide h1 {
-        font-size: 56px;
-        font-weight: 700;
-        line-height: 1.2;
-        text-transform: uppercase;
-        margin-bottom: 20px;
-        color: #fff;
-    }
-
-    .fashion-slide p {
-        font-size: 18px;
-        margin-bottom: 30px;
-        color: #f1f1f1;
-    }
-
-    .fashion-btn {
-        background-color: #ff5a5f;
-        color: #fff;
-        padding: 14px 32px;
-        border: none;
-        border-radius: 30px;
-        font-weight: bold;
-        font-size: 16px;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        text-decoration: none;
-    }
-
-    .fashion-btn:hover {
-        background-color: #e0484c;
-    }
-
-    /* Arrows */
-    .fashion-arrow {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 40px;
-        color: #fff;
-        cursor: pointer;
-        z-index: 10;
-        opacity: 0.7;
-        transition: 0.3s;
-    }
-
-    .fashion-arrow:hover {
-        opacity: 1;
-    }
-
-    .fashion-prev {
-        left: 30px;
-    }
-
-    .fashion-next {
-        right: 30px;
-    }
-
-    /* Dots */
-    .fashion-dots {
-        position: absolute;
-        bottom: 30px;
-        left: 50%;
-        transform: translateX(-50%);
-        display: flex;
-        gap: 10px;
-        z-index: 10;
-    }
-
-    .fashion-dot {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: rgba(255, 255, 255, 0.6);
-        cursor: pointer;
-        transition: 0.3s;
-    }
-
-    .fashion-dot.active {
-        background-color: #ff5a5f;
-    }
-</style>
-
-<div class="fashion-slider">
-    <!-- Slide 1 -->
-    <div class="fashion-slide active"
-        style="background-image: url('{{ asset('assets/clients/img/slider/1.jpg') }}')">
-        <div class="fashion-slide-content">
-            <h1>Bộ Sưu Tập Mùa Thu</h1>
-            <p>Khám phá phong cách thời trang mới nhất, giúp bạn tỏa sáng trong mọi khoảnh khắc.</p>
-            <a href="{{ route('products.index') }}" class="fashion-btn">Mua Ngay</a>
-        </div>
-    </div>
-
-    <!-- Slide 2 -->
-    <div class="fashion-slide"
-        style="background-image: url('{{ asset('assets/clients/img/slider/2.jpg') }}')">
-        <div class="fashion-slide-content">
-            <h1>Ưu Đãi Lên Đến 50%</h1>
-            <p>Bộ sưu tập giới hạn - phong cách sang trọng, trẻ trung, năng động.</p>
-            <a href="{{ route('products.index') }}" class="fashion-btn">Khám Phá</a>
-        </div>
-    </div>
-
-    <!-- Slide 3 -->
-    <div class="fashion-slide"
-        style="background-image: url('{{ asset('assets/clients/img/slider/3.jpg') }}')">
-        <div class="fashion-slide-content">
-            <h1>Thời Trang Nữ Tính & Cá Tính</h1>
-            <p>Sự kết hợp hoàn hảo giữa vẻ đẹp hiện đại và tinh tế, chỉ có tại FashionStore.</p>
-            <a href="{{ route('products.index') }}" class="fashion-btn">Xem Ngay</a>
-        </div>
-    </div>
-
-    <!-- Arrows -->
-    <div class="fashion-arrow fashion-prev">&#10094;</div>
-    <div class="fashion-arrow fashion-next">&#10095;</div>
-
-    <!-- Dots -->
-    <div class="fashion-dots"></div>
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const slides = document.querySelectorAll('.fashion-slide');
-        const prev = document.querySelector('.fashion-prev');
-        const next = document.querySelector('.fashion-next');
-        const dotsContainer = document.querySelector('.fashion-dots');
-
-        let index = 0;
-
-        // tạo dot cho từng slide
-        slides.forEach((_, i) => {
-            const dot = document.createElement('div');
-            dot.classList.add('fashion-dot');
-            if (i === 0) dot.classList.add('active');
-            dot.addEventListener('click', () => showSlide(i));
-            dotsContainer.appendChild(dot);
-        });
-
-        const dots = document.querySelectorAll('.fashion-dot');
-
-        function showSlide(n) {
-            slides.forEach(slide => slide.classList.remove('active'));
-            dots.forEach(dot => dot.classList.remove('active'));
-
-            index = (n + slides.length) % slides.length;
-            slides[index].classList.add('active');
-            dots[index].classList.add('active');
+        .fashion-prev {
+            left: 30px;
         }
 
-        next.addEventListener('click', () => showSlide(index + 1));
-        prev.addEventListener('click', () => showSlide(index - 1));
+        .fashion-next {
+            right: 30px;
+        }
 
-        // Tự động chạy
-        setInterval(() => {
-            showSlide(index + 1);
-        }, 5000);
-    });
-</script>
-<!-- ============ SLIDER END ============ -->
+        /* Dots */
+        .fashion-dots {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .fashion-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .fashion-dot.active {
+            background-color: #ff5a5f;
+        }
+    </style>
+
+    <div class="fashion-slider">
+        <!-- Slide 1 -->
+        <div class="fashion-slide active" style="background-image: url('{{ asset('assets/clients/img/slider/1.jpg') }}')">
+            <div class="fashion-slide-content">
+                <h1>Bộ Sưu Tập Mùa Thu</h1>
+                <p>Khám phá phong cách thời trang mới nhất, giúp bạn tỏa sáng trong mọi khoảnh khắc.</p>
+                <a href="{{ route('products.index') }}" class="fashion-btn">Mua Ngay</a>
+            </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/2.jpg') }}')">
+            <div class="fashion-slide-content">
+                <h1>Ưu Đãi Lên Đến 50%</h1>
+                <p>Bộ sưu tập giới hạn - phong cách sang trọng, trẻ trung, năng động.</p>
+                <a href="{{ route('products.index') }}" class="fashion-btn">Khám Phá</a>
+            </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/3.jpg') }}')">
+            <div class="fashion-slide-content">
+                <h1>Thời Trang Nữ Tính & Cá Tính</h1>
+                <p>Sự kết hợp hoàn hảo giữa vẻ đẹp hiện đại và tinh tế, chỉ có tại FashionStore.</p>
+                <a href="{{ route('products.index') }}" class="fashion-btn">Xem Ngay</a>
+            </div>
+        </div>
+
+        <!-- Arrows -->
+        <div class="fashion-arrow fashion-prev">&#10094;</div>
+        <div class="fashion-arrow fashion-next">&#10095;</div>
+
+        <!-- Dots -->
+        <div class="fashion-dots"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const slides = document.querySelectorAll('.fashion-slide');
+            const prev = document.querySelector('.fashion-prev');
+            const next = document.querySelector('.fashion-next');
+            const dotsContainer = document.querySelector('.fashion-dots');
+
+            let index = 0;
+
+            // tạo dot cho từng slide
+            slides.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.classList.add('fashion-dot');
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => showSlide(i));
+                dotsContainer.appendChild(dot);
+            });
+
+            const dots = document.querySelectorAll('.fashion-dot');
+
+            function showSlide(n) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                dots.forEach(dot => dot.classList.remove('active'));
+
+                index = (n + slides.length) % slides.length;
+                slides[index].classList.add('active');
+                dots[index].classList.add('active');
+            }
+
+            next.addEventListener('click', () => showSlide(index + 1));
+            prev.addEventListener('click', () => showSlide(index - 1));
+
+            // Tự động chạy
+            setInterval(() => {
+                showSlide(index + 1);
+            }, 5000);
+        });
+    </script>
+    <!-- ============ SLIDER END ============ -->
 
     <!-- SLIDER AREA END -->
 
     <!-- BANNER AREA START -->
     <div class="ltn__banner-area mt-120 mb-90">
-    <div class="container">
-        <div class="row g-3 justify-content-center">
-            <div class="col-lg-6 col-md-6 col-sm-6">
-                <div class="ltn__banner-item">
-                    <div class="ltn__banner-img">
-                        <a href="{{ route('products.index') }}"><img src="{{ asset('assets/clients/img/banner/3.jfif') }}" alt="Banner 1"></a>
+        <div class="container">
+            <div class="row g-3 justify-content-center">
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="ltn__banner-item">
+                        <div class="ltn__banner-img">
+                            <a href="{{ route('products.index') }}"><img
+                                    src="{{ asset('assets/clients/img/banner/3.jfif') }}" alt="Banner 1"></a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6">
-                <div class="ltn__banner-item">
-                    <div class="ltn__banner-img">
-                        <a href="{{ route('products.index') }}"><img src="{{ asset('assets/clients/img/banner/2.jpeg') }}" alt="Banner 2"></a>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="ltn__banner-item">
+                        <div class="ltn__banner-img">
+                            <a href="{{ route('products.index') }}"><img
+                                    src="{{ asset('assets/clients/img/banner/2.jpeg') }}" alt="Banner 2"></a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6">
-                <div class="ltn__banner-item">
-                    <div class="ltn__banner-img">
-                        <a href="{{ route('products.index') }}"><img src="{{ asset('assets/clients/img/banner/1.jpeg') }}" alt="Banner 3"></a>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="ltn__banner-item">
+                        <div class="ltn__banner-img">
+                            <a href="{{ route('products.index') }}"><img
+                                    src="{{ asset('assets/clients/img/banner/1.jpeg') }}" alt="Banner 3"></a>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-lg-6 col-md-6 col-sm-6">
-                <div class="ltn__banner-item">
-                    <div class="ltn__banner-img">
-                        <a href="{{ route('products.index') }}"><img src="{{ asset('assets/clients/img/banner/4.jfif') }}" alt="Banner 4"></a>
+                <div class="col-lg-6 col-md-6 col-sm-6">
+                    <div class="ltn__banner-item">
+                        <div class="ltn__banner-img">
+                            <a href="{{ route('products.index') }}"><img
+                                    src="{{ asset('assets/clients/img/banner/4.jfif') }}" alt="Banner 4"></a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
     <!-- BANNER AREA END -->
 
     <!-- FEATURE AREA START ( Feature - 3) -->
@@ -433,8 +435,14 @@
                 @foreach ($categories as $category)
                     <div class="category-item">
                         <div class="category-item-img">
-                            <a href="shop.html">
-                                <img src="{{ $category->image ?? '#' }}" alt="{{ $category->name }}">
+                            <a href="#">
+                                @if (isset($category) && $category->image)
+                                    <img src="{{ asset('assets/admin/img/category/' . $category->image) }}"
+                                        alt="{{ $category->name }}" style="height:100px;width:100px;">
+                                @else
+                                    <img src="{{ asset('uploads/categories/default.png') }}" alt="Default"
+                                        width="80">
+                                @endif
                             </a>
                         </div>
                         <div class="category-item-name">
@@ -475,8 +483,16 @@
                                             <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
                                                 <div class="ltn__product-item ltn__product-item-3 text-center">
                                                     <div class="product-img">
-                                                        <a href="#"><img src="{{ $product->image }}"
-                                                                alt="{{ $product->name }}"></a>
+                                                        <a href="{{ $product->id }}">
+                                                            @if ($product->image)
+                                                                <img src="{{ asset('assets/img/product/' . $product->image) }}"
+                                                                    alt="{{ $product->name }}"
+                                                                    style="height:100px;width:100px; object-fit:cover;">
+                                                            @else
+                                                                <img src="{{ asset('assets/img/product/default.png') }}"
+                                                                    alt="Default" width="80">
+                                                            @endif
+                                                        </a>
                                                         <div class="product-badge">
                                                             <ul>
                                                                 <li class="sale-badge">-19%</li>
@@ -599,7 +615,16 @@
                     <div class="col-lg-3 col-md-4 col-sm-6 col-6">
                         <div class="ltn__product-item ltn__product-item-3 text-left">
                             <div class="product-img">
-                                <a href="#"><img src="{{ $product->image }}" alt="{{ $product->name }}"></a>
+                                <a href="{{ $product->id }}">
+                                    @if ($product->image)
+                                        <img src="{{ asset('assets/img/product/' . $product->image) }}"
+                                            alt="{{ $product->name }}"
+                                            style="height:100px;width:100px; object-fit:cover;">
+                                    @else
+                                        <img src="{{ asset('assets/img/product/default.png') }}" alt="Default"
+                                            width="80">
+                                    @endif
+                                </a>
                                 <div class="product-badge">
                                     <ul>
                                         <li class="sale-badge">-19%</li>
@@ -692,14 +717,16 @@
 
     .ltn__banner-img {
         width: 100%;
-        height: 300px; /* Chiều cao cố định để các ảnh bằng nhau */
+        height: 300px;
+        /* Chiều cao cố định để các ảnh bằng nhau */
         overflow: hidden;
     }
 
     .ltn__banner-img img {
         width: 100%;
         height: 100%;
-        object-fit: cover; /* Cắt ảnh cho vừa khung mà không méo */
+        object-fit: cover;
+        /* Cắt ảnh cho vừa khung mà không méo */
         border-radius: 10px;
         transition: transform 0.4s ease;
     }
@@ -716,4 +743,3 @@
         }
     }
 </style>
-

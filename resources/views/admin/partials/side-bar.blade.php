@@ -69,14 +69,15 @@
 
                      <li>
                          <a>
-                             <i class="fa fa-paint-brush"></i> Quản lý màu sắc
+                             <i class="fa fa-ticket"></i> Quản lý mã giảm giá
                              <span class="fa fa-chevron-down"></span>
                          </a>
                          <ul class="nav child_menu">
-                             <li><a href="{{ route('admin.colors.add') }}">Thêm màu sắc</a></li>
-                             <li><a href="{{ route('admin.colors.index') }}">Danh sách màu sắc</a></li>
+                             <li><a href="{{ route('admin.coupons.add') }}">Thêm mã giảm giá</a></li>
+                             <li><a href="{{ route('admin.coupons.index') }}">Danh sách mã giảm giá</a></li>
                          </ul>
                      </li>
+
 
                  </ul>
              </div>

@@ -76,6 +76,36 @@
         font-size: 14px;
         color: #555;
     }
+
+    /* Nút biến thể */
+    .variant-btn {
+        padding: 6px 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        margin: 3px;
+        transition: all 0.2s ease;
+        /* mượt khi hover */
+    }
+
+    /* Hover */
+    .variant-btn:hover {
+        border-color: #ff5722;
+        background-color: #fff3e0;
+        /* nền nhạt */
+        transform: translateY(-2px);
+        /* nổi lên */
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Khi được chọn */
+    .variant-btn.selected {
+        border-color: #ff5722;
+        background-color: #ffe0b2;
+        box-shadow: 0 0 4px rgba(255, 87, 34, 0.5);
+    }
 </style>
 
 <body>

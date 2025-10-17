@@ -101,7 +101,6 @@
                                 <a href="#">
                                     <i class="icon-user"></i>
                                 </a>
-
                                 <ul>
                                     {{-- Nếu chưa đăng nhập --}}
                                     @guest

@@ -22,6 +22,7 @@ class PermissionsTableSeeder extends Seeder
             'manage_colors',
             'manage_sizes',
             'manage_product_variations',
+            'manage_coupons',
         ];
 
         foreach ($permissions as $permission) {

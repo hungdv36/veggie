@@ -69,13 +69,7 @@
                                                                 {{ number_format($product->price) }}
                                                             @endif
                                                         </td>
-                                                        <td>
-                                                            @if ($product->variants->count())
-                                                                {{ $product->variants->sum('stock') }}
-                                                            @else
-                                                                {{ $product->stock }}
-                                                            @endif
-                                                        </td>
+                                                        <td>{{ $product->stock }}</td>
                                                         <td>{{ $product->status == 'active' ? 'Còn hàng' : 'Hết hàng' }}
                                                         </td>
                                                         <td>
