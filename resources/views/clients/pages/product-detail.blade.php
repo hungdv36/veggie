@@ -19,13 +19,14 @@
                                 <div class="ltn__shop-details-img-gallery">
                                     <div class="ltn__shop-details-large-img">
                                         <div class="single-large-img">
-                                            @foreach ($product->images as $image)
-                                                <a href="{{ asset('storage/' . $image->image) }}"
-                                                    data-rel="lightcase:myCollection">
-                                                    <img src="{{ asset('storage/' . $image->image) }}"
-                                                        alt="{{ $product->name }}">
-                                                </a>
-                                            @endforeach
+                                            @if ($product->image)
+                                                <img src="{{ asset('assets/img/product/' . $product->image) }}"
+                                                    alt="{{ $product->name }}"
+                                                    style="height:100%;width:100%; object-fit:cover;">
+                                            @else
+                                                <img src="{{ asset('assets/img/product/default.png') }}" alt="Default"
+                                                    width="80">
+                                            @endif
                                         </div>
 
                                     </div>
@@ -75,17 +76,21 @@
                                                     <!-- Màu sắc -->
                                                     <div class="col-md-6 col-12">
                                                         <div class="mb-2">
-                                                            <label for="variant-color"
-                                                                class="form-label fw-semibold d-block">Màu sắc:</label>
+                                                            <label class="form-label fw-semibold d-block">Màu sắc:</label>
                                                             @if ($colors->count() > 0)
-                                                                <select id="variant-color" class="form-select variant-color"
-                                                                    name="color">
-                                                                    <option value="">-- Chọn màu --</option>
+                                                                <div class="d-flex flex-wrap gap-2">
                                                                     @foreach ($colors as $color)
-                                                                        <option value="{{ $color }}">
-                                                                            {{ ucfirst($color) }}</option>
+                                                                        <button type="button"
+                                                                            class="btn color-btn d-flex align-items-center"
+                                                                            data-value="{{ $color->id }}"
+                                                                            style="padding:6px 12px; border:1px solid #ccc; border-radius:4px; cursor:pointer;">
+                                                                            <span class="rounded-circle me-2"
+                                                                                style="width:14px; height:14px; background-color: {{ $color->hex_code }};"></span>
+                                                                            {{ $color->name }}
+                                                                        </button>
                                                                     @endforeach
-                                                                </select>
+                                                                </div>
+                                                                <input type="hidden" name="color" id="color-value">
                                                             @else
                                                                 <p class="text-muted mb-0">Không có</p>
                                                             @endif
@@ -95,17 +100,19 @@
                                                     <!-- Kích thước -->
                                                     <div class="col-md-6 col-12">
                                                         <div class="mb-2">
-                                                            <label for="variant-size"
-                                                                class="form-label fw-semibold d-block">Kích thước:</label>
+                                                            <label class="form-label fw-semibold d-block">Kích
+                                                                thước:</label>
                                                             @if ($sizes->count() > 0)
-                                                                <select id="variant-size" class="form-select variant-size"
-                                                                    name="size">
-                                                                    <option value="">-- Chọn size --</option>
+                                                                <div class="d-flex flex-wrap gap-2">
                                                                     @foreach ($sizes as $size)
-                                                                        <option value="{{ $size }}">
-                                                                            {{ strtoupper($size) }}</option>
+                                                                        <button type="button" class="btn size-btn"
+                                                                            data-value="{{ $size->id }}"
+                                                                            style="padding:6px 12px; border:1px solid #ccc; border-radius:4px; cursor:pointer;">
+                                                                            {{ strtoupper($size->name) }}
+                                                                        </button>
                                                                     @endforeach
-                                                                </select>
+                                                                </div>
+                                                                <input type="hidden" name="size" id="size-value">
                                                             @else
                                                                 <p class="text-muted mb-0">Không có</p>
                                                             @endif
@@ -125,8 +132,14 @@
                                                         data-max="{{ $product->stock }}">
                                                     <div class="inc qtybutton">+</div>
                                                 </div>
-                                                <p class="text-muted small mt-1">Kho: <span
-                                                        id="variant-stock">{{ $product->stock ?? '--' }}</span></p>
+                                                <p class="text-muted small mt-1">
+                                                    Tổng kho: <span
+                                                        id="product-stock">{{ $product->variants->sum('quantity') }}</span>
+                                                </p>
+                                                <p class="text-muted small mt-1">
+                                                    Kho biến thể: <span id="variant-stock">0</span>
+                                                </p>
+
                                             </li>
                                             <li>
                                                 <a href="javascript:void(0)"
@@ -149,26 +162,6 @@
                                             </li>
                                         </ul>
                                     </div>
-                                    <hr>
-                                    <div class="ltn__social-media">
-                                        <ul>
-                                            <li>Chia sẻ:</li>
-                                            <li><a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a>
-                                            </li>
-                                            <li><a href="#" title="Twitter"><i class="fab fa-twitter"></i></a></li>
-                                            <li><a href="#" title="Linkedin"><i class="fab fa-linkedin"></i></a>
-                                            </li>
-                                            <li><a href="#" title="Instagram"><i class="fab fa-instagram"></i></a>
-                                            </li>
-
-                                        </ul>
-                                    </div>
-                                    <hr>
-                                    <div class="ltn__safe-checkout">
-                                        <h5>Đảm bảo thanh toán an toàn</h5>
-                                        <img src="{{ asset('assets/clients/img/icons/payment-2.png') }}"
-                                            alt="Payment Image">
-                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -177,7 +170,8 @@
                     <div class="ltn__shop-details-tab-inner ltn__shop-details-tab-inner-2">
                         <div class="ltn__shop-details-tab-menu">
                             <div class="nav">
-                                <a class="active show" data-bs-toggle="tab" href="#liton_tab_details_description">Mô tả</a>
+                                <a class="active show" data-bs-toggle="tab" href="#liton_tab_details_description">Mô
+                                    tả</a>
                                 <a data-bs-toggle="tab" href="#liton_tab_details_reviews" class="">Đánh giá</a>
                             </div>
                         </div>
@@ -336,8 +330,19 @@
                                 <h2 class="product-title"><a
                                         href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
                                 </h2>
+                                @php
+                                    $prices = $product->variants->pluck('price')->sort()->values();
+                                @endphp
+
                                 <div class="product-price">
-                                    <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                                    @if ($prices->count() > 1)
+                                        <span>{{ number_format($prices->first(), 0, ',', '.') }} –
+                                            {{ number_format($prices->last(), 0, ',', '.') }} VNĐ</span>
+                                    @elseif($prices->count() == 1)
+                                        <span>{{ number_format($prices->first(), 0, ',', '.') }} VNĐ</span>
+                                    @else
+                                        <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -353,77 +358,103 @@
 @endsection
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const variants = @json($jsVariants ?? []);
-        console.log('variants', variants);
+        const variants = @json($product->variants ?? []);
 
-        function norm(v) {
-            return (v === null || v === undefined) ? '' : String(v).toLowerCase().trim();
+        const colorInput = document.getElementById('color-value');
+        const sizeInput = document.getElementById('size-value');
+        const stockEl = document.getElementById('variant-stock');
+        const qtyBox = document.getElementById('cart-qty-box');
+        const priceEl = document.querySelector('.product-price span');
+
+        // Lấy dao động giá ban đầu
+        const allPrices = variants.map(v => v.sale_price ?? v.price).sort((a, b) => a - b);
+        if (allPrices.length > 1) {
+            priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' – ' +
+                new Intl.NumberFormat('vi-VN').format(allPrices[allPrices.length - 1]) + ' VNĐ';
+        } else if (allPrices.length === 1) {
+            priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' VNĐ';
+        } else {
+            priceEl.textContent = new Intl.NumberFormat('vi-VN').format({{ $product->price ?? 0 }}) + ' VNĐ';
         }
 
         function findVariant(color, size) {
-            const nc = norm(color),
-                ns = norm(size);
-            return variants.find(v => {
-                if (nc && norm(v.color) !== nc) return false;
-                if (ns && norm(v.size) !== ns) return false;
-                return true;
-            }) || null;
-        }
-
-        function formatPrice(vnd) {
-            return new Intl.NumberFormat('vi-VN').format(vnd) + ' VNĐ';
+            return variants.find(v => v.color_id == color && v.size_id == size) || null;
         }
 
         function updateVariantUI() {
-            const color = document.getElementById('variant-color') ? document.getElementById('variant-color')
-                .value : '';
-            const size = document.getElementById('variant-size') ? document.getElementById('variant-size')
-                .value : '';
+            const color = colorInput.value;
+            const size = sizeInput.value;
             const variant = findVariant(color, size);
 
-            const priceEl = document.querySelector('.modal-product-info .product-price span');
-            const stockEl = document.getElementById('variant-stock');
-            const qtyBox = document.getElementById('cart-qty-box');
-
             if (variant) {
-                if (priceEl) priceEl.textContent = formatPrice(variant.price);
-                if (stockEl) stockEl.textContent = variant.stock;
-                if (qtyBox) {
-                    qtyBox.dataset.max = variant.stock;
-                    let val = parseInt(qtyBox.value) || 1;
-                    if (val > variant.stock) qtyBox.value = Math.max(1, variant.stock);
-                }
+                // Stock biến thể
+                stockEl.textContent = variant.quantity;
+                qtyBox.dataset.max = variant.quantity;
+                if (parseInt(qtyBox.value) > variant.quantity) qtyBox.value = variant.quantity;
+
+                // Giá biến thể
+                const displayPrice = variant.sale_price ?? variant.price;
+                priceEl.textContent = new Intl.NumberFormat('vi-VN').format(displayPrice) + ' VNĐ';
             } else {
-                if (priceEl) priceEl.textContent = formatPrice({{ $product->price ?? 0 }});
-                if (stockEl) stockEl.textContent = '{{ $product->stock ?? '--' }}';
-                if (qtyBox) qtyBox.dataset.max = '{{ $product->stock ?? 0 }}';
+                // Không có biến thể hợp lệ
+                stockEl.textContent = '0';
+                qtyBox.dataset.max = 0;
+                qtyBox.value = 1;
+
+                // Hiển thị dao động giá ban đầu
+                if (allPrices.length > 1) {
+                    priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' – ' +
+                        new Intl.NumberFormat('vi-VN').format(allPrices[allPrices.length - 1]) + ' VNĐ';
+                } else if (allPrices.length === 1) {
+                    priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' VNĐ';
+                } else {
+                    priceEl.textContent = new Intl.NumberFormat('vi-VN').format({{ $product->price ?? 0 }}) +
+                        ' VNĐ';
+                }
             }
         }
 
-        const selColor = document.getElementById('variant-color');
-        const selSize = document.getElementById('variant-size');
-        if (selColor) selColor.addEventListener('change', updateVariantUI);
-        if (selSize) selSize.addEventListener('change', updateVariantUI);
+        // Chọn màu
+        document.querySelectorAll('.color-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove(
+                    'btn-primary', 'text-white'));
+                this.classList.add('btn-primary', 'text-white');
+                colorInput.value = this.dataset.value;
+                updateVariantUI();
+            });
+        });
 
-        // quantity controls
+        // Chọn size
+        document.querySelectorAll('.size-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove(
+                    'btn-primary', 'text-white'));
+                this.classList.add('btn-primary', 'text-white');
+                sizeInput.value = this.dataset.value;
+                updateVariantUI();
+            });
+        });
+
+        // Quantity controls
         document.querySelectorAll('.cart-plus-minus').forEach(wrapper => {
-            const decBtn = wrapper.querySelector('.dec');
-            const incBtn = wrapper.querySelector('.inc');
+            const dec = wrapper.querySelector('.dec');
+            const inc = wrapper.querySelector('.inc');
             const input = wrapper.querySelector('.cart-plus-minus-box');
-            if (!decBtn || !incBtn || !input) return;
+            if (!dec || !inc || !input) return;
 
-            decBtn.addEventListener('click', () => {
+            dec.addEventListener('click', () => {
                 let val = parseInt(input.value) || 1;
                 if (val > 1) input.value = val - 1;
             });
-            incBtn.addEventListener('click', () => {
+            inc.addEventListener('click', () => {
                 let val = parseInt(input.value) || 1;
-                const max = parseInt(input.dataset.max) || 9999;
+                const max = parseInt(input.dataset.max) || 0;
                 if (val < max) input.value = val + 1;
             });
         });
 
-        // add to cart
+        // Add to cart
         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -431,25 +462,19 @@
                 btn.disabled = true;
 
                 const productId = this.dataset.id;
-                const qtyInput = document.getElementById('cart-qty-box');
-                const quantity = qtyInput ? parseInt(qtyInput.value) || 1 : 1;
+                const quantity = parseInt(qtyBox.value) || 1;
                 const token = document.querySelector('meta[name="csrf-token"]').getAttribute(
                     'content');
+                const chosenVariant = findVariant(colorInput.value, sizeInput.value);
 
-                const hasVariants = variants.length > 0;
-                const selectedColor = selColor ? selColor.value : '';
-                const selectedSize = selSize ? selSize.value : '';
-                const chosenVariant = hasVariants ? findVariant(selectedColor, selectedSize) :
-                    null;
-
-                if (hasVariants && !chosenVariant) {
-                    alert('Vui lòng chọn thuộc tính sản phẩm (màu / size) hợp lệ.');
+                if (variants.length > 0 && !chosenVariant) {
+                    alert('Vui lòng chọn biến thể hợp lệ!');
                     btn.disabled = false;
                     return;
                 }
 
-                if (chosenVariant && chosenVariant.stock < quantity) {
-                    alert('Số lượng vượt quá tồn kho của biến thể.');
+                if (chosenVariant && chosenVariant.quantity < quantity) {
+                    alert('Số lượng vượt quá tồn kho!');
                     btn.disabled = false;
                     return;
                 }
@@ -485,7 +510,7 @@
             });
         });
 
-        // init
+        // Init
         updateVariantUI();
     });
 </script>

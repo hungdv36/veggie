@@ -12,13 +12,14 @@ class ProductController extends Controller
     public function index()
     {
         $categories = Category::with('products')->get();
-        $products = Product::with('firstImage')->where('status', 'in-stock')->paginate(9);
+        $products = Product::with(['firstImage', 'variants'])
+            ->where('status', 'in-stock')
+            ->paginate(9);
+
         foreach ($products as $product) {
-            foreach ($products as $product) {
-                $product->image_url = $product->firstImage?->image
-                    ? asset('storage/uploads/' . $product->firstImage->image)
-                    : asset('storage/uploads/products/no-image.png');
-            }
+            $product->image_url = $product->firstImage?->image
+                ? asset('storage/uploads/' . $product->firstImage->image)
+                : asset('storage/uploads/products/no-image.png');
         }
 
         return view('clients.pages.products', compact('categories', 'products'));
@@ -77,7 +78,7 @@ class ProductController extends Controller
     public function detail($slug)
     {
         // load product with relations
-        $product = Product::with(['category','images','variants'])
+        $product = Product::with(['category', 'images', 'variants'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -87,7 +88,7 @@ class ProductController extends Controller
             ->get();
 
         // prepare JS-safe variants array (no closure in blade)
-        $jsVariants = $product->variants->map(function($v){
+        $jsVariants = $product->variants->map(function ($v) {
             return [
                 'id'    => $v->id,
                 'color' => $v->color ?? null,

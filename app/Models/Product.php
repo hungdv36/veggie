@@ -70,4 +70,9 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class);
     }
+    public function getDisplayStockAttribute()
+    {
+        // Tổng tồn kho của tất cả biến thể
+        return $this->variants()->sum('quantity');
+    }
 }

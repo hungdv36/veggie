@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use App\Models\Product;
-use App\Models\Variant;
+use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -16,18 +16,26 @@ class CartController extends Controller
 
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'variant_id' => 'required|exists:variants,id',
+            'variant_id' => 'required|exists:product_variants,id',
             'quantity' => 'required|integer|min:1',
         ]);
 
-        $variant = Variant::findOrFail($request->variant_id);
+        $product = Product::with('images')->findOrFail($request->product_id);
+        $variant = ProductVariant::with(['color', 'size'])->findOrFail($request->variant_id);
 
-        // ✅ Kiểm tra tồn kho biến thể
-        if ($request->quantity > $variant->stock) {
+        // Lấy giá: ưu tiên biến thể, fallback về product
+        $price = $variant->sale_price ?? $variant->price ?? $product->sale_price ?? $product->price ?? 0;
+        if ($price <= 0) {
+            return response()->json(['message' => 'Giá sản phẩm không hợp lệ'], 400);
+        }
+
+
+        // Kiểm tra tồn kho biến thể
+        if ($request->quantity > $variant->quantity) {
             return response()->json(['message' => 'Số lượng vượt quá tồn kho'], 400);
         }
 
-        // ✅ Nếu người dùng đã đăng nhập
+        // Nếu người dùng đã đăng nhập
         if (Auth::check()) {
             $cartItem = CartItem::firstOrNew([
                 'user_id' => Auth::id(),
@@ -37,29 +45,30 @@ class CartController extends Controller
 
             // Nếu sản phẩm đã có trong giỏ → cộng dồn
             $cartItem->quantity = ($cartItem->exists ? $cartItem->quantity : 0) + $request->quantity;
+            $cartItem->price = $price; // giá đơn vị
+            $cartItem->total_price = $cartItem->price * $cartItem->quantity; // tính tổng giá
             $cartItem->save();
 
             $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-        } 
-        // ✅ Nếu chưa đăng nhập → lưu vào session
+        }
+        // Nếu chưa đăng nhập → lưu vào session
         else {
             $cart = session()->get('cart', []);
             $key = $request->product_id . '_' . $request->variant_id;
 
             if (isset($cart[$key])) {
                 $cart[$key]['quantity'] += $request->quantity;
+                $cart[$key]['price'] = $price; // Cập nhật giá nếu cần
             } else {
-                $product = Product::find($request->product_id);
-
                 $cart[$key] = [
                     'product_id' => $product->id,
                     'variant_id' => $variant->id,
                     'name' => $product->name,
-                    'price' => $variant->price ?? $product->price,
+                    'price' => $price, // Gửi giá lên luôn
                     'quantity' => $request->quantity,
-                    'stock' => $variant->stock,
-                    'color' => $variant->color,
-                    'size' => $variant->size,
+                    'stock' => $variant->quantity,
+                    'color' => $variant->color_id,
+                    'size' => $variant->size_id,
                     'image' => $product->images->first()->image ?? 'uploads/products/default-product.png'
                 ];
             }

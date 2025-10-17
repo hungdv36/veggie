@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Clients\CartController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\Clients\AccountController;
 use App\Http\Controllers\Clients\AuthController;
 use App\Http\Controllers\Clients\ForgotPasswordController;
