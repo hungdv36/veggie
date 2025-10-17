@@ -25,7 +25,7 @@
 
       <!-- Import CSS for Toastr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs.toastr.js/latest/toastr.min.css" />
-    <!-- Import custom css -->
+    {{-- Import custom CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
     <script src="{{ asset('assets/clients/js/jquery.min.js') }}"></script>
     <!-- ✅ Toastr CSS -->

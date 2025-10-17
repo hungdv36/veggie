@@ -220,7 +220,7 @@
                                                         <div class="row mb-50">
                                                             <div class="col-md-12 text-center mb-3">
                                                                 <div class="profile-pic-container">
-                                                                    <img src="{{ $user->avatar }}" alt="Avatar"
+                                                                    <img src="{{ asset('storage/' .$user->avatar) }}" alt="Avatar"
                                                                         id="preview-image" class="profile-pic">
                                                                     <input type="file" name="avatar" id="avatar"
                                                                         accept="image/*" class="d-none">
@@ -229,23 +229,23 @@
 
                                                             </div>
                                                             <div class="col-md-6">
-                                                                <label for="ltn_name">Họ và tên:</label>
+                                                                <label for="ltn__name">Họ và tên:</label>
                                                                 <input type="text" name="ltn__name" id="ltn__name"
-                                                                    value="{{ $user->name }} required">
+                                                                    value="{{ $user->name }} " required>
                                                             </div>
-                                                            <label for="ltn_phone_number">Số điện thoại:</label>
+                                                            <label for="ltn__phone_number">Số điện thoại:</label>
                                                             <input type="number" name="ltn__phone_number"
                                                                 id="ltn__phone_number"
-                                                                value="{{ $user->phone_number }} required">
+                                                                value="{{ $user->phone_number }} " required>
                                                         </div>
-                                                        <label for="ltn_email">Email (không được thay đổi):</label>
+                                                        <label for="ltn__email">Email (không được thay đổi):</label>
                                                         <input type="text" name="ltn__email" id="ltn__email"
-                                                            value="{{ $user->email }} ">
+                                                            value="{{ $user->email }} " readonly>
                                                 </div>
                                             </div>
-                                            <label for="ltn_address">Địa chỉ</label>
+                                            <label for="ltn__address">Địa chỉ</label>
                                             <input type="text" name="ltn__adress" id="ltn__address"
-                                                value="{{ $user->address }} readonly">
+                                                value="{{ $user->address }} " required>
                                         </div>
                                         {{-- <div class="btn-wrapper">
                                                                 <button type="submit"
