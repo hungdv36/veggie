@@ -1,3 +1,11 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+</head>
+@php
+    $subtotal = 0;
+@endphp
+
 <div class="ltn__utilize-menu-head">
     <span class="ltn__utilize-menu-title">Giỏ hàng</span>
     <button class="ltn__utilize-close">×</button>
@@ -16,7 +24,8 @@
             <div class="mini-cart-item clearfix">
                 <div class="mini-cart-img">
                     <a href="javascript:void(0)">
-                        <img src="{{ asset($product->images->first()->image_path ?? 'storage/uploads/products/default-product.png') }}" alt="{{ $product->name }}">
+                        <img src="{{ asset($product->images->first()->image_path ?? 'storage/uploads/products/default-product.png') }}"
+                            alt="{{ $product->name }}">
                     </a>
                     <span class="mini-cart-item-delete" data-id="{{ $product->id }}">
                         <i class="icon-cancel"></i>
@@ -27,11 +36,15 @@
                     <h6>
                         <a href="#">{{ $product->name }}</a>
                     </h6>
-                    <span class="mini-cart-quantity">{{ $quantity }} x {{ number_format($product->price, 0, ',', '.') }}₫</span>
+                    <span class="mini-cart-quantity">{{ $quantity }} x
+                        {{ number_format($product->price, 0, ',', '.') }}₫</span>
                 </div>
             </div>
         @endforeach
     @else
+        <div class="text-center p-3">
+            <p>Giỏ hàng của bạn đang trống.</p>
+        </div>
     @endif
 </div>
 

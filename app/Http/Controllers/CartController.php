@@ -53,7 +53,7 @@ class CartController extends Controller
             $cartItem->save();
 
             $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-        } 
+        }
         // Nếu chưa đăng nhập → lưu session
         else {
             $cart = session()->get('cart', []);
@@ -103,6 +103,26 @@ class CartController extends Controller
         return response()->json([
             'status' => true,
             'html'   => view('clients.components.includes.mini_cart', compact('cartItems'))->render(),
+        ]);
+    }
+
+    public function removeFromMiniCart(Request $request): JsonResponse
+    {
+        $request->validate(['product_id' => 'required']);
+
+        if (Auth::check()) {
+            CartItem::where('user_id', Auth::id())->where('product_id', $request->product_id)->delete();
+            $cartCount = CartItem::where('user_id', Auth::id())->count();
+        } else {
+            // If not logged in, save to session
+            $cart = session()->get('cart', []);
+            unset($cart[$request->product_id]);
+            session()->put('cart', $cart);
+            $cartCount = count($cart);
+        }
+        return response()->json([
+            'status' => true,
+            'cart_count' => $cartCount
         ]);
     }
 }

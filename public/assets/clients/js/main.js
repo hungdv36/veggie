@@ -1385,9 +1385,9 @@
 
         $(".amount").val(
             $(".slider-range").slider("values", 0) +
-                " - " +
-                $(".slider-range").slider("values", 1) +
-                " VNĐ"
+            " - " +
+            $(".slider-range").slider("values", 1) +
+            " VNĐ"
         );
 
         /* --------------------------------------------------------
@@ -1483,26 +1483,46 @@
                 },
             });
         });
-$('.mini-cart-icon').on('click', function(e){
-    $.ajax({
-        url: '/mini-cart',
-        type: 'GET',
-        success: function(response) {
-            if(response.status) {
-                $('#ltn__utilize-cart-menu .ltn__utilize-menu-inner').html(response.html);
-                $('#ltn__utilize-cart-menu').addClass('ltn__utilize-open');
-            } else {
-                alert('Failed to load mini cart.');
-            }
-        }
-    });
-    $(document).on('click', '.ltn__utilize-close', function() {
-        console.log(123123);
-        $('#ltn__utilize-cart-menu').removeClass('ltn__utilize-open');
-        $('.ltn__utilize-overlay').hide();
-});
+        $('.mini-cart-icon').on('click', function (e) {
+            $.ajax({
+                url: '/mini-cart',
+                type: 'GET',
+                success: function (response) {
+                    if (response.status) {
+                        $('#ltn__utilize-cart-menu .ltn__utilize-menu-inner').html(response.html);
+                        $('#ltn__utilize-cart-menu').addClass('ltn__utilize-open');
+                    } else {
+                        alert('Failed to load mini cart.');
+                    }
+                }
+            });
+            $(document).on('click', '.ltn__utilize-close', function () {
+                console.log(123123);
+                $('#ltn__utilize-cart-menu').removeClass('ltn__utilize-open');
+                $('.ltn__utilize-overlay').hide();
+            });
 
-});
+            // Remove product from cart
+            $(document).on('click', '.mini-cart-item-delete', function () {
+                let productId = $(this).data('id');
+                $.ajaxSetup({
+                    headers: {
+                        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+                    },
+                });
+                $.ajax({
+                    url: '/cart/remove',
+                    type: 'POST',
+                    data: { product_id: productId },
+                    success: function (response) {
+                        if (response.status) {
+                            $('#cart_count').text(response.cart_count);
+                            $('.mini-cart-icon').click();
+                        }
+                    }
+                });
+            });
+        });
 
         /* --------------------------------------------------------
             34. scrollUp active
@@ -1587,8 +1607,8 @@ $('.mini-cart-icon').on('click', function(e){
                     slick.slideCount == liIndex ? liIndex - 1 : liIndex;
                 var cart = $(
                     '.ltn__testimonial-slider-4 .slick-slide[data-slick-index="' +
-                        slideImageliIndex +
-                        '"]'
+                    slideImageliIndex +
+                    '"]'
                 ).find(".ltn__testimonial-image");
                 var imgtodrag = $(
                     ".ltn__testimonial-quote-menu li:nth-child(" + liIndex + ")"
@@ -1611,8 +1631,8 @@ $('.mini-cart-icon').on('click', function(e){
                 ltn__testimonial_quote_slider.slick("slickGoTo", elIndex);
                 var cart = $(
                     '.ltn__testimonial-slider-4 .slick-slide[data-slick-index="' +
-                        elIndex +
-                        '"]'
+                    elIndex +
+                    '"]'
                 ).find(".ltn__testimonial-image");
                 var imgtodrag = el.find("img").eq(0);
                 if (imgtodrag) {
