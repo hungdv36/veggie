@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use Illuminate\View\View;
 
 class CartController extends Controller
 {
@@ -124,5 +125,31 @@ class CartController extends Controller
             'status' => true,
             'cart_count' => $cartCount
         ]);
+    }
+
+    // View Cart
+    public function viewCart(): View
+    {
+        if (Auth::check()) {
+            // Get cart from database
+            $cartItems = CartItem::where(column: 'user_id', operator: Auth::id())
+                ->with(relations: 'product')
+                ->get()
+                ->map(callback: function (CartItem $item) {
+                    return [
+                        'product_id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'price' => $item->product->price,
+                        'quantity' => $item->quantity,
+                        'stock' => $item->product->stock,
+                        'image' => $item->product->images->first()->image ?? 'uploads/products/default-product.png',
+                    ];
+                })
+                ->toArray();
+        } else {
+            // Get cart from session
+            $cartItems = session()->get(key: 'cart', default: []);
+        }
+        return view(view: 'clients.pages.cart', data: compact(var_name: 'cartItems'));
     }
 }
