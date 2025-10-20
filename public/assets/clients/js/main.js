@@ -1483,6 +1483,26 @@
                 },
             });
         });
+$('.mini-cart-icon').on('click', function(e){
+    $.ajax({
+        url: '/mini-cart',
+        type: 'GET',
+        success: function(response) {
+            if(response.status) {
+                $('#ltn__utilize-cart-menu .ltn__utilize-menu-inner').html(response.html);
+                $('#ltn__utilize-cart-menu').addClass('ltn__utilize-open');
+            } else {
+                alert('Failed to load mini cart.');
+            }
+        }
+    });
+    $(document).on('click', '.ltn__utilize-close', function() {
+        console.log(123123);
+        $('#ltn__utilize-cart-menu').removeClass('ltn__utilize-open');
+        $('.ltn__utilize-overlay').hide();
+});
+
+});
 
         /* --------------------------------------------------------
             34. scrollUp active
