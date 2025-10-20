@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Order extends Model
 {
+    use \Illuminate\Database\Eloquent\Factories\HasFactory;
     protected $fillable = ['user_id', 'total_price', 'status', 'shipping_address_id'];
 
     public function orderItems(): HasMany

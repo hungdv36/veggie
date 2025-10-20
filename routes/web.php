@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Clients\AccountController;
 use App\Http\Controllers\Clients\AuthController;
 use App\Http\Controllers\Clients\ForgotPasswordController;
@@ -63,6 +64,12 @@ Route::middleware(['auth.custom'])->group(function () {
         Route::delete('/addresses/{id}', [AccountController::class, 'deleteAddress'])
             ->name('account.addresses.delete');
     });
+    // Checkout
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::get('/checkout/get-address', [CheckoutController::class, 'getAddress'])->name('checkout.getAddress');
+    Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+
+
 });
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
