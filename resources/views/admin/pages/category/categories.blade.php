@@ -4,6 +4,9 @@
 
 @section('content')
     <div class="right_col" role="main">
+        @if (session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
         <div class="page-title mb-4">
             <div class="title_left">
                 <h3>Quản lý danh mục</h3>
@@ -147,4 +150,3 @@
         </div>
     </div>
 @endsection
-

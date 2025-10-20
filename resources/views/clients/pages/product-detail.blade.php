@@ -50,8 +50,18 @@
                                         </ul>
                                     </div>
                                     <h3>{{ $product->name }}</h3>
+                                    @php
+                                        $minPrice = $product->variants->min('price');
+                                        $maxPrice = $product->variants->max('price');
+                                    @endphp
+
                                     <div class="product-price">
-                                        <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                                        @if ($minPrice == $maxPrice)
+                                            <span id="product-price">{{ number_format($minPrice, 0, ',', '.') }} VNĐ</span>
+                                        @else
+                                            <span id="product-price">{{ number_format($minPrice, 0, ',', '.') }} -
+                                                {{ number_format($maxPrice, 0, ',', '.') }} VNĐ</span>
+                                        @endif
                                     </div>
                                     <div class="modal-product-meta ltn__product-details-menu-1">
                                         <ul class="list-unstyled mb-0">
@@ -358,7 +368,7 @@
 @endsection
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const variants = @json($product->variants ?? []);
+        const variants = @json($jsVariants);
 
         const colorInput = document.getElementById('color-value');
         const sizeInput = document.getElementById('size-value');
