@@ -90,12 +90,13 @@ class ProductController extends Controller
         // prepare JS-safe variants array (no closure in blade)
         $jsVariants = $product->variants->map(function ($v) {
             return [
-                'id'    => $v->id,
-                'color' => $v->color ?? null,
-                'size'  => $v->size ?? null,
-                'price' => (float) ($v->price ?? 0),
-                'stock' => (int) ($v->stock ?? 0),
-                'image' => $v->image ?? null,
+                'id'         => $v->id,
+                'color_id'   => $v->color_id,
+                'size_id'    => $v->size_id,
+                'price'      => (float) ($v->price ?? 0),
+                'sale_price' => (float) ($v->sale_price ?? 0),
+                'quantity'   => (int) ($v->quantity ?? 0),
+                'image'      => $v->image ?? null,
             ];
         })->toArray();
 

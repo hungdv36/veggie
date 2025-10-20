@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Product extends Model
 {
     use HasFactory;
-
+    use SoftDeletes;
     protected $fillable = [
         'name',
         'slug',
@@ -70,9 +71,17 @@ class Product extends Model
     {
         return $this->hasMany(ProductVariant::class);
     }
-    public function getDisplayStockAttribute()
+    // app/Models/Product.php
+    public function getTotalStockAttribute()
     {
-        // Tổng tồn kho của tất cả biến thể
-        return $this->variants()->sum('quantity');
+        if ($this->variants->count()) {
+            return $this->variants->sum('quantity');
+        }
+        return $this->stock;
+    }
+
+    public function getStockStatusAttribute()
+    {
+        return $this->total_stock > 0 ? 'Còn hàng' : 'Hết hàng';
     }
 }

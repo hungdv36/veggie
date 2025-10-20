@@ -230,7 +230,13 @@ $(document).ready(function () {
                     }
                 },
                 error: function (xhr) {
-                    toastr.error("Có lỗi xảy ra, vui lòng thử lại");
+                    if (xhr.status === 400 && xhr.responseJSON?.message) {
+                        // Lỗi logic có thể dự đoán được
+                        toastr.error(xhr.responseJSON.message);
+                    } else {
+                        // Các lỗi khác (500, lỗi mạng, ...)
+                        toastr.error("Có lỗi xảy ra, vui lòng thử lại");
+                    }
                     console.error(xhr.responseText);
                 },
             });
@@ -297,84 +303,169 @@ $(document).ready(function () {
         });
     });
 
-    // ==================== XỬ LÝ CẬP NHẬT SẢN PHẨM ====================
-    $(document).on("click", ".btn-update-submit-product", function (e) {
-        e.preventDefault();
+    $(document).ready(function () {
+        // =========================
+        // Ảnh đại diện
+        // =========================
+        $(document).on("change", "input[name='image']", function () {
+            let input = this;
+            let productId = $(input).attr("id").split("-")[1];
+            let preview = $("#imagePreview-" + productId);
 
-        let button = $(this);
-        let productId = button.data("id");
-        let form = button.closest(".modal").find("form");
-        let formData = new FormData(form[0]);
-
-        formData.append("product_id", productId);
-
-        $.ajaxSetup({
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-            },
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.attr("src", e.target.result).show();
+                };
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.hide();
+            }
         });
 
-        $.ajax({
-            url: "/admin/product/update",
-            type: "POST",
-            data: formData,
-            contentType: false,
-            processData: false,
-            beforeSend: function () {
-                button.prop("disabled", true);
-                button.text("Đang cập nhật...");
-            },
-            success: function (response) {
-                if (response.status) {
-                    toastr.success(response.message);
-                    let product = response.data;
-                    let productId = product.id;
-                    let imageSrc = product.image
-                        ? product.image
-                        : "storage/products/default-product.png";
+        // =========================
+        // Album ảnh
+        // =========================
+        $(document).on("change", "input[name='images[]']", function () {
+            let input = this;
+            let productId = $(input).attr("id").split("-")[1];
+            let container = $("#imagesPreview-" + productId);
+            container.empty(); // Xóa ảnh cũ
 
-                    let newRow = `
-<tr id="product-row-${productId}">
-    <td><img src="${imageSrc}" alt="${
-                        product.name
-                    }" class="image-product" width="80"></td>
-    <td>${product.name}</td>
-    <td>${product.category.name}</td>
-    <td>${product.slug}</td>
-    <td>${product.description}</td>
-    <td>${product.stock}</td>
-    <td>${number_format(product.price, 0, ".", ".")} VND</td>
-    <td>${product.unit}</td>
-    <td>${product.status}</td>
-    <td>
-        <a class="btn btn-app btn-update-product" data-toggle="modal" 
-           data-target="#modalUpdate-${productId}">
-            <i class="fa fa-edit"></i> Chỉnh sửa
-        </a>
-    </td>
-    <td>
-        <a class="btn btn-app btn-delete-product" data-id="${productId}">
-            <i class="fa fa-trash"></i> Xóa
-        </a>
-    </td>
-</tr>
-`;
+            if (input.files) {
+                Array.from(input.files).forEach((file) => {
+                    let reader = new FileReader();
+                    reader.onload = function (e) {
+                        let img = $("<img>")
+                            .attr("src", e.target.result)
+                            .css({
+                                height: "80px",
+                                width: "80px",
+                                objectFit: "cover",
+                            })
+                            .addClass("rounded border");
+                        container.append(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
 
-                    $("#product-row-" + productId).replaceWith(newRow);
-                    $("#modalUpdate-" + productId).modal("hide");
-                } else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                alert("Lỗi: " + error);
-            },
-            complete: function () {
-                button.prop("disabled", false);
-                button.text("Chỉnh sửa");
-            },
+        // =========================
+        // Cập nhật sản phẩm AJAX
+        // =========================
+        $(document).on("click", ".btn-update-product", function () {
+            let button = $(this); // lưu button
+            let id = button.data("id");
+            let form = $("#update-product-" + id)[0];
+            let formData = new FormData(form);
+
+            $.ajax({
+                url: "/admin/products/update",
+                method: "POST",
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    button.prop("disabled", true).text("Đang cập nhật...");
+                },
+                success: function (res) {
+                    if (res.status) {
+                        toastr.success(res.message);
+                        location.reload(); // hoặc cập nhật row bằng JS
+                    } else {
+                        toastr.error(res.message);
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error(
+                        "Có lỗi xảy ra: " + xhr.responseText || xhr.statusText
+                    );
+                },
+                complete: function () {
+                    button.prop("disabled", false).text("Lưu thay đổi");
+                },
+            });
         });
     });
+    // Xóa mềm
+    $(document).on("click", ".btn-delete-product", function () {
+        let id = $(this).data("id");
+        if (confirm("Bạn có chắc muốn xóa sản phẩm?")) {
+            // ẩn modal nếu mở
+            $("#modalUpdate-" + id).modal("hide");
+            $("#variantsModal-" + id).modal("hide");
+
+            $.post(
+                "/admin/products/delete",
+                {
+                    product_id: id,
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                },
+                function (res) {
+                    if (res.status) {
+                        toastr.success(res.message);
+                        // xóa row trong table
+                        $("#product-row-" + id).fadeOut(300, function () {
+                            $(this).remove();
+                        });
+                    } else {
+                        toastr.error(res.message);
+                    }
+                }
+            );
+        }
+    });
+
+    // Khôi phục
+    $(document).on("click", ".btn-restore-product", function () {
+        let id = $(this).data("id");
+        if (confirm("Bạn có chắc muốn khôi phục sản phẩm này?")) {
+            $.post(
+                "/admin/products/restore",
+                {
+                    product_id: id,
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                },
+                function (res) {
+                    if (res.status) {
+                        toastr.success(res.message);
+                        $("#product-row-" + id).remove(); // nếu muốn ẩn row ngay
+                        // hoặc dùng location.reload(); nếu muốn load lại trang
+                    } else {
+                        toastr.error(res.message);
+                    }
+                }
+            );
+        }
+    });
+
+    // Xóa vĩnh viễn
+    $(document).on("click", ".btn-force-delete-product", function () {
+        let id = $(this).data("id");
+        if (confirm("Bạn có chắc muốn xóa vĩnh viễn sản phẩm này?")) {
+            $.post(
+                "/admin/products/force-delete",
+                {
+                    product_id: id,
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                },
+                function (res) {
+                    if (res.status) {
+                        toastr.success(res.message);
+                        $("#product-row-" + id).remove(); // ẩn row sau khi xóa
+                    } else {
+                        toastr.error(res.message);
+                    }
+                }
+            );
+        }
+    });
+
+    // JS number_format cho JS
+    function number_format(number) {
+        return new Intl.NumberFormat("vi-VN").format(number);
+    }
 
     // DELETE COLOR
     $(document).on("click", ".btn-delete-color", function (e) {

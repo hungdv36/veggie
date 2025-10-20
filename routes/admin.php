@@ -43,7 +43,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::middleware(['permission:manage_products'])->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::get('/products/add', [ProductController::class, 'showFormAddProduct'])->name('products.add');
-        Route::post('/products/adds', [ProductController::class, 'addProduct'])->name('products.adds');
+        Route::post('/products/add', [ProductController::class, 'addProduct'])->name('products.store');
+        Route::get('/products/{id}/show', [ProductController::class, 'showProduct'])->name('products.show');
+        Route::post('/products/update', [ProductController::class, 'updateProduct'])->name('products.update');
+        Route::post('/products/delete', [ProductController::class, 'deleteProduct'])->name('products.delete');
+        Route::get('/products/trash', [ProductController::class, 'trash'])->name('products.trash');
+        Route::post('/products/restore', [ProductController::class, 'restoreProduct'])->name('products.restore');
+        Route::post('/products/force-delete', [ProductController::class, 'forceDeleteProduct'])->name('products.forceDelete');
     });
     // Variants (cần permission: manage_variants)
     Route::middleware(['permission:manage_sizes'])->group(function () {
