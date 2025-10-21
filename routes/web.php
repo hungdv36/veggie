@@ -6,6 +6,7 @@ use App\Http\Controllers\Clients\AccountController;
 use App\Http\Controllers\Clients\AuthController;
 use App\Http\Controllers\Clients\ForgotPasswordController;
 use App\Http\Controllers\Clients\HomeController;
+use App\Http\Controllers\Clients\OrderController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
@@ -69,6 +70,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/checkout/get-address', [CheckoutController::class, 'getAddress'])->name('checkout.getAddress');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 
+    Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
+    Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
 
 });
 

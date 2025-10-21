@@ -61,13 +61,29 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr>
-                                                                <td>1</td>
-                                                                <td>Jun 22, 2019</td>
-                                                                <td>Pending</td>
-                                                                <td>$3000</td>
-                                                                <td><a href="cart.html">View</a></td>
-                                                            </tr>
+                                                            @foreach ($orders as $order)
+                                                                <tr>
+                                                                    <td>#{{ $order->id }}</td>
+                                                                    <td>{{ $order->created_at->format('d/m/Y') }}</td>
+                                                                    <td>
+                                                                        @if ($order->status == 'pending')
+                                                                            <span class="badge bg-warning">Chờ xác
+                                                                                nhận</span>
+                                                                        @elseif ($order->status == 'processing')
+                                                                            <span class="badge bg-primary">Đang xử lý</span>
+                                                                        @elseif ($order->status == 'completed')
+                                                                            <span class="badge bg-success">Hoàn thành</span>
+                                                                        @elseif ($order->status == 'canceled')
+                                                                            <span class="badge bg-danger">Đã hủy</span>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>{{ number_format($order->total_amount, 0, ',', '.') }}
+                                                                        đ</td>
+                                                                    <td><a href="{{ route('order.show', $order->id) }}"
+                                                                            class="btn btn-sm btn-info">Xem chi tiết</a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
                                                         </tbody>
                                                     </table>
                                                 </div>
