@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
 use App\Models\ShippingAddress;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
@@ -17,9 +18,9 @@ class AccountController extends Controller
         $user = Auth::user();
 
         $addresses = ShippingAddress::where('user_id', Auth::id())->get();
-
+        $orders = Order::where('user_id', $user->id)->orderBy('created_at', 'desc')->get();
         // Truyền biến $user sang view
-        return view('clients.pages.account', compact('user', 'addresses'));
+        return view('clients.pages.account', compact('user', 'addresses', 'orders'));
     }
     public function changePassword(Request $request)
     {
