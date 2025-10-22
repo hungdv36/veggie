@@ -74,7 +74,7 @@
                                                 <li><a href="#">FAQ</a></li>
                                             </ul>
                                     </li>
-                                    <li class="menu-icon"><a href="{{ route('products.index') }}">Cửa hàng</a>
+                                    <li class="menu-icon"><a href="/products">Cửa hàng</a>
                                     </li>
                                     <li><a href="#">Liên hệ</a></li>
                                     <li class="special-link"><a href="#">GET A QUOTE</a></li>
@@ -136,10 +136,19 @@
                     </div>
 
                     <!-- mini-cart -->
-                    <div class="mini-cart-icon">
-                        <a href="#ltn__utilize-cart-menu" class="ltn__utilize-toggle">
+                    <div class="mini-cart-icon position-relative">
+                        <a href="{{ route('cart.index') }}" class="ltn__utilize-toggle">
                             <i class="icon-shopping-cart"></i>
-                            <sup>2</sup>
+                            <span id="cart-count"
+                                class="badge position-absolute top-0 start-100 translate-middle bg-danger">
+                                @if (Auth::check())
+                                    {{-- Đếm số dòng CartItem, mỗi biến thể 1 dòng --}}
+                                    {{ \App\Models\CartItem::where('user_id', Auth::id())->count() }}
+                                @else
+                                    {{-- Đếm số dòng sản phẩm trong session cart, mỗi biến thể 1 dòng --}}
+                                    {{ collect(session('cart', []))->count() }}
+                                @endif
+                            </span>
                         </a>
                     </div>
                     <!-- mini-cart -->
@@ -169,7 +178,7 @@
 <!-- Utilize Cart Menu Start -->
 <div id="ltn__utilize-cart-menu" class="ltn__utilize ltn__utilize-cart-menu">
     <div class="ltn__utilize-menu-inner ltn__scrollbar">
-        
+
 
     </div>
 </div>

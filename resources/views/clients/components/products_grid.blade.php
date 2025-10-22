@@ -4,8 +4,14 @@
             <div class="col-xl-4 col-sm-6 col-6">
                 <div class="ltn__product-item ltn__product-item-3 text-center">
                     <div class="product-img">
-                        <a href="{{ route('products.detail', $product->slug) }}"><img src="{{ $product->image_url }}"
-                                alt="{{ $product->name }}"></a>
+                        <a href="{{ route('products.detail', $product->slug) }}">
+                            @if ($product->image)
+                                <img src="{{ asset('assets/img/product/' . $product->image) }}" alt="{{ $product->name }}"
+                                    style="height:100px;width:100px; object-fit:cover;">
+                            @else
+                                <img src="{{ asset('assets/img/product/default.png') }}" alt="Default" width="80">
+                            @endif
+                        </a>
                         <div class="product-hover-action">
                             <ul>
                                 <li>

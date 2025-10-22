@@ -32,6 +32,17 @@
     <!-- jQuery (nếu chưa load) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
+
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
+
+
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 </head>
@@ -96,7 +107,7 @@
         var toggleDeleteUrl = "{{ route('admin.user.toggleDelete') }}";
     </script>
     <!-- Custom JS -->
-    <script src="{{ asset('assets/admin/js/custom.js') }}"></script>
+
 
     <!-- CSRF token cho AJAX -->
     <script>

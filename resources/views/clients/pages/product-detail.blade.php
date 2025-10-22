@@ -135,13 +135,13 @@
                                     <div class="ltn__product-details-menu-2">
                                         <ul>
                                             <li>
-                                                <div class="cart-plus-minus">
-                                                    <div class="dec qtybutton">-</div>
-                                                    <input id="cart-qty-box" type="text" value="1" name="qtybutton"
-                                                        class="cart-plus-minus-box" readonly
-                                                        data-max="{{ $product->stock }}">
-                                                    <div class="inc qtybutton">+</div>
-                                                </div>
+                                                <div class="cart-quantity-wrapper" style="display: flex; align-items: center; width: fit-content; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
+    <button type="button" class="qtybutton-detail dec" style="background: #f5f5f5; border: none; padding: 6px 12px; cursor: pointer; font-weight: bold;">-</button>
+    <input id="cart-qty-box" type="text" value="1" readonly
+           class="cart-plus-minus-box" style="width: 50px; text-align: center; border: none; outline: none;" 
+           data-max="{{ $product->stock }}">
+    <button type="button" class="qtybutton-detail inc" style="background: #f5f5f5; border: none; padding: 6px 12px; cursor: pointer; font-weight: bold;">+</button>
+</div>
                                                 <p class="text-muted small mt-1">
                                                     Tổng kho: <span
                                                         id="product-stock">{{ $product->variants->sum('quantity') }}</span>

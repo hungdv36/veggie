@@ -89,7 +89,7 @@ class ProductController extends Controller
                 $imagesData = [];
                 foreach ($request->file('images') as $image) {
                     $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                    $image->move(public_path('assets/img/product'), $imageName);
+                    $image->move(public_path('assets/admin/img/product'), $imageName);
                     $imagesData[] = [
                         'product_id' => $product->id,
                         'image_path' => 'assets/img/product/' . $imageName,

@@ -86,5 +86,8 @@ Route::post('/cart/remove', [CartController::class, 'removeFromMiniCart'])->name
 Route::get('/mini-cart', [CartController::class, 'loadMiniCart'])->name('cart.mini');
 
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.index');
+Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
+Route::post('/cart/remove-cart', [CartController::class, 'removeCartItem'])->name('cart.removeItem');
+
 
 require __DIR__ . '/admin.php';
