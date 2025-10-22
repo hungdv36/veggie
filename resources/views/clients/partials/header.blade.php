@@ -49,7 +49,8 @@
                 <div class="col">
                     <div class="site-logo-wrap">
                         <div class="site-logo">
-                            <a href="\"><img src="img/logo-2.png" alt="Logo"></a>
+                            <a href="\"> <img src="{{ asset('assets/clients/img/logo1.png') }}" alt="Logo"
+                                style="width: 200px; height: 120px; object-fit: contain;"></a>
                         </div>
                     </div>
                 </div>
@@ -58,16 +59,18 @@
                         <nav>
                             <div class="ltn__main-menu">
                                 <ul>
-                                    <li class="menu-icon"><a href="\">Trang chủ</a> </li>
-                                    <li class="menu-icon"><a href="#">Về chúng tôi</a>
-                                        <ul>
-                                            <li><a href="about.html">Về chúng tôi</a></li>
-                                            <li><a href="service.html">Dịch vụ</a></li>
-                                            <li><a href="team.html">Team</a></li>
-                                            <li><a href="faq.html">FAQ</a></li>
-                                        </ul>
+                                    <li class="menu-icon"><a
+                                            href="\">Trang chủ</a> </li>
+                                    <li class="menu-icon"><a
+                                                href="#">Về chúng tôi</a>
+                                            <ul>
+                                                <li><a href="about.html">Về chúng tôi</a></li>
+                                                <li><a href="service.html">Dịch vụ</a></li>
+                                                <li><a href="team.html">Team</a></li>
+                                                <li><a href="faq.html">FAQ</a></li>
+                                            </ul>
                                     </li>
-                                    <li class="menu-icon"><a href="shop.html">Cửa hàng</a>
+                                    <li class="menu-icon"><a href="/products">Cửa hàng</a>
                                     </li>
                                     <li><a href="contact.html">Liên hệ</a></li>
                                     <li class="special-link"><a href="contact.html">GET A QUOTE</a></li>
@@ -129,10 +132,12 @@
 
                     <!-- mini-cart -->
                     <div class="mini-cart-icon">
-                        <a href="#ltn__utilize-cart-menu" class="ltn__utilize-toggle">
+                        <a href="{{ route('cart.index') }}" class="ltn__utilize-toggle">
                             <i class="icon-shopping-cart"></i>
+                            <span id="cart-count">{{ $cartCount }}</span>
                         </a>
                     </div>
+
                     <!-- mini-cart -->
                     <!-- Mobile Menu Button -->
                     <div class="mobile-menu-toggle d-xl-none">
@@ -160,7 +165,7 @@
 <!-- Utilize Cart Menu Start -->
 <div id="ltn__utilize-cart-menu" class="ltn__utilize ltn__utilize-cart-menu">
     <div class="ltn__utilize-menu-inner ltn__scrollbar">
-        
+
 
     </div>
 </div>

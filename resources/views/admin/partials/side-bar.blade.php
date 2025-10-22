@@ -66,6 +66,16 @@
                              <li><a href="{{ route('admin.sizes.index') }}">Danh sách kích thước</a></li>
                          </ul>
                      </li>
+                     <li>
+                         <a>
+                             <i class="fa fa-paint-brush"></i> Quản lý màu sắc
+                             <span class="fa fa-chevron-down"></span>
+                         </a>
+                         <ul class="nav child_menu">
+                             <li><a href="{{ route('admin.colors.add') }}">Thêm màu sắc</a></li>
+                             <li><a href="{{ route('admin.colors.index') }}">Danh sách màu sắc</a></li>
+                         </ul>
+                     </li>
 
                      <li>
                          <a>

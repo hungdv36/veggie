@@ -121,6 +121,18 @@
     <script src="{{ asset('assets/clients/js/vendor/jquery-3.6.0.min.js') }}"></script>
     <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
 
+    <script>
+        $(document).ready(function() {
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
+            console.log('CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // kiểm tra
+        });
+    </script>
+
     <!-- ✅ Script đổi mật khẩu -->
     <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
     <!-- preloader area end -->
