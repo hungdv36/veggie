@@ -10,6 +10,7 @@ use App\Http\Controllers\Clients\OrderController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
+use App\Http\Controllers\Clients\SearchController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
@@ -88,6 +89,9 @@ Route::get('/mini-cart', [CartController::class, 'loadMiniCart'])->name('cart.mi
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.index');
 Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
 Route::post('/cart/remove-cart', [CartController::class, 'removeCartItem'])->name('cart.removeItem');
+// Search
+Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+
 
 
 require __DIR__ . '/admin.php';

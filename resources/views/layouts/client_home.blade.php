@@ -23,22 +23,16 @@
     <!-- ✅ Toastr CSS -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/toastr.min.css') }}">
 
-
     {{-- Import custom CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
-    <script src="{{ asset('assets/clients/js/jquery.min.js') }}"></script>
-    <!-- ✅ Toastr CSS -->
-    <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
 </head>
+
 <style>
     .category-container {
         display: flex;
         flex-wrap: wrap;
-        /* cho phép xuống hàng nếu hết chỗ */
         gap: 20px;
-        /* khoảng cách giữa các ô */
         justify-content: flex-start;
-        /* canh trái, hoặc center */
         height: auto;
     }
 
@@ -48,7 +42,6 @@
         border-radius: 8px;
         text-align: center;
         width: 180px;
-        /* chiều ngang mỗi ô */
         padding: 15px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s;
@@ -87,20 +80,15 @@
         align-items: center;
         margin: 3px;
         transition: all 0.2s ease;
-        /* mượt khi hover */
     }
 
-    /* Hover */
     .variant-btn:hover {
         border-color: #ff5722;
         background-color: #fff3e0;
-        /* nền nhạt */
         transform: translateY(-2px);
-        /* nổi lên */
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
-    /* Khi được chọn */
     .variant-btn.selected {
         border-color: #ff5722;
         background-color: #ffe0b2;
@@ -117,9 +105,12 @@
         @include('clients.partials.footer_home')
     </div>
 
-    <!-- preloader area start -->
+    <!-- ✅ Scripts -->
     <script src="{{ asset('assets/clients/js/vendor/jquery-3.6.0.min.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/main.js') }}"></script>
     <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
 
     <script>
         $(document).ready(function() {
@@ -129,14 +120,9 @@
                 }
             });
 
-            console.log('CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // kiểm tra
+            console.log('CSRF Token:', $('meta[name="csrf-token"]').attr('content'));
         });
     </script>
-
-    <!-- ✅ Script đổi mật khẩu -->
-    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
-    <!-- preloader area end -->
-
 </body>
 
 </html>

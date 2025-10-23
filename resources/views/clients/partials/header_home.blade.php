@@ -86,21 +86,22 @@
                 <div class="ltn__header-options ltn__header-options-2 mb-sm-20">
                     <!-- header-search-1 -->
                     <div class="header-search-wrap">
-                        <div class="header-search-1">
-                            <div class="search-icon">
-                                <i class="icon-search for-search-show"></i>
-                                <i class="icon-cancel  for-search-close"></i>
-                            </div>
-                        </div>
-                        <div class="header-search-1-form">
-                            <form id="#" method="get" action="#">
-                                <input type="text" name="search" value="" placeholder="Search here..." />
-                                <button type="submit">
-                                    <span><i class="icon-search"></i></span>
-                                </button>
-                            </form>
-                        </div>
-                    </div>
+    <div class="header-search-1">
+        <div class="search-icon">
+            <i class="icon-search for-search-show"></i>
+            <i class="icon-cancel for-search-close"></i>
+        </div>
+    </div>
+    <div class="header-search-1-form">
+        <form id="search-form" method="GET" action="{{ route('search.index') }}">
+            <input type="text" name="query" value="{{ request('query') }}" placeholder="Tìm kiếm sản phẩm..." />
+            <button type="submit">
+                <span><i class="icon-search"></i></span>
+            </button>
+        </form>
+    </div>
+</div>
+
                     <!-- user-menu -->
                     <div class="ltn__drop-menu user-menu">
                         <ul>
