@@ -69,6 +69,14 @@
                                     <div class="slider-range"></div>
                                 </div>
                             </div>
+                            <!-- Search Widget -->
+                            <div class="widget ltn__search-widget">
+                                <h4 class="ltn__widget-title ltn__widget-title-border">Tìm kiếm</h4>
+                                <form action="#">
+                                    <input type="text" name="search" placeholder="Tìm kiếm từ khóa của bạn...">
+                                    <button type="submit"><i class="fas fa-search"></i></button>
+                                </form>
+                            </div>
                             <!-- Top Rated Product Widget -->
                             <div class="widget ltn__top-rated-product-widget">
                                 <h4 class="ltn__widget-title ltn__widget-title-border">Sản phẩm hàng đầu</h4>
@@ -97,79 +105,7 @@
                                         </div>
                                     </li>
                                     
-                            </div>
-                            <!-- Search Widget -->
-                            <div class="widget ltn__search-widget">
-                                <h4 class="ltn__widget-title ltn__widget-title-border">Tìm kiếm</h4>
-                                <form action="#">
-                                    <input type="text" name="search" placeholder="Tìm kiếm từ khóa của bạn...">
-                                    <button type="submit"><i class="fas fa-search"></i></button>
-                                </form>
-                            </div>
-                            <!-- Tagcloud Widget -->
-                            <div class="widget ltn__tagcloud-widget">
-                                <h4 class="ltn__widget-title ltn__widget-title-border">Popular Tags</h4>
-                                <ul>
-                                    <li><a href="#">Popular</a></li>
-                                    <li><a href="#">desgin</a></li>
-                                    <li><a href="#">ux</a></li>
-                                    <li><a href="#">usability</a></li>
-                                    <li><a href="#">develop</a></li>
-                                    <li><a href="#">icon</a></li>
-                                    <li><a href="#">Car</a></li>
-                                    <li><a href="#">Service</a></li>
-                                    <li><a href="#">Repairs</a></li>
-                                    <li><a href="#">Auto Parts</a></li>
-                                    <li><a href="#">Oil</a></li>
-                                    <li><a href="#">Dealer</a></li>
-                                    <li><a href="#">Oil Change</a></li>
-                                    <li><a href="#">Body Color</a></li>
-                                </ul>
-                            </div>
-                            <!-- Size Widget -->
-                            <div class="widget ltn__tagcloud-widget ltn__size-widget">
-                                <h4 class="ltn__widget-title ltn__widget-title-border">Product Size</h4>
-                                <ul>
-                                    <li><a href="#">S</a></li>
-                                    <li><a href="#">M</a></li>
-                                    <li><a href="#">L</a></li>
-                                    <li><a href="#">XL</a></li>
-                                    <li><a href="#">XXL</a></li>
-                                </ul>
-                            </div>
-                            <!-- Color Widget -->
-                            <div class="widget ltn__color-widget">
-                                <h4 class="ltn__widget-title ltn__widget-title-border">Product Color</h4>
-                                <ul>
-                                    <li class="black"><a href="#"></a></li>
-                                    <li class="white"><a href="#"></a></li>
-                                    <li class="red"><a href="#"></a></li>
-                                    <li class="silver"><a href="#"></a></li>
-                                    <li class="gray"><a href="#"></a></li>
-                                    <li class="maroon"><a href="#"></a></li>
-                                    <li class="yellow"><a href="#"></a></li>
-                                    <li class="olive"><a href="#"></a></li>
-                                    <li class="lime"><a href="#"></a></li>
-                                    <li class="green"><a href="#"></a></li>
-                                    <li class="aqua"><a href="#"></a></li>
-                                    <li class="teal"><a href="#"></a></li>
-                                    <li class="blue"><a href="#"></a></li>
-                                    <li class="navy"><a href="#"></a></li>
-                                    <li class="fuchsia"><a href="#"></a></li>
-                                    <li class="purple"><a href="#"></a></li>
-                                    <li class="pink"><a href="#"></a></li>
-                                    <li class="nude"><a href="#"></a></li>
-                                    <li class="orange"><a href="#"></a></li>
-
-                                    <li><a href="#" class="orange"></a></li>
-                                    <li><a href="#" class="orange"></a></li>
-                                </ul>
-                            </div>
-                            <!-- Banner Widget -->
-                            <div class="widget ltn__banner-widget">
-                                <a href="{{ route('products.index') }}"><img src="{{ asset('assets/clients/img/banner/banner-1.jpg') }}" alt="#"></a>
-                            </div>
-
+                            </div>                           
                         </aside>
                     </div>
                 </div>

@@ -1,38 +1,113 @@
 @extends('layouts.client')
 
 @section('title', 'Dịch vụ')
-
 @section('breadcrumb', 'Dịch vụ')
 
 @section('content')
-    <!-- ABOUT US AREA START -->
-    <div class="ltn__about-us-area pb-115">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-5 align-self-center">
-                    <div class="about-us-img-wrap ltn__img-shape-left  about-img-left">
-                        <img src="img/service/11.jpg" alt="Image">
-                    </div>
+<!-- SERVICE INTRO AREA START -->
+<section class="py-5" style="background:#f8f9fa;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-5 text-center mb-4 mb-lg-0">
+                <div class="position-relative">
+                    <i class="fas fa-shirt fa-8x text-success" style="opacity:.15; position:absolute; top:0; left:0; right:0; margin:auto;"></i>
+                    <i class="fas fa-truck-fast fa-5x text-success position-relative" style="z-index:2;"></i>
                 </div>
-                <div class="col-lg-7 align-self-center">
-                    <div class="about-us-info-wrap">
-                        <div class="section-title-area ltn__section-title-2">
-                            <h6 class="section-subtitle ltn__secondary-color">// Dịch vụ đáng tin cậy</h6>
-                            <h1 class="section-title">Chúng tôi là những người có trình độ & Chuyên nghiệp<span>.</span>
-                            </h1>
-                            <p>Chúng tôi luôn cam kết mang đến dịch vụ tốt nhất cho khách hàng.</p>
+            </div>
+            <div class="col-lg-7">
+                <div>
+                    <h6 class="text-uppercase fw-bold" style="color:#1EB980;">// Dịch vụ đáng tin cậy</h6>
+                    <h2 class="fw-bold mb-3">Phong cách & Chuyên nghiệp<span style="color:#1EB980;">.</span></h2>
+                    <p class="text-muted">Chúng tôi cam kết mang đến trải nghiệm mua sắm hoàn hảo cho tín đồ thời trang: sản phẩm chất lượng, dịch vụ tận tâm và giao hàng nhanh chóng.</p>
+                    <ul class="list-unstyled mt-3">
+                        <li class="mb-2"><i class="fas fa-truck text-success me-2"></i> Giao hàng nhanh toàn quốc</li>
+                        <li class="mb-2"><i class="fas fa-sync text-success me-2"></i> Đổi trả miễn phí trong 7 ngày</li>
+                        <li class="mb-2"><i class="fas fa-headset text-success me-2"></i> Hỗ trợ khách hàng 24/7</li>
+                        <li class="mb-2"><i class="fas fa-shield-alt text-success me-2"></i> Thanh toán an toàn, bảo mật</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- SERVICE INTRO AREA END -->
+
+<!-- SERVICE LIST AREA START -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Dịch vụ của chúng tôi</h2>
+            <p class="text-muted">Chăm sóc khách hàng từ trái tim – mang phong cách đến từng chi tiết</p>
+        </div>
+
+        <div class="row g-4">
+            @php
+                $services = [
+                    ['icon'=>'fa-shirt','title'=>'Thiết kế độc quyền','desc'=>'Những bộ sưu tập thời trang được thiết kế riêng, giúp bạn thể hiện phong cách cá nhân.'],
+                    ['icon'=>'fa-truck-fast','title'=>'Giao hàng nhanh 24/7','desc'=>'Hỗ trợ giao hàng toàn quốc, nhanh chóng, đảm bảo an toàn sản phẩm.'],
+                    ['icon'=>'fa-rotate-left','title'=>'Đổi trả dễ dàng','desc'=>'Đổi trả trong 7 ngày nếu sản phẩm bị lỗi hoặc không vừa.'],
+                    ['icon'=>'fa-gem','title'=>'Sản phẩm cao cấp','desc'=>'Chất liệu được chọn lọc kỹ lưỡng, mang lại trải nghiệm cao cấp.'],
+                    ['icon'=>'fa-headset','title'=>'Tư vấn tận tâm','desc'=>'Đội ngũ hỗ trợ luôn sẵn sàng tư vấn để bạn chọn sản phẩm phù hợp.'],
+                    ['icon'=>'fa-credit-card','title'=>'Thanh toán tiện lợi','desc'=>'Chấp nhận nhiều hình thức thanh toán, an toàn & nhanh chóng.'],
+                ];
+            @endphp
+
+            @foreach ($services as $s)
+            <div class="col-md-6 col-lg-4">
+                <div class="card text-center border-0 shadow-sm h-100 rounded-4 p-4 hover-up">
+                    <div class="mb-3">
+                        <i class="fas {{ $s['icon'] }} fa-3x text-success mb-3"></i>
+                    </div>
+                    <h5 class="fw-bold">{{ $s['title'] }}</h5>
+                    <p class="text-muted small">{{ $s['desc'] }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+<!-- SERVICE LIST AREA END -->
+
+<!-- OUR JOURNEY AREA START -->
+<section class="py-5" style="background: linear-gradient(120deg,#1EB980,#149a71); color:#fff;">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Hành trình phát triển</h2>
+        <div class="row justify-content-center text-start text-white">
+            <div class="col-lg-10">
+                <div class="timeline position-relative ps-4">
+                    <div class="timeline-item mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-seedling fa-lg me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">2015 – Khởi đầu hành trình</h6>
+                                <p class="mb-0 small text-light">Ra mắt thương hiệu thời trang đầu tiên, tập trung vào phong cách trẻ trung & năng động.</p>
+                            </div>
                         </div>
-                        <div class="about-us-info-wrap-inner about-us-info-devide">
-                            <p>Với nhiều năm kinh nghiệm và đội ngũ chuyên gia giàu kiến thức, chúng tôi luôn sẵn sàng đáp
-                                ứng mọi nhu cầu của khách hàng. Mục tiêu của chúng tôi là mang lại sự hài lòng tuyệt đối
-                                thông qua dịch vụ tận tâm, sản phẩm chất lượng và quy trình chuyên nghiệp.</p>
-                            <div class="list-item-with-icon">
-                                <ul>
-                                    <li><a href="contact.html">Giao hàng tận nhà miễn phí 24/7</a></li>
-                                    <li><a href="team.html">Đội ngũ chuyên gia</a></li>
-                                    <li><a href="service-details.html">Trang thiết bị hiện đại</a></li>
-                                    <li><a href="shop.html">Sản phẩm đa dạng, phong phú</a></li>
-                                </ul>
+                    </div>
+                    <div class="timeline-item mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-award fa-lg me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">2018 – Đạt giải thưởng uy tín</h6>
+                                <p class="mb-0 small text-light">Nhận giải “Thương hiệu thời trang được yêu thích nhất”.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item mb-4">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-store fa-lg me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">2020 – Mở rộng hệ thống</h6>
+                                <p class="mb-0 small text-light">Khai trương 15 chi nhánh mới trên toàn quốc, khẳng định uy tín thương hiệu.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-globe fa-lg me-3"></i>
+                            <div>
+                                <h6 class="fw-bold mb-1">2024 – Vươn ra quốc tế</h6>
+                                <p class="mb-0 small text-light">Mở rộng thị trường Đông Nam Á, đưa thương hiệu thời trang Việt ra thế giới.</p>
                             </div>
                         </div>
                     </div>
@@ -40,166 +115,23 @@
             </div>
         </div>
     </div>
-    <!-- ABOUT US AREA END -->
+</section>
+<!-- OUR JOURNEY AREA END -->
 
-    <!-- SERVICE AREA START (Service 1) -->
-    <div class="ltn__service-area section-bg-1 pt-115 pb-70">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title-area ltn__section-title-2 text-center">
-                        <h1 class="section-title white-color---">Dịch vụ của chúng tôi</h1>
-                    </div>
-                </div>
-            </div>
-            <div class="row justify-content-center">
-                <div class="col-lg-4 col-sm-6">
-                    <div class="ltn__service-item-1">
-                        <div class="service-item-img">
-                            <a href="service-details.html"><img src="img/service/1.jpg" alt="#"></a>
-                        </div>
-                        <div class="service-item-brief">
-                            <h3><a href="service-details.html">Rau củ hữu cơ</a></h3>
-                            <p>Chúng tôi cung cấp các loại rau củ hữu cơ tươi ngon, đảm bảo chất lượng và an toàn cho sức
-                                khỏe.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="ltn__service-item-1">
-                        <div class="service-item-img">
-                            <a href="service-details.html"><img src="img/service/2.jpg" alt="#"></a>
-                        </div>
-                        <div class="service-item-brief">
-                            <h3><a href="service-details.html">Trái cây hữu cơ</a></h3>
-                            <p>Trái cây tươi ngon, không hóa chất độc hại, giữ trọn hương vị tự nhiên.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="ltn__service-item-1">
-                        <div class="service-item-img">
-                            <a href="service-details.html"><img src="img/service/3.jpg" alt="#"></a>
-                        </div>
-                        <div class="service-item-brief">
-                            <h3><a href="service-details.html">Ngũ cốc & hạt dinh dưỡng</a></h3>
-                            <p>Các loại ngũ cốc và hạt giàu dinh dưỡng, tốt cho sức khỏe và hỗ trợ ăn kiêng.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="ltn__service-item-1">
-                        <div class="service-item-img">
-                            <a href="service-details.html"><img src="img/service/3.jpg" alt="#"></a>
-                        </div>
-                        <div class="service-item-brief">
-                            <h3><a href="service-details.html">Thực phẩm chế biến sạch</a></h3>
-                            <p>Các sản phẩm chế biến từ nguồn nguyên liệu an toàn, giữ được giá trị dinh dưỡng.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="ltn__service-item-1">
-                        <div class="service-item-img">
-                            <a href="service-details.html"><img src="img/service/1.jpg" alt="#"></a>
-                        </div>
-                        <div class="service-item-brief">
-                            <h3><a href="service-details.html">Đặc sản vùng miền</a></h3>
-                            <p>Tuyển chọn những sản phẩm đặc sản nổi bật từ nhiều vùng miền trên cả nước.</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-sm-6">
-                    <div class="ltn__service-item-1">
-                        <div class="service-item-img">
-                            <a href="service-details.html"><img src="img/service/2.jpg" alt="#"></a>
-                        </div>
-                        <div class="service-item-brief">
-                            <h3><a href="service-details.html">Dịch vụ giao hàng</a></h3>
-                            <p>Giao hàng tận nơi nhanh chóng, đảm bảo sản phẩm luôn tươi mới đến tay khách hàng.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- SERVICE AREA END -->
-
-    <!-- OUR JOURNEY AREA START -->
-    <div class="ltn__our-journey-area bg-image bg-overlay-theme-90 pt-280 pb-350 mb-35 plr--9" data-bg="img/bg/8.jpg">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="ltn__our-journey-wrap ">
-                        <ul>
-                            <li><span class="ltn__journey-icon">1900</span>
-                                <ul>
-                                    <li>
-                                        <div class="ltn__journey-history-item-info clearfix">
-                                            <div class="ltn__journey-history-img">
-                                                <img src="img/service/history-1.jpg" alt="Khởi đầu hành trình">
-                                            </div>
-                                            <div class="ltn__journey-history-info">
-                                                <h3>Bắt đầu hành trình</h3>
-                                                <p>Đặt những viên gạch đầu tiên, xây dựng nền móng cho sự phát triển bền
-                                                    vững sau này.</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="active"><span class="ltn__journey-icon">1950</span>
-                                <ul>
-                                    <li>
-                                        <div class="ltn__journey-history-item-info clearfix">
-                                            <div class="ltn__journey-history-img">
-                                                <img src="img/service/history-1.jpg" alt="Giành được giải thưởng">
-                                            </div>
-                                            <div class="ltn__journey-history-info">
-                                                <h3>Nhận được giải thưởng</h3>
-                                                <p>Được ghi nhận bởi những thành tựu nổi bật và chất lượng dịch vụ vượt
-                                                    trội.</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><span class="ltn__journey-icon">1994</span>
-                                <ul>
-                                    <li>
-                                        <div class="ltn__journey-history-item-info clearfix">
-                                            <div class="ltn__journey-history-img">
-                                                <img src="img/service/history-1.jpg" alt="Đứng đầu thị trường">
-                                            </div>
-                                            <div class="ltn__journey-history-info">
-                                                <h3>Vươn lên dẫn đầu</h3>
-                                                <p>Khẳng định vị thế trong ngành, trở thành một trong những đơn vị hàng đầu
-                                                    thị trường.</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><span class="ltn__journey-icon">2010</span>
-                                <ul>
-                                    <li>
-                                        <div class="ltn__journey-history-item-info clearfix">
-                                            <div class="ltn__journey-history-img">
-                                                <img src="img/service/history-1.jpg" alt="Đổi mới phát triển">
-                                            </div>
-                                            <div class="ltn__journey-history-info">
-                                                <h3>Đổi mới và phát triển</h3>
-                                                <p>Không ngừng cải tiến công nghệ và dịch vụ để đáp ứng nhu cầu ngày càng
-                                                    cao của khách hàng.</p>
-                                            </div>
-                                        </div>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li><span class="ltn__journey-icon">2020</span>
-                                <ul>
-                                    <li>
-                                        <div class="ltn__journey-history-item-info clearfix">
-                                            <div class="ltn__journey-history-img">
-
-                                            @endsection
+<!-- Custom CSS -->
+<style>
+.hover-up { transition: all 0.3s ease; }
+.hover-up:hover { transform: translateY(-6px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
+.timeline::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255,255,255,0.3);
+}
+.timeline-item { position: relative; }
+.timeline-item i { color:#fff; background:rgba(255,255,255,0.15); padding:10px; border-radius:50%; }
+</style>
+@endsection
