@@ -19,7 +19,7 @@
                     <div class="x_panel">
                         <div class="x_content">
                             <br />
-                            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" novalidate>
                                 @csrf
 
                                 <div class="row">
@@ -29,26 +29,17 @@
                                             <label class="form-label">Tên sản phẩm</label>
                                             <input type="text" name="name" class="form-control"
                                                 placeholder="Nhập tên sản phẩm..." value="{{ old('name') }}" required>
-                                            @error('name')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
                                         </div>
 
                                         <div class="mb-3">
                                             <label class="form-label">Thương hiệu</label>
                                             <input type="text" name="brand" class="form-control"
                                                 placeholder="Thương hiệu..." value="{{ old('brand') }}">
-                                            @error('brand')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
                                         </div>
 
                                         <div class="mb-3">
                                             <label class="form-label">Mô tả sản phẩm</label>
                                             <textarea name="description" id="description" class="form-control" rows="6">{{ old('description') }}</textarea>
-                                            @error('description')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
                                         </div>
                                     </div>
 
@@ -65,9 +56,7 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-                                            @error('category_id')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
+
                                         </div>
 
                                         <div class="mb-3">
@@ -87,9 +76,6 @@
                                                 <img id="imagePreview" src="#" alt="Preview"
                                                     style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); max-width:100%; max-height:100%; object-fit:cover; display:none; border-radius:4px;">
                                             </label>
-                                            @error('image')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
                                         </div>
 
                                         <div class="mb-3">
@@ -108,28 +94,68 @@
                                                     style="display:flex; flex-wrap:wrap; justify-content:center; gap:5px; margin-top:5px;">
                                                 </div>
                                             </label>
-                                            @error('images.*')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
                                         </div>
                                         <div class="mb-3">
                                             <label class="form-label">Đơn vị</label>
                                             <input type="text" name="unit" class="form-control"
                                                 placeholder="Đơn vị..." value="{{ old('unit') }}">
-                                            @error('unit')
-                                                <small class="text-danger">{{ $message }}</small>
-                                            @enderror
                                         </div>
                                     </div>
                                 </div>
-
                                 <!-- Biến thể sản phẩm -->
                                 <h5>Biến thể sản phẩm</h5>
                                 <div id="variants-wrapper">
-                                    @if (old('variants'))
-                                        @foreach (old('variants') as $i => $variant)
+                                    @if (old('variations'))
+                                        @foreach (old('variations') as $i => $variant)
                                             <div class="row g-2 mb-2 variant-row align-items-end">
-                                                <!-- input old() ở đây -->
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Size</label>
+                                                    <select name="variations[{{ $i }}][size_id]"
+                                                        class="form-select size-select">
+                                                        <option value="">Chọn size</option>
+                                                        @foreach ($sizes as $size)
+                                                            <option value="{{ $size->id }}"
+                                                                {{ old("variations.$i.size_id") == $size->id ? 'selected' : '' }}>
+                                                                {{ $size->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Màu sắc</label>
+                                                    <select name="variations[{{ $i }}][color_id]"
+                                                        class="form-select color-select">
+                                                        <option value="">Chọn màu</option>
+                                                        @foreach ($colors as $color)
+                                                            <option value="{{ $color->id }}"
+                                                                {{ old("variations.$i.color_id") == $color->id ? 'selected' : '' }}>
+                                                                {{ $color->name }}
+                                                            </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Giá gốc</label>
+                                                    <input type="number" name="variations[{{ $i }}][price]"
+                                                        class="form-control" value="{{ old("variations.$i.price") }}">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Giá khuyến mãi</label>
+                                                    <input type="number"
+                                                        name="variations[{{ $i }}][sale_price]"
+                                                        class="form-control"
+                                                        value="{{ old("variations.$i.sale_price") }}">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <label class="form-label">Số lượng</label>
+                                                    <input type="number"
+                                                        name="variations[{{ $i }}][quantity]"
+                                                        class="form-control" value="{{ old("variations.$i.quantity") }}">
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button"
+                                                        class="btn btn-danger btn-sm remove-variant">🗑</button>
+                                                </div>
                                             </div>
                                         @endforeach
                                     @else
@@ -137,7 +163,7 @@
                                         <div class="row g-2 mb-2 variant-row align-items-end">
                                             <div class="col-md-2">
                                                 <label class="form-label">Size</label>
-                                                <select name="variations[0][size_id]" class="form-select">
+                                                <select name="variations[0][size_id]" class="form-select size-select">
                                                     <option value="">Chọn size</option>
                                                     @foreach ($sizes as $size)
                                                         <option value="{{ $size->id }}">{{ $size->name }}</option>
@@ -146,7 +172,7 @@
                                             </div>
                                             <div class="col-md-2">
                                                 <label class="form-label">Màu sắc</label>
-                                                <select name="variations[0][color_id]" class="form-select">
+                                                <select name="variations[0][color_id]" class="form-select color-select">
                                                     <option value="">Chọn màu</option>
                                                     @foreach ($colors as $color)
                                                         <option value="{{ $color->id }}">{{ $color->name }}</option>
@@ -217,79 +243,135 @@
                 /* chữ mờ */
             }
         </style>
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                // ======= ẢNH ĐẠI DIỆN =======
-                const imageInput = document.getElementById('imageInput');
-                const imagePreview = document.getElementById('imagePreview');
-                const imageLabel = imageInput.closest('label');
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // ======= ẢNH ĐẠI DIỆN =======
+            const imageInput = document.getElementById("imageInput");
+            const imagePreview = document.getElementById("imagePreview");
+            const imageLabel = imageInput.closest("label");
 
-                imageInput.addEventListener('change', function(e) {
-                    const file = e.target.files[0];
-                    if (file) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            imagePreview.src = event.target.result;
-                            imagePreview.style.display = 'block';
-                            imageLabel.querySelector('svg').style.display = 'none';
-                            imageLabel.querySelector('span').style.display = 'none';
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                });
+            imageInput.addEventListener("change", function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imagePreview.src = event.target.result;
+                        imagePreview.style.display = "block";
+                        imageLabel.querySelector("svg").style.display = "none";
+                        imageLabel.querySelector("span").style.display = "none";
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
 
-                // ======= ALBUM ẢNH =======
-                const imagesInput = document.getElementById('imagesInput');
-                const imagesPreview = document.getElementById('imagesPreview');
-                const albumLabel = imagesInput.closest('label');
+            // ======= ALBUM ẢNH =======
+            const imagesInput = document.getElementById("imagesInput");
+            const imagesPreview = document.getElementById("imagesPreview");
+            const albumLabel = imagesInput.closest("label");
 
-                imagesInput.addEventListener('change', function(e) {
-                    imagesPreview.innerHTML = '';
-                    const files = Array.from(e.target.files);
-                    if (albumLabel && files.length > 0) {
-                        const svg = albumLabel.querySelector('svg');
-                        const span = albumLabel.querySelector('span');
-                        if (svg) svg.style.display = 'none';
-                        if (span) span.style.display = 'none';
-                    }
+            imagesInput.addEventListener("change", function(e) {
+                imagesPreview.innerHTML = "";
+                const files = Array.from(e.target.files);
+                if (albumLabel && files.length > 0) {
+                    const svg = albumLabel.querySelector("svg");
+                    const span = albumLabel.querySelector("span");
+                    if (svg) svg.style.display = "none";
+                    if (span) span.style.display = "none";
+                }
 
-                    files.forEach(file => {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            const img = document.createElement('img');
-                            img.src = event.target.result;
-                            img.style.width = '80px';
-                            img.style.height = '80px';
-                            img.style.objectFit = 'cover';
-                            img.style.borderRadius = '4px';
-                            imagesPreview.appendChild(img);
-                        };
-                        reader.readAsDataURL(file);
-                    });
-                });
-
-                // ======= BIẾN THỂ SẢN PHẨM =======
-                let variantIndex = 1;
-
-                $('#add-variant-btn').click(function() {
-                    let newRow = $('.variant-row:first').clone();
-                    newRow.find('input, select').each(function() {
-                        let name = $(this).attr('name');
-                        name = name.replace(/\d+/, variantIndex);
-                        $(this).attr('name', name).val('');
-                    });
-                    newRow.appendTo('#variants-wrapper');
-                    variantIndex++;
-                });
-
-                $(document).on('click', '.remove-variant', function() {
-                    if ($('.variant-row').length > 1) {
-                        $(this).closest('.variant-row').remove();
-                    } else {
-                        alert('Phải có ít nhất 1 biến thể!');
-                    }
+                files.forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const img = document.createElement("img");
+                        img.src = event.target.result;
+                        img.style.width = "80px";
+                        img.style.height = "80px";
+                        img.style.objectFit = "cover";
+                        img.style.borderRadius = "4px";
+                        imagesPreview.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
                 });
             });
-        </script>
-    </div>
+
+            // ======= BIẾN THỂ SẢN PHẨM =======
+            let variantIndex = 1;
+
+            $("#add-variant-btn").click(function() {
+                let newRow = $(".variant-row:first").clone();
+                newRow.find("input, select").each(function() {
+                    let name = $(this).attr("name");
+                    name = name.replace(/\d+/, variantIndex);
+                    $(this).attr("name", name).val("");
+                });
+                newRow.appendTo("#variants-wrapper");
+                variantIndex++;
+            });
+
+            $(document).on("click", ".remove-variant", function() {
+                if ($(".variant-row").length > 1) {
+                    $(this).closest(".variant-row").remove();
+                } else {
+                    alert("Phải có ít nhất 1 biến thể!");
+                }
+            });
+        });
+        $(document).ready(function() {
+            function checkDuplicateVariants() {
+                let variants = [];
+                let duplicate = false;
+
+                $("#variants-wrapper .variant-row").each(function() {
+                    let size = $(this).find(".size-select").val();
+                    let color = $(this).find(".color-select").val();
+                    if (size && color) {
+                        let key = size + "-" + color;
+                        if (variants.includes(key)) {
+                            duplicate = true;
+                            return false; // dừng loop
+                        }
+                        variants.push(key);
+                    }
+                });
+
+                if (duplicate) {
+                    toastr.error(
+                        "Biến thể size và màu không được trùng lặp",
+                        "Lỗi"
+                    );
+                }
+            }
+
+            // Bắt sự kiện change select size hoặc color
+            $("#variants-wrapper").on(
+                "change",
+                ".size-select, .color-select",
+                function() {
+                    checkDuplicateVariants();
+                }
+            );
+        });
+        $(document).ready(function() {
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                    toastr.error("{!! addslashes($error) !!}", "Lỗi", {
+                        closeButton: true,
+                        progressBar: true,
+                        positionClass: "toast-top-right",
+                        timeOut: 5000
+                    });
+                @endforeach
+            @endif
+
+            @if (session('success'))
+                toastr.success("{!! addslashes(session('success')) !!}", "Thành công", {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: "toast-top-right",
+                    timeOut: 5000
+                });
+            @endif
+        });
+    </script>
 @endsection

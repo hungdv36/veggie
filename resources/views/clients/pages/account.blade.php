@@ -57,6 +57,7 @@
                                                                 <th>Ngày</th>
                                                                 <th>Trạng thái</th>
                                                                 <th>Tổng cộng</th>
+                                                                <th>Phương thức thanh toán</th>
                                                                 <th>Thao tác</th>
                                                             </tr>
                                                         </thead>
@@ -79,6 +80,25 @@
                                                                     </td>
                                                                     <td>{{ number_format($order->total_amount, 0, ',', '.') }}
                                                                         đ</td>
+                                                                    <td>
+                                                                        <p>
+                                                                            @if ($order->payment)
+                                                                                @switch($order->payment->payment_method)
+                                                                                    @case('cash')
+                                                                                        Thanh toán khi nhận hàng
+                                                                                    @break
+                                                                                    @case('paypal')
+                                                                                        Thanh toán online (Paypal)
+                                                                                    @break
+
+                                                                                    @default
+                                                                                        {{ ucfirst($order->payment->payment_method) }}
+                                                                                @endswitch
+                                                                            @else
+                                                                                Chưa thanh toán
+                                                                            @endif
+                                                                        </p>
+                                                                    </td>
                                                                     <td><a href="{{ route('order.show', $order->id) }}"
                                                                             class="btn btn-sm btn-info">Xem chi tiết</a>
                                                                     </td>

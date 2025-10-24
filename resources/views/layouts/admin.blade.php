@@ -15,18 +15,25 @@
 
     <!-- Bootstrap CSS -->
     <link href="{{ asset('assets/admin/vendors/bootstrap/dist/css/bootstrap.min.css') }}" rel="stylesheet">
+
     <!-- Font Awesome -->
     <link href="{{ asset('assets/admin/vendors/font-awesome/css/font-awesome.min.css') }}" rel="stylesheet">
+
     <!-- NProgress -->
     <link href="{{ asset('assets/admin/vendors/nprogress/nprogress.css') }}" rel="stylesheet">
+
     <!-- iCheck -->
     <link href="{{ asset('assets/admin/vendors/iCheck/skins/flat/green.css') }}" rel="stylesheet">
+
     <!-- JQVMap -->
     <link href="{{ asset('assets/admin/vendors/jqvmap/dist/jqvmap.min.css') }}" rel="stylesheet">
+
     <!-- Bootstrap daterangepicker -->
     <link href="{{ asset('assets/admin/vendors/bootstrap-daterangepicker/daterangepicker.css') }}" rel="stylesheet">
+
     <!-- Custom Theme -->
     <link href="{{ asset('assets/admin/build/css/custom.min.css') }}" rel="stylesheet">
+
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- jQuery (nếu chưa load) -->
@@ -39,9 +46,6 @@
             }
         });
     </script>
-
-    <script src="{{ asset('assets/js/custom.js') }}"></script>
-
 
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -84,26 +88,19 @@
     <script src="{{ asset('assets/admin/vendors/flot.orderbars/js/jquery.flot.orderBars.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/flot-spline/js/jquery.flot.spline.min.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/flot.curvedlines/curvedLines.js') }}"></script>
-    <!-- DateJS -->
     <script src="{{ asset('assets/admin/vendors/DateJS/build/date.js') }}"></script>
-    <!-- JQVMap -->
     <script src="{{ asset('assets/admin/vendors/jqvmap/dist/jquery.vmap.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/jqvmap/dist/maps/jquery.vmap.world.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/jqvmap/examples/js/jquery.vmap.sampledata.js') }}"></script>
-    <!-- Bootstrap daterangepicker -->
     <script src="{{ asset('assets/admin/vendors/moment/min/moment.min.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+
     <!-- Custom Theme Scripts -->
     <script src="{{ asset('assets/admin/build/js/custom.min.js') }}"></script>
+
     <script>
         const upgradeUrl = "{{ route('admin.user.upgrade') }}";
-    </script>
-    <script>
-        // URL AJAX để cập nhật trạng thái người dùng
         var updateStatusUrl = "{{ route('admin.user.updateStatus') }}";
-    </script>
-    <script>
-        // URL AJAX để Xóa/Khôi phục người dùng
         var toggleDeleteUrl = "{{ route('admin.user.toggleDelete') }}";
     </script>
     <!-- Custom JS -->
@@ -165,7 +162,47 @@
         CKEDITOR.replace('description');
     </script>
 
+    <!-- Toastr hiển thị lỗi & success -->
+    <script>
+        $(document).ready(function() {
+            // Hiển thị toastr cho lỗi validate
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
+                    toastr.error({!! json_encode($error) !!}, "Lỗi", {
+                        closeButton: true,
+                        progressBar: true,
+                        positionClass: "toast-top-right",
+                        timeOut: 5000
+                    });
+                @endforeach
+            @endif
 
+            // Hiển thị toastr cho session success
+            @if (session('success'))
+                toastr.success({!! json_encode(session('success')) !!}, "Thành công", {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: "toast-top-right",
+                    timeOut: 5000
+                });
+            @endif
+
+            // Hiển thị toastr cho session error
+            @if (session('error'))
+                toastr.error({!! json_encode(session('error')) !!}, "Lỗi", {
+                    closeButton: true,
+                    progressBar: true,
+                    positionClass: "toast-top-right",
+                    timeOut: 5000
+                });
+            @endif
+        });
+    </script>
+
+    <!-- Custom JS -->
+    <script src="{{ asset('assets/js/custom.js') }}"></script>
+
+    @stack('scripts')
 </body>
 
 </html>
