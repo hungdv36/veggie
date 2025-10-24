@@ -10,20 +10,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <!-- Place favicon.png in the root directory -->
+    <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/clients/img/favicon.png') }}" type="image/x-icon" />
-    <!-- Font Icons css -->
-    <link rel="stylesheet" href="{{ asset('assets/clients/css/font-icons.css') }}">
-    <!-- plugins css -->
-    <link rel="stylesheet" href="{{ asset('assets/clients/css/plugins.css') }}">
-    <!-- Main Stylesheet -->
-    <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
-    <!-- Responsive css -->
-    <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
-    <!-- ✅ Toastr CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/clients/css/toastr.min.css') }}">
 
-    {{-- Import custom CSS --}}
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/font-icons.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/plugins.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/toastr.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
 </head>
 
@@ -70,7 +65,6 @@
         color: #555;
     }
 
-    /* Nút biến thể */
     .variant-btn {
         padding: 6px 12px;
         border: 1px solid #ccc;
@@ -99,19 +93,26 @@
 <body>
     <div class="body-wrapper">
         @include('clients.partials.header_home')
+
         <main>
             @yield('content')
         </main>
+
         @include('clients.partials.footer_home')
     </div>
 
     <!-- ✅ Scripts -->
-    <script src="{{ asset('assets/clients/js/vendor/jquery-3.6.0.min.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
     <script src="{{ asset('assets/clients/js/main.js') }}"></script>
     <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
     <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
 
+    <!-- ✅ Toastr render (PHẢI để dưới cùng, sau khi load JS) -->
+    @toastr_js
+    @toastr_render
+
+    <!-- ✅ CSRF setup (nếu cần AJAX) -->
     <script>
         $(document).ready(function() {
             $.ajaxSetup({
@@ -119,10 +120,7 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-
-            console.log('CSRF Token:', $('meta[name="csrf-token"]').attr('content'));
         });
     </script>
 </body>
-
 </html>

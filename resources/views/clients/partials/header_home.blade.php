@@ -76,8 +76,13 @@
                                     </li>
                                     <li class="menu-icon"><a href="/products">Cửa hàng</a>
                                     </li>
-                                    <li><a href="#">Liên hệ</a></li>
-                                    <li class="special-link"><a href="#">GET A QUOTE</a></li>
+                                    <li>
+                                        <a href="{{ route('contact.index') }}">Liên hệ</a>
+                                    </li>
+                                    <li class="special-link">
+                                        <a href="{{ route('contact.index') }}">NHẬN BÁO GIÁ</a>
+                                    </li>
+
                                 </ul>
                             </div>
                         </nav>
@@ -86,21 +91,22 @@
                 <div class="ltn__header-options ltn__header-options-2 mb-sm-20">
                     <!-- header-search-1 -->
                     <div class="header-search-wrap">
-    <div class="header-search-1">
-        <div class="search-icon">
-            <i class="icon-search for-search-show"></i>
-            <i class="icon-cancel for-search-close"></i>
-        </div>
-    </div>
-    <div class="header-search-1-form">
-        <form id="search-form" method="GET" action="{{ route('search.index') }}">
-            <input type="text" name="query" value="{{ request('query') }}" placeholder="Tìm kiếm sản phẩm..." />
-            <button type="submit">
-                <span><i class="icon-search"></i></span>
-            </button>
-        </form>
-    </div>
-</div>
+                        <div class="header-search-1">
+                            <div class="search-icon">
+                                <i class="icon-search for-search-show"></i>
+                                <i class="icon-cancel for-search-close"></i>
+                            </div>
+                        </div>
+                        <div class="header-search-1-form">
+                            <form id="search-form" method="GET" action="{{ route('search.index') }}">
+                                <input type="text" name="query" value="{{ request('query') }}"
+                                    placeholder="Tìm kiếm sản phẩm..." />
+                                <button type="submit">
+                                    <span><i class="icon-search"></i></span>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
 
                     <!-- user-menu -->
                     <div class="ltn__drop-menu user-menu">
