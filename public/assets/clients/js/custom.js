@@ -505,4 +505,36 @@ $("#contact-form").on("submit", function (e) {
 });
 
 
+// ==============================
+// HANDLE WISHLIST
+// ==============================
+$(document).on("click", ".add-to-wishlist", function (e) {
+    e.preventDefault();
+
+    let productId = $(this).data("id");
+
+    $.ajaxSetup({
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+    });
+
+    $.ajax({
+        url: "/wishlist/add",
+        type: "POST",
+        data: {
+            product_id: productId,
+        },
+        success: function (response) {
+            if (response.status) {
+                $("#liiton_wishlist_modal_" + productId).modal("show");
+            }
+        },
+        error: function (xhr) {
+            alert("Có lỗi xảy ra với ajax addToWishList.");
+        },
+    });
+});
+
+
 });

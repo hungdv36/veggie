@@ -9,9 +9,11 @@ use App\Http\Controllers\Clients\ForgotPasswordController;
 use App\Http\Controllers\Clients\HomeController;
 use App\Http\Controllers\Clients\OrderController;
 use App\Http\Controllers\Clients\ResetPasswordController;
+use App\Http\Controllers\Clients\WishListController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
 use App\Http\Controllers\Clients\SearchController;
+use App\Http\Controllers\Clients\WishController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
@@ -74,6 +76,10 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
+     // WishList
+    Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/add', [WishListController::class, 'addToWishlist'])->name('wishlist.add');
+
 });
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');

@@ -136,6 +136,7 @@
                                                 </button>
                                             </form>
                                         </li>
+                                         <li><a href="{{ route('wishlist') }}">Yêu Thích</a></li>
                                     @endauth
                                 </ul>
                             </li>
