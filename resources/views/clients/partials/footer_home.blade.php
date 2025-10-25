@@ -1,162 +1,144 @@
 <!-- FOOTER AREA START -->
-<footer class="ltn__footer-area  ">
-    <div class="footer-top-area  section-bg-2 plr--5">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-xl-3 col-md-6 col-sm-6 col-12">
-                    <div class="footer-widget footer-about-widget">
-                        <div class="footer-logo">
-                            <div class="site-logo">
-                                <img src="img/logo-2.png" alt="Logo">
-                            </div>
-                        </div>
-                        <p>Lorem Ipsum is simply dummy text of the and typesetting industry. Lorem Ipsum is
-                            dummy text of the printing.</p>
-                        <div class="footer-address">
-                            <ul>
-                                <li>
-                                    <div class="footer-address-icon">
-                                        <i class="icon-placeholder"></i>
-                                    </div>
-                                    <div class="footer-address-info">
-                                        <p>Ngu Hanh Son, Da Nang, Viet Nam</p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="footer-address-icon">
-                                        <i class="icon-call"></i>
-                                    </div>
-                                    <div class="footer-address-info">
-                                        <p><a href="tel:+0123-456789">+0123-456789</a></p>
-                                    </div>
-                                </li>
-                                <li>
-                                    <div class="footer-address-icon">
-                                        <i class="icon-mail"></i>
-                                    </div>
-                                    <div class="footer-address-info">
-                                        <p><a href="mailto:clothstore.dev@gmail.com">clothstore.dev@gmail.com</a>
-                                        </p>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="ltn__social-media mt-20">
-                            <ul>
-                                <li><a href="#" title="Facebook"><i class="fab fa-facebook-f"></i></a></li>
-                                <li><a href="#" title="Twitter"><i class="fab fa-twitter"></i></a></li>
-                                <li><a href="#" title="Linkedin"><i class="fab fa-linkedin"></i></a></li>
-                                <li><a href="#" title="Youtube"><i class="fab fa-youtube"></i></a></li>
-                            </ul>
-                        </div>
-                    </div>
+<footer class="footer-modern bg-dark text-light pt-5">
+    <div class="container">
+        <div class="row gy-4">
+            <!-- Logo & Info -->
+            <div class="col-lg-3 col-md-6">
+                <div class="mb-3">
+                    <img src="{{ asset('assets/clients/img/logo1.png') }}" alt="Logo"
+                        class="img-fluid mb-3" style="max-width: 180px;">
                 </div>
-                <div class="col-xl-2 col-md-6 col-sm-6 col-12">
-                    <div class="footer-widget footer-menu-widget clearfix">
-                        <h4 class="footer-title">Công ty</h4>
-                        <div class="footer-menu">
-                            <ul>
-                                <li><a href="about.html">Về chúng tôi</a></li>
-                                <li><a href="shop.html">Sản phẩm</a></li>
-                                <li><a href="faq.html">FAQ</a></li>
-                                <li><a href="contact.html">Liên hệ</a></li>
-                            </ul>
-                        </div>
-                    </div>
+                <p class="small text-secondary">
+                    Cửa hàng thời trang cao cấp – mang phong cách hiện đại, trẻ trung và tinh tế.
+                </p>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><i class="fas fa-map-marker-alt me-2 text-primary"></i>Trịnh Văn Bô, Hà Nội</li>
+                    <li class="mb-2"><i class="fas fa-phone me-2 text-primary"></i><a href="tel:+0123456789" class="text-light text-decoration-none">+0123 456 789</a></li>
+                    <li><i class="fas fa-envelope me-2 text-primary"></i><a href="mailto:clothstore.dev@gmail.com" class="text-light text-decoration-none">clothstore.dev@gmail.com</a></li>
+                </ul>
+                <div class="d-flex gap-3 mt-3">
+                    <a href="#" class="text-light fs-5"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-light fs-5"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-light fs-5"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-light fs-5"><i class="fab fa-youtube"></i></a>
                 </div>
-                <div class="col-xl-2 col-md-6 col-sm-6 col-12">
-                    <div class="footer-widget footer-menu-widget clearfix">
-                        <h4 class="footer-title">Dịch vụ</h4>
-                        <div class="footer-menu">
-                            <ul>
-                                <li><a href="order-tracking.html">Theo dõi đơn hàng</a></li>
-                                <li><a href="wishlist.html">Danh sách yêu thích</a></li>
-                                <li><a href="login.html">Đăng nhập</a></li>
-                                <li><a href="account.html">Tài khoản</a></li>
-                                <li><a href="about.html">Điều khoản & Điều kiện</a></li>
-                                <li><a href="about.html">Khuyến mãi</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-2 col-md-6 col-sm-6 col-12">
-                    <div class="footer-widget footer-menu-widget clearfix">
-                        <h4 class="footer-title">Hỗ trợ khách hàng</h4>
-                        <div class="footer-menu">
-                            <ul>
-                                <li><a href="login.html">Đăng nhập</a></li>
-                                <li><a href="account.html">Tài khoản</a></li>
-                                <li><a href="wishlist.html">Danh sách yêu thích</a></li>
-                                <li><a href="order-tracking.html">Theo dõi đơn hàng</a></li>
-                                <li><a href="faq.html">FAQ</a></li>
-                                <li><a href="contact.html">Liên hệ</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-md-6 col-sm-12 col-12">
-                    <div class="footer-widget footer-newsletter-widget">
-                        <h4 class="footer-title">Bảng tin</h4>
-                        <p>Đăng ký nhận Bản tin hàng tuần của chúng tôi và nhận thông tin cập nhật qua email.
-                        </p>
-                        <div class="footer-newsletter">
-                            <div id="mc_embed_signup">
-                                <form
-                                    action="https://gmail.us5.list-manage.com/subscribe/post?u=dde0a42ff09e8d43cad40dc82&amp;id=72d274d15d"
-                                    method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form"
-                                    class="validate" target="_blank" novalidate>
-                                    <div id="mc_embed_signup_scroll">
-                                        <div class="mc-field-group">
-                                            <input type="email" value="" name="EMAIL" class="required email"
-                                                id="mce-EMAIL" placeholder="Email*">
-                                        </div>
-                                        <div id="mce-responses" class="clear">
-                                            <div class="response" id="mce-error-response" style="display:none">
-                                            </div>
-                                            <div class="response" id="mce-success-response" style="display:none"></div>
-                                        </div>
-                                        <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
-                                        <div style="position: absolute; left: -5000px;" aria-hidden="true">
-                                            <input type="text" name="b_dde0a42ff09e8d43cad40dc82_72d274d15d"
-                                                tabindex="-1" value="">
-                                        </div>
-                                        <div class="clear">
-                                            <div class="btn-wrapper">
-                                                <button class="theme-btn-1 btn" type="submit" value="Subscribe"
-                                                    name="subscribe" id="mc-embedded-subscribe"><i
-                                                        class="fas fa-location-arrow"></i></button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                        <h5 class="mt-30">Chúng tôi chấp nhận</h5>
-                        <img src="img/icons/payment-4.png" alt="Payment Image">
-                    </div>
+            </div>
+
+            <!-- Công ty -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="text-uppercase mb-3 fw-bold text-white">Công ty</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url('/about') }}">Về chúng tôi</a></li>
+                    <li><a href="{{ url('/shop') }}">Sản phẩm</a></li>
+                    <li><a href="{{ url('/faq') }}">FAQ</a></li>
+                    <li><a href="{{ url('/contact') }}">Liên hệ</a></li>
+                </ul>
+            </div>
+
+            <!-- Dịch vụ -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="text-uppercase mb-3 fw-bold text-white">Dịch vụ</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url('/order-tracking') }}">Theo dõi đơn hàng</a></li>
+                    <li><a href="{{ url('/wishlist') }}">Yêu thích</a></li>
+                    <li><a href="{{ url('/account') }}">Tài khoản</a></li>
+                    <li><a href="{{ url('/promotions') }}">Khuyến mãi</a></li>
+                </ul>
+            </div>
+
+            <!-- Hỗ trợ -->
+            <div class="col-lg-2 col-md-6">
+                <h6 class="text-uppercase mb-3 fw-bold text-white">Hỗ trợ</h6>
+                <ul class="list-unstyled footer-links">
+                    <li><a href="{{ url('/faq') }}">Câu hỏi thường gặp</a></li>
+                    <li><a href="{{ url('/policy') }}">Chính sách bảo mật</a></li>
+                    <li><a href="{{ url('/terms') }}">Điều khoản dịch vụ</a></li>
+                    <li><a href="{{ url('/contact') }}">Liên hệ hỗ trợ</a></li>
+                </ul>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="col-lg-3 col-md-6">
+                <h6 class="text-uppercase mb-3 fw-bold text-white">Đăng ký nhận tin</h6>
+                <p class="small text-secondary mb-3">
+                    Nhận thông tin về khuyến mãi, sản phẩm mới và xu hướng thời trang.
+                </p>
+                <form action="#" method="post" class="d-flex">
+                    <input type="email" class="form-control me-2 rounded-pill" placeholder="Nhập email của bạn">
+                    <button class="btn btn-primary rounded-pill px-3"><i class="fas fa-paper-plane"></i></button>
+                </form>
+                <div class="mt-4">
+                    <h6 class="text-uppercase small text-white mb-2">Chấp nhận thanh toán</h6>
+                    <img src="{{ asset('assets/clients/img/icons/payment.jfif') }}" alt="Payment"
+                        class="img-fluid rounded shadow-sm" style="max-width: 180px;">
                 </div>
             </div>
         </div>
-    </div>
-    <div class="ltn__copyright-area ltn__copyright-2 section-bg-2 ltn__border-top-2 plr--5">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-md-6 col-12">
-                    <div class="ltn__copyright-design clearfix">
-                        <p>All Rights Reserved @ Company <span class="current-year"></span></p>
-                    </div>
-                </div>
-                <div class="col-md-6 col-12 align-self-center">
-                    <div class="ltn__copyright-menu text-right text-end">
-                        <ul>
-                            <li><a href="#">Terms & Conditions</a></li>
-                            <li><a href="#">Claim</a></li>
-                            <li><a href="#">Privacy & Policy</a></li>
-                        </ul>
-                    </div>
-                </div>
+
+        <hr class="border-secondary my-4">
+
+        <!-- Copyright -->
+        <div class="row align-items-center">
+            <div class="col-md-6 text-center text-md-start small text-secondary">
+                © <span class="current-year"></span> <strong>ClothStore</strong>. All rights reserved.
+            </div>
+            <div class="col-md-6 text-center text-md-end">
+                <a href="#" class="text-secondary small me-3">Terms</a>
+                <a href="#" class="text-secondary small me-3">Privacy</a>
+                <a href="#" class="text-secondary small">Support</a>
             </div>
         </div>
     </div>
 </footer>
 <!-- FOOTER AREA END -->
+
+<!-- Thêm CSS cho footer -->
+<style>
+.footer-links li {
+    margin-bottom: 0.5rem;
+}
+.footer-links a {
+    color: #ccc;
+    text-decoration: none;
+    transition: 0.3s;
+}
+.footer-links a:hover {
+    color: #fff;
+    padding-left: 5px;
+}
+.footer-modern {
+    background-color: #111;
+    color: #ddd;
+}
+.footer-modern h6 {
+    color: #fff;
+}
+.btn-primary {
+    background-color: #1A7F37 !important;
+    border-color: #1A7F37 !important;
+}
+
+.btn-primary:hover {
+    background-color: #14692D !important;
+    border-color: #14692D !important;
+}
+.text-primary {
+    color: #1A7F37 !important;
+}
+
+.footer-modern img {
+    filter: brightness(1.25) contrast(1.2);
+    transition: all 0.3s ease;
+}
+
+.footer-modern img:hover {
+    filter: brightness(1.4) contrast(1.3);
+}
+
+</style>
+
+<script>
+    document.querySelectorAll('.current-year').forEach(el => {
+        el.textContent = new Date().getFullYear();
+    });
+</script>

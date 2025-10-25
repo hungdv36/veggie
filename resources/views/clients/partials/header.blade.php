@@ -64,10 +64,10 @@
                                     <li class="menu-icon"><a
                                                 href="#">Về chúng tôi</a>
                                             <ul>
-                                                <li><a href="about.html">Về chúng tôi</a></li>
-                                                <li><a href="service.html">Dịch vụ</a></li>
-                                                <li><a href="team.html">Team</a></li>
-                                                <li><a href="faq.html">FAQ</a></li>
+                                                <li><a href="{{ url('/about') }}">Về chúng tôi</a></li>
+                                                <li><a href="{{ url('/service') }}">Dịch vụ</a></li>
+                                                <li><a href="{{ url('/team') }}">Team</a></li>
+                                                <li><a href="{{ url('/faq') }}">FAQ</a></li>
                                             </ul>
                                     </li>
                                     <li class="menu-icon"><a href="/products">Cửa hàng</a>
