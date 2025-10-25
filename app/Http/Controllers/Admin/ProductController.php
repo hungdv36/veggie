@@ -40,8 +40,8 @@ class ProductController extends Controller
     // 2. Xử lý POST (thêm sản phẩm)
     public function addProduct(Request $request)
     {
-        // Bước 1: Validate
-        $validator = Validator::make($request->all(), [
+        // Bước 1: Validate dữ liệu
+        $rules = [
             'name' => 'required|string|max:255',
             'brand' => 'nullable|string|max:100',
             'category_id' => 'nullable|exists:categories,id',
@@ -50,13 +50,35 @@ class ProductController extends Controller
             'unit' => 'nullable|string|max:50',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'images.*' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
-            'variations' => 'required|array',
+            'variations' => 'required|array|min:1',
             'variations.*.size_id' => 'required|exists:sizes,id',
             'variations.*.color_id' => 'required|exists:colors,id',
             'variations.*.quantity' => 'required|integer|min:0',
             'variations.*.price' => 'required|numeric|min:0',
             'variations.*.sale_price' => 'nullable|numeric|min:0',
-        ]);
+        ];
+
+        $messages = [
+            'name.required' => 'Tên sản phẩm không được để trống',
+            'name.min' => 'Tên sản phẩm tối thiểu phải 5 ký tự',
+            'brand.required' => 'Tên thương hiệu không được để trống',
+            'category_id.exists' => 'Danh mục không hợp lệ',
+            'variations.required' => 'Bạn phải thêm ít nhất 1 biến thể',
+            'variations.*.size_id.required' => 'Size không được để trống',
+            'variations.*.color_id.required' => 'Màu sắc không được để trống',
+            'variations.*.price.required' => 'Giá gốc không được để trống',
+            'variations.*.quantity.required' => 'Số lượng không được để trống',
+            'variations.*.sale_price.lte' => 'Giá khuyến mãi không được cao hơn giá gốc',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
         // Bước 2: Transaction
         DB::beginTransaction();
         try {
@@ -92,7 +114,7 @@ class ProductController extends Controller
                     $image->move(public_path('assets/admin/img/product'), $imageName);
                     $imagesData[] = [
                         'product_id' => $product->id,
-                        'image_path' => 'assets/img/product/' . $imageName,
+                        'image_path' => 'assets/admin/img/product/' . $imageName,
                         'created_at' => now(),
                         'updated_at' => now(),
                     ];
@@ -135,14 +157,15 @@ class ProductController extends Controller
                 'status' => $totalStock > 0 ? 'in_stock' : 'out_of_stock',
             ]);
 
-            DB::commit();;
+            DB::commit();
+
             return redirect()->route('admin.products.index')->with('success', 'Tạo sản phẩm thành công ✅');
         } catch (\Exception $e) {
             DB::rollBack();
-            dd($e->getMessage(), $e->getFile(), $e->getLine());
-            return back()->withErrors('Lỗi: ' . $e->getMessage())->withInput();
+            return redirect()->back()->with('error', 'Lỗi: ' . $e->getMessage())->withInput();
         }
     }
+
     public function showProduct(Request $request, $id)
     {
         $product = Product::with(['category', 'images', 'variants.size', 'variants.color'])

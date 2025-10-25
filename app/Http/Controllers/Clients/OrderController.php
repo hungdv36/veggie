@@ -18,20 +18,29 @@ class OrderController extends Controller
         return view('clients.pages.order-detail', compact('order'));
     }
 
-    public function cancelOrder($id): RedirectResponse
+    public function cancelOrder(Request $request, $id): RedirectResponse
     {
         $order = Order::where('id', $id)
             ->where('user_id', auth()->id())
             ->where('status', 'pending')
             ->firstOrFail();
 
+        // ✅ Xác thực lý do hủy
+        $request->validate([
+            'cancel_reason' => 'required|string|max:255',
+        ]);
+
+        // ✅ Hoàn kho
         foreach ($order->orderItems as $item) {
             $item->product->increment('stock', $item->quantity);
         }
 
-        // Update order status "canceled"
-        $order->update(['status' => 'canceled']);
+        // ✅ Cập nhật trạng thái & lý do hủy
+        $order->update([
+            'status' => 'canceled',
+            'cancel_reason' => $request->cancel_reason,
+        ]);
 
-        return redirect()->back()->with('success', 'Đơn hàng đã được hủy thành công và sản phẩm được hoàn kho.');
+        return redirect()->back()->with('success', 'Đơn hàng đã được hủy và sản phẩm được hoàn kho.');
     }
 }

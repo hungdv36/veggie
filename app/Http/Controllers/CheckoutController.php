@@ -18,9 +18,9 @@ class CheckoutController extends Controller
         $user = Auth::user();
         $addresses = ShippingAddress::where('user_id', $user->id)->get();
         $defaultAddress = $addresses->where('default', 1)->first();
-        if (is_null($addresses) || is_null($defaultAddress)) {
-            toastr()->error('Vui lòng thêm địa chỉ giao hàng!');
-            return redirect()->route('account');
+        if ($addresses->isEmpty()) {
+            toastr()->info('Bạn chưa có địa chỉ giao hàng, vui lòng thêm trong bước thanh toán.');
+            $defaultAddress = null;
         }
         $cartItems = CartItem::where('user_id', $user->id)->with('product')->get();
         $totalPrice = $cartItems->sum(fn($item) => $item->quantity * $item->product->price);
@@ -47,7 +47,7 @@ class CheckoutController extends Controller
     public function placeOrder(Request $request)
     {
         $user = Auth::user();
-        $cartItems = CartItem::where(column: 'user_id', operator: $user->id)->get();
+        $cartItems = CartItem::where('user_id', $user->id)->get();
 
         if ($cartItems->isEmpty()) {
             return redirect()->route(route: 'cart')->with(key: 'error', value: 'Giỏ hàng trống!');

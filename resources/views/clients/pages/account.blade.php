@@ -88,11 +88,67 @@
                                             <h6 class="text-muted mb-1">Tổng đơn hàng</h6>
                                             <h4 class="fw-bold text-dark">{{ $orders->count() }}</h4>
                                         </div>
-                                    </div>
-                                    <div class="col-md-4 mb-3">
-                                        <div class="stat-box py-3 shadow-sm">
-                                            <h6 class="text-muted mb-1">Đơn đang xử lý</h6>
-                                            <h4 class="fw-bold text-primary">{{ $orders->where('status', 'processing')->count() }}</h4>
+                                        <div class="tab-pane fade" id="liton_tab_orders">
+                                            <div class="ltn__myaccount-tab-content-inner">
+                                                <div class="table-responsive">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Đơn hàng</th>
+                                                                <th>Ngày</th>
+                                                                <th>Trạng thái</th>
+                                                                <th>Tổng cộng</th>
+                                                                <th>Phương thức thanh toán</th>
+                                                                <th>Thao tác</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @foreach ($orders as $order)
+                                                                <tr>
+                                                                    <td>#{{ $order->id }}</td>
+                                                                    <td>{{ $order->created_at->format('d/m/Y') }}</td>
+                                                                    <td>
+                                                                        @if ($order->status == 'pending')
+                                                                            <span class="badge bg-warning">Chờ xác
+                                                                                nhận</span>
+                                                                        @elseif ($order->status == 'processing')
+                                                                            <span class="badge bg-primary">Đang xử lý</span>
+                                                                        @elseif ($order->status == 'completed')
+                                                                            <span class="badge bg-success">Hoàn thành</span>
+                                                                        @elseif ($order->status == 'canceled')
+                                                                            <span class="badge bg-danger">Đã hủy</span>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>{{ number_format($order->total_amount, 0, ',', '.') }}
+                                                                        đ</td>
+                                                                    <td>
+                                                                        <p>
+                                                                            @if ($order->payment)
+                                                                                @switch($order->payment->payment_method)
+                                                                                    @case('cash')
+                                                                                        Thanh toán khi nhận hàng
+                                                                                    @break
+                                                                                    @case('paypal')
+                                                                                        Thanh toán online (Paypal)
+                                                                                    @break
+
+                                                                                    @default
+                                                                                        {{ ucfirst($order->payment->payment_method) }}
+                                                                                @endswitch
+                                                                            @else
+                                                                                Chưa thanh toán
+                                                                            @endif
+                                                                        </p>
+                                                                    </td>
+                                                                    <td><a href="{{ route('order.show', $order->id) }}"
+                                                                            class="btn btn-sm btn-info">Xem chi tiết</a>
+                                                                    </td>
+                                                                </tr>
+                                                            @endforeach
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4 mb-3">
