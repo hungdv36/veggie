@@ -82,7 +82,7 @@
                 <div class="col-lg-6">
                     <div class="ltn__checkout-payment-method mt-50">
                         <h4 class="title-2">Phương thức thanh toán</h4>
-                        <form action="{{ route('checkout.placeOrder') }}" method="POST">
+                        <form id="checkout-form" action="{{ route('checkout.placeOrder') }}" method="POST">
                             @csrf
                             <input type="hidden" name="address_id" id="address_hidden"
                                 value="{{ $defaultAddress->id ?? '' }}">
@@ -180,5 +180,44 @@
                     .catch(() => alert('Không thể tải thông tin địa chỉ!'));
             });
         });
+        document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('checkout-form');
+    const paypalRadio = document.getElementById('payment_paypal');
+    const codRadio = document.getElementById('payment_cod');
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const method = document.querySelector('input[name="payment_method"]:checked').value;
+
+        if (method === 'paypal') {
+            // Nếu chọn PayPal, chuyển hướng sang route PayPal
+            const amount = {{ $totalPrice + 25000 }};
+            const formData = new FormData();
+            formData.append('amount', amount);
+
+fetch('{{ route('checkout.paypal') }}', {
+    method: 'POST',
+    headers: {
+        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+    },
+    body: formData
+})
+.then(res => res.json())
+.then(data => {
+    if (data.redirect_url) {
+        window.location.href = data.redirect_url;
+    } else {
+        alert('Không thể tạo thanh toán PayPal.');
+    }
+})
+.catch(() => alert('Lỗi khi kết nối với PayPal.'));
+
+        } else {
+            // Nếu chọn COD -> submit form bình thường
+            form.submit();
+        }
+    });
+});
     </script>
 @endsection

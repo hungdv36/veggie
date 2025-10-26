@@ -10,6 +10,7 @@ use App\Http\Controllers\Clients\OrderController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
+use App\Http\Controllers\PaymentController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
@@ -89,5 +90,15 @@ Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.index');
 Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
 Route::post('/cart/remove-cart', [CartController::class, 'removeCartItem'])->name('cart.removeItem');
 
+
+Route::post('checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
+Route::get('/checkout/paypal/success', [PaymentController::class, 'success'])->name('paypal.success');
+Route::get('/checkout/paypal/cancel', [PaymentController::class, 'cancel'])->name('paypal.cancel');
+
+Route::middleware(['auth.custom'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout/cod', [CheckoutController::class, 'handleCOD'])->name('checkout.cod');
+    Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
+});
 
 require __DIR__ . '/admin.php';
