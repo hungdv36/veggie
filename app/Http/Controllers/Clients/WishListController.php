@@ -42,4 +42,24 @@ class WishListController extends Controller
     return response()->json(['status' => true]);
 }
 
+public function remove(Request $request)
+{
+    $productId = $request->input('product_id');
+    $roleId = Auth::user()->role_id; // 👈 đúng nếu wishlist lưu role_id
+
+    $wish = WishList::where('role_id', $roleId)
+                    ->where('product_id', $productId)
+                    ->first();
+
+    if (!$wish) {
+        return response()->json(['error' => 'Sản phẩm không tồn tại trong danh sách yêu thích.'], 404);
+    }
+
+    $wish->delete();
+
+    return response()->json(['success' => 'Đã xóa sản phẩm khỏi danh sách yêu thích.']);
+}
+
+
+
 }

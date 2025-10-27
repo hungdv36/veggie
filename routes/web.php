@@ -77,10 +77,10 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
-     // WishList
+    // WishList
     Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
     Route::post('/wishlist/add', [WishListController::class, 'addToWishlist'])->name('wishlist.add');
-
+    Route::post('/wishlist/remove', [WishListController::class, 'remove'])->name('wishlist.remove');
 });
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');

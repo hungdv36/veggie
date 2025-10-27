@@ -102,6 +102,21 @@
     </div>
 
     <!-- ✅ Scripts -->
+   <script src="https://cdn.jsdelivr.net/npm/@flasher/flasher-notyf@1.3.1/dist/flasher-notyf.min.js"></script>
+
+<!-- Hiển thị thông báo nếu có -->
+@if (session('success'))
+    <script>
+        notyf.success("{{ session('success') }}");
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        notyf.error("{{ session('error') }}");
+    </script>
+@endif
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
     <script src="{{ asset('assets/clients/js/main.js') }}"></script>

@@ -536,5 +536,44 @@ $(document).on("click", ".add-to-wishlist", function (e) {
     });
 });
 
+// ======= XÓA KHỎI DANH SÁCH YÊU THÍCH =======
+$(document).on("click", ".remove-from-wishlist", function (e) {
+    e.preventDefault();
+
+    let productId = $(this).data("id");
+
+    // 🔹 Hiển thị hộp thoại xác nhận trước khi xóa
+    if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?")) {
+        return; // nếu chọn "Hủy" thì dừng lại
+    }
+
+    $.ajaxSetup({
+        headers: {
+            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+        },
+    });
+
+    $.ajax({
+        url: "/wishlist/remove",
+        type: "POST",
+        data: { product_id: productId },
+        success: function (response) {
+            if (response.success) {
+                alert(response.success);
+                location.reload(); // tải lại trang sau khi xóa
+            } else if (response.error) {
+                alert(response.error);
+            }
+        },
+        error: function () {
+            alert("Có lỗi xảy ra khi xóa khỏi danh sách yêu thích.");
+        },
+    });
+});
+
+
+
+
+
 
 });
