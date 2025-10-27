@@ -1,215 +1,100 @@
 @extends('layouts.client')
 
-@section('title', 'Team')
+@section('title', 'Đội ngũ')
 
-@section('breadcrumb', 'Team')
+@section('breadcrumb', 'Đội ngũ')
 
 @section('content')
-    <!-- TEAM AREA START (Team - 3) -->
-    <div class="ltn__team-area pt-110--- pb-90">
+    <!-- TEAM AREA START -->
+    <div class="team-area py-5 bg-light">
         <div class="container">
-            <div class="row justify-content-center">
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/1.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Người sáng lập</h6>
-                            <h4><a href="team-details.html">Rosalina D. William</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
+            <div class="text-center mb-5">
+                <h6 class="text-uppercase fw-bold" style="color:#0f9d58;">// Đội ngũ chuyên nghiệp</h6>
+                <h2 class="fw-bold mb-3">Gặp gỡ <span style="color:#0f9d58;">Đội ngũ của chúng tôi</span></h2>
+                <p class="text-muted">Những con người trẻ trung, sáng tạo và đầy đam mê trong lĩnh vực thời trang.</p>
+            </div>
+
+            <div class="row justify-content-center g-4">
+                @php
+                    $members = [
+                        ['name' => 'Đào Văn Hùng', 'role' => 'Người sáng lập', 'icon' => 'fa-user-tie'],
+                        ['name' => 'Lê Quang Tuyến', 'role' => 'Giám đốc điều hành', 'icon' => 'fa-briefcase'],
+                        ['name' => 'Trần Đình Anh Quân', 'role' => 'Nhà thiết kế', 'icon' => 'fa-pencil-ruler'],
+                        ['name' => 'Nguyễn Đình Ngọc', 'role' => 'Chuyên viên Marketing', 'icon' => 'fa-bullhorn'],
+                        ['name' => 'Lê Đại Dương', 'role' => 'Nhà phát triển Web', 'icon' => 'fa-code'],
+                    ];
+                @endphp
+
+                @foreach ($members as $member)
+                    <div class="col-lg-3 col-md-4 col-sm-6">
+                        <div class="team-card text-center shadow-sm p-4 rounded-4 bg-white h-100">
+                            <div class="icon-wrapper mb-3">
+                                <i class="fas {{ $member['icon'] }} fa-3x" style="color:#0f9d58;"></i>
+                            </div>
+                            <h5 class="fw-bold">{{ $member['name'] }}</h5>
+                            <p class="text-muted mb-3">{{ $member['role'] }}</p>
+                            <div class="d-flex justify-content-center gap-3">
+                                <a href="#" class="text-dark"><i class="fab fa-facebook-f"></i></a>
+                                <a href="#" class="text-dark"><i class="fab fa-instagram"></i></a>
+                                <a href="#" class="text-dark"><i class="fab fa-linkedin-in"></i></a>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/2.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Giám đốc điều hành (CEO)</h6>
-                            <h4><a href="team-details.html">Kelian Anderson</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/3.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Nông dân hữu cơ</h6>
-                            <h4><a href="team-details.html">Miranda H. Halim</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/4.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Nông dân hữu cơ</h6>
-                            <h4><a href="team-details.html">Damble D. Browni</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/5.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Nông dân hữu cơ</h6>
-                            <h4><a href="team-details.html">Aiden Benjamin</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/6.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Nông dân hữu cơ</h6>
-                            <h4><a href="team-details.html">James Carter</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/7.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Nông dân hữu cơ</h6>
-                            <h4><a href="team-details.html">William Gabriel</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-xl-3 col-lg-4 col-sm-6">
-                    <div class="ltn__team-item">
-                        <div class="team-img">
-                            <img src="img/team/8.jpg" alt="Hình ảnh">
-                        </div>
-                        <div class="team-info">
-                            <h6 class="ltn__secondary-color">Nông dân hữu cơ</h6>
-                            <h4><a href="team-details.html">Adam Joseph</a></h4>
-                            <div class="ltn__social-media">
-                                <ul>
-                                    <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-twitter"></i></a></li>
-                                    <li><a href="#"><i class="fab fa-pinterest-p"></i></a></li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
         </div>
     </div>
     <!-- TEAM AREA END -->
 
-    <!-- PROGRESS BAR AREA START -->
-    <div class="ltn__progress-bar-area pt-115 pb-120">
+    <!-- SKILLS AREA START -->
+    <div class="skills-area py-5" style="background-color:#0f9d58;">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-6">
-                    <div class="ltn__progress-bar-wrap">
-                        <div class="section-title-area ltn__section-title-2">
-                            <h6 class="section-subtitle ltn__secondary-color">// Kỹ năng</h6>
-                            <h1 class="section-title">Chúng tôi có đội ngũ
-                                tay nghề cao nhất<span>.</span></h1>
-                            <p>Đội ngũ của chúng tôi luôn được đào tạo chuyên nghiệp, sở hữu nhiều kỹ năng nổi bật và giàu
-                                kinh nghiệm thực tiễn.</p>
-                        </div>
-                        <div class="ltn__progress-bar-inner">
-                            <div class="ltn__progress-bar-item">
-                                <p>Kỹ năng làm vườn</p>
-                                <div class="progress">
-                                    <div class="progress-bar wow fadeInLeft" data-wow-duration="0.5s"
-                                        data-wow-delay=".5s" role="progressbar" style="width: 72%">
-                                        <span>72%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ltn__progress-bar-item">
-                                <p>Thiết kế cảnh quan</p>
-                                <div class="progress">
-                                    <div class="progress-bar wow fadeInLeft" data-wow-duration="0.5s"
-                                        data-wow-delay=".5s" role="progressbar" style="width: 74%">
-                                        <span>74%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ltn__progress-bar-item">
-                                <p>Trồng rau sạch</p>
-                                <div class="progress">
-                                    <div class="progress-bar wow fadeInLeft" data-wow-duration="0.5s"
-                                        data-wow-delay=".5s" role="progressbar" style="width: 81%">
-                                        <span>81%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            <div class="row align-items-center">
+                <div class="col-lg-6 mb-4 mb-lg-0 text-white">
+                    <h6 class="text-uppercase fw-bold">// Kỹ năng</h6>
+                    <h2 class="fw-bold mb-3">Chúng tôi có đội ngũ <br><span class="fw-bold">tay nghề cao nhất.</span></h2>
+                    <p class="text-light">Tập thể của chúng tôi bao gồm những chuyên gia trong lĩnh vực thời trang, công nghệ và truyền thông — kết hợp hoàn hảo giữa sáng tạo và kỹ thuật.</p>
                 </div>
-                <div class="col-lg-6 align-self-center">
-                    <div class="about-img-right">
-                        <img src="img/team/t-4.jpg" alt="Hình ảnh đội ngũ">
-                    </div>
+                <div class="col-lg-6">
+                    @php
+                        $skills = [
+                            ['name' => 'Thiết kế thời trang', 'percent' => 90],
+                            ['name' => 'Marketing & Truyền thông', 'percent' => 85],
+                            ['name' => 'Phát triển website', 'percent' => 80],
+                            ['name' => 'Dịch vụ khách hàng', 'percent' => 95],
+                        ];
+                    @endphp
+
+                    @foreach ($skills as $skill)
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between text-white fw-semibold mb-1">
+                                <span>{{ $skill['name'] }}</span>
+                                <span>{{ $skill['percent'] }}%</span>
+                            </div>
+                            <div class="progress" style="height: 8px; border-radius: 10px;">
+                                <div class="progress-bar" role="progressbar"
+                                    style="width: {{ $skill['percent'] }}%; background-color:white;"></div>
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
-    <!-- PROGRESS BAR AREA END -->
-
+    <!-- SKILLS AREA END -->
 @endsection
+
+@push('styles')
+<style>
+    .team-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        transition: 0.3s ease;
+    }
+    .icon-wrapper i {
+        background: #eaf8f0;
+        padding: 20px;
+        border-radius: 50%;
+    }
+</style>
+@endpush

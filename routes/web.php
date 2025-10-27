@@ -12,6 +12,7 @@ use App\Http\Controllers\Clients\ResetPasswordController;
 use App\Http\Controllers\Clients\WishListController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Clients\SearchController;
 use App\Http\Controllers\Clients\WishController;
 
@@ -95,6 +96,18 @@ Route::get('/mini-cart', [CartController::class, 'loadMiniCart'])->name('cart.mi
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.index');
 Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
 Route::post('/cart/remove-cart', [CartController::class, 'removeCartItem'])->name('cart.removeItem');
+
+
+Route::post('checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
+Route::get('/checkout/paypal/success', [PaymentController::class, 'success'])->name('paypal.success');
+Route::get('/checkout/paypal/cancel', [PaymentController::class, 'cancel'])->name('paypal.cancel');
+
+Route::middleware(['auth.custom'])->group(function () {
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::post('/checkout/cod', [CheckoutController::class, 'handleCOD'])->name('checkout.cod');
+    Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
+});
+
 // Search
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 // Liên hệ

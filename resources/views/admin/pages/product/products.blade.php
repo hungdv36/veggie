@@ -51,7 +51,7 @@
                                             </thead>
                                             <tbody>
                                                 @foreach ($products as $index => $product)
-                                                    <tr>
+                                                    <tr id="product-row-{{ $product->id }}">
                                                         <td>{{ $index + 1 }}</td>
                                                         <td>
                                                             @if ($product->image)

@@ -18,9 +18,9 @@ class CheckoutController extends Controller
         $user = Auth::user();
         $addresses = ShippingAddress::where('user_id', $user->id)->get();
         $defaultAddress = $addresses->where('default', 1)->first();
-        if (is_null($addresses) || is_null($defaultAddress)) {
-            toastr()->error('Vui lòng thêm địa chỉ giao hàng!');
-            return redirect()->route('account');
+        if ($addresses->isEmpty()) {
+            toastr()->info('Bạn chưa có địa chỉ giao hàng, vui lòng thêm trong bước thanh toán.');
+            $defaultAddress = null;
         }
         $cartItems = CartItem::where('user_id', $user->id)->with('product')->get();
         $totalPrice = $cartItems->sum(fn($item) => $item->quantity * $item->product->price);
@@ -44,59 +44,76 @@ class CheckoutController extends Controller
         ]);
     }
 
-    public function placeOrder(Request $request)
-    {
-        $user = Auth::user();
-        $cartItems = CartItem::where(column: 'user_id', operator: $user->id)->get();
+public function placeOrder(Request $request)
+{
+    $user = Auth::user();
+    $cartItems = CartItem::where('user_id', $user->id)->with('product')->get();
 
-        if ($cartItems->isEmpty()) {
-            return redirect()->route(route: 'cart')->with(key: 'error', value: 'Giỏ hàng trống!');
-        }
-
-        DB::beginTransaction();
-
-        try {
-            //Create Order
-            $order = new Order();
-            $order->user_id = $user->id;
-            $order->shipping_address_id = $request->address_id;
-            $order->total_amount = $cartItems->sum(callback: fn(CartItem $item): float|int => $item->quantity * $item->product->price) + 25000;
-            $order->status = 'pending'; //Default is 'pending'
-            $order->save();
-
-            foreach ($cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->product->price,
-                ]);
-
-                // $product = $item->product;
-                // if ($product->stock < $item->quantity) {
-                //     throw new \Exception("Sản phẩm {$product->name} không đủ hàng trong kho.");
-                // }
-
-                // $product->stock -= $item->quantity;
-                // $product->save();
-            }
-
-            // Create payment
-            Payment::create([
-                'order_id' => $order->id,
-                'payment_method' => $request->payment_method,
-                'amount' => $order->total_amount,
-                'status' => 'pending',
-                'paid_at' => null,
-            ]);
-            // delete product in cart
-            CartItem::where('user_id', $user->id)->delete();
-            DB::commit();
-            toastr()->success(message: 'Đặt hàng thành công!');
-            return redirect()->route(route: 'account');
-        } catch (\Exception $e) {
-            toastr()->error(message: 'Có lỗi xảy ra, vui lòng thử lại!');
-            return redirect()->route(route: 'checkout');
-        }
+    if ($cartItems->isEmpty()) {
+        return redirect()->route('cart')->with('error', 'Giỏ hàng trống!');
     }
+
+    if ($request->payment_method === 'paypal') {
+        return redirect()->route('paypal.create')->withInput();
+    }
+
+    DB::beginTransaction();
+
+    try {
+        // Tính tổng tiền
+        $totalAmount = $cartItems->sum(fn($item) => $item->quantity * $item->product->price) + 25000;
+
+        // Tạo đơn hàng
+        $order = Order::create([
+            'user_id' => $user->id,
+            'shipping_address_id' => $request->address_id,
+            'total_amount' => $totalAmount,
+            'status' => 'pending',
+        ]);
+
+        // Tạo các mục đơn hàng
+        foreach ($cartItems as $item) {
+            OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item->product_id,
+                'quantity' => $item->quantity,
+                'price' => $item->product->price,
+            ]);
+        }
+
+        // Tạo thanh toán
+        Payment::create([
+            'order_id' => $order->id,
+            'payment_method' => 'cash',
+            'amount' => $totalAmount,
+            'status' => 'pending',
+            'paid_at' => null,
+        ]);
+
+        // Xóa giỏ hàng
+        CartItem::where('user_id', $user->id)->delete();
+
+        DB::commit();
+        toastr()->success('Đặt hàng thành công!');
+        return redirect()->route('account');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        toastr()->error('Có lỗi xảy ra, vui lòng thử lại!');
+        return redirect()->route('checkout');
+    }
+}
+public function handlePayPal(Request $request)
+{
+    $amount = $request->input('amount');
+
+    if (!$amount || $amount <= 0) {
+        return response()->json(['error' => 'Invalid amount'], 400);
+    }
+
+    // ✅ Test: giả lập redirect sang trang success
+    return response()->json([
+        'redirect_url' => route('paypal.success')
+    ]);
+}
+
 }
