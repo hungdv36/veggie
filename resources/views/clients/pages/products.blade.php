@@ -85,6 +85,7 @@
                                 @foreach ($topRatedProducts as $item)
                                     <li>
                                         <div class="top-rated-product-item clearfix">
+
                                             <div class="top-rated-product-img">
                                                 <a href="{{ route('products.detail', $item->slug) }}">
                                                     <img src="{{ $item->firstImage ? asset('storage/uploads/' . $item->firstImage->image) : asset('storage/uploads/products/no-image.png') }}"
@@ -104,6 +105,40 @@
                                                 <h6><a
                                                         href="{{ route('products.detail', $item->slug) }}">{{ $item->name }}</a>
                                                 </h6>
+
+    <div class="top-rated-product-img">
+        <a href="#"><img src="{{ asset('img/product/1.png') }}" alt=""></a>
+    </div>
+    <div class="top-rated-product-info">
+        <div class="product-rating">
+            <ul>
+                <li><i class="fas fa-star"></i></li>
+                <li><i class="fas fa-star"></i></li>
+                <li><i class="fas fa-star"></i></li>
+                <li><i class="fas fa-star"></i></li>
+                <li><i class="fas fa-star"></i></li>
+            </ul>
+        </div>
+
+        @foreach ($products as $product)
+            <h6>
+                <a href="{{ route('products.detail', $product->slug) }}">
+                    {{ $product->name }}
+                </a>
+            </h6>
+            <div class="product-price">
+                <span>${{ $product->price }}</span>
+                @if ($product->old_price)
+                    <del>${{ $product->old_price }}</del>
+                @endif
+            </div>
+        @endforeach
+    </div>
+</div>
+
+
+
+
                                                 <div class="product-price">
                                                     <span>{{ number_format($item->price, 0, ',', '.') }}₫</span>
                                                 </div>

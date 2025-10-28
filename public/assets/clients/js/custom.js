@@ -474,4 +474,99 @@ $(document).ready(function () {
     //         },
     //     });
     // }
+
+     /********************************
+   HANDLE RATING PRODUCT
+    *******************************/
+   let seletedRating = 0;
+
+   //handle hover star
+    $(".rating-star").hover(function (){
+      let value = $(this).data("value");
+      highlightStars(value);
+   },function () {
+    highlightStars(seletedRating);
+   }
+);
+
+   $(".rating-star").click(function (e){
+      e.preventDefault();
+      seletedRating = $(this).data("value");
+      $("#rating-value").val(seletedRating);
+       highlightStars(seletedRating);
+   });
+
+   function highlightStars(value)
+   {
+    $(".rating-star i").each(function (){
+        let starValue = $(this).parent().data("value");
+        if(starValue <= value)
+        {
+            $(this).removeClass("far").addClass("fas"); //show star
+        }else{
+             $(this).removeClass("fas").addClass("far"); //show star empty
+        }
+    })
+   }
+
+   //handle submit rating with ajax
+   $("#review-form").submit(function (e){
+     e.preventDefault();
+
+     let productId = $(this).data("product-id");
+     let rating = $("#rating-value").val();
+     let content = $("#review-content").val();
+
+     if (rating == 0)
+     {
+        $("#review-content").html(
+            '<div class="alert alert-danger">Vui lòng chọn số sao!<div>'
+        )
+        return;
+     }
+
+     $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+
+       $.ajax({
+    url: "/review",
+    type: "POST",
+    headers: {
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+    },
+    data: {
+        product_id: productId,
+        rating: rating,
+        comment: content,
+    },
+    success: function (response) {
+    //      $("#review-content").val("");
+    //    highlightStars(0);
+    //     selectedRating = 0;
+    //    $(".ltn__comment-reply-area").hide();
+        alert(response.message);
+
+        loadReviews(productId);
+
+    },
+    error: function (xhr) {
+        console.log(xhr);
+        alert(xhr.responseJSON?.message || "Lỗi gửi đánh giá!");
+    }
+  });
+});
+
+   function loadReviews(productId) {
+       $.ajax({
+    url: "/review/" + productId,
+    type: "GET",
+    success: function (response) {
+         $(".ltn__comment-inner").html(response);
+    }
+});
+   }
 });

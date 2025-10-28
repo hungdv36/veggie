@@ -28,6 +28,8 @@ class Product extends Model
         'unit'
     ];
 
+    protected $appends =['image_url', 'average_rating'];
+
     protected $casts = [
         'price' => 'float',
         'stock' => 'integer',
@@ -50,6 +52,22 @@ class Product extends Model
     public function firstImage(): HasOne
     {
         return $this->hasOne(ProductImage::class)->orderBy('id', 'ASC');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function getImageUrlAttribute()
+{
+    return $this->firstImage?->image ? asset('storage/' . $this->firstImage->image) : asset('storage/uploads/products/default-product.png');
+}
+
+
+    public function getAverageRatingAttribute()
+    {
+       return $this->reviews->avg('rating') ?? 0;
     }
 
     // Quan hệ với nhiều ảnh sản phẩm
