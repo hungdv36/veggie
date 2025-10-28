@@ -84,4 +84,8 @@ class Product extends Model
     {
         return $this->total_stock > 0 ? 'Còn hàng' : 'Hết hàng';
     }
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

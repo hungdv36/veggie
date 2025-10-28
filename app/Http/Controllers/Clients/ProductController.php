@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\DB;
 
 class ProductController extends Controller
 {
@@ -22,7 +23,16 @@ class ProductController extends Controller
                 : asset('storage/uploads/products/no-image.png');
         }
 
-        return view('clients.pages.products', compact('categories', 'products'));
+        // 🔥 Lấy sản phẩm đánh giá cao nhất
+    $topRatedProducts = Product::select('products.*', DB::raw('AVG(reviews.rating) as avg_rating'))
+        ->join('reviews', 'products.id', '=', 'reviews.product_id')
+        ->groupBy('products.id')
+        ->orderByDesc('avg_rating')
+        ->take(5)
+        ->with('firstImage')
+        ->get();
+
+        return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
     }
 
     public function filter(Request $request)
