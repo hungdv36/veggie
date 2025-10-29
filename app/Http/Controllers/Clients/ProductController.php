@@ -20,21 +20,18 @@ public function index()
     // Tạm thời bỏ điều kiện where để chắc chắn có dữ liệu
     $products = Product::with(['firstImage', 'variants'])->paginate(9);
 
-    return view('clients.pages.products', compact('categories', 'products'));
-}
-
-
-        // 🔥 Lấy sản phẩm đánh giá cao nhất
+    // 🔥 Lấy sản phẩm đánh giá cao nhất
     $topRatedProducts = Product::select('products.*', DB::raw('AVG(reviews.rating) as avg_rating'))
         ->join('reviews', 'products.id', '=', 'reviews.product_id')
         ->groupBy('products.id')
         ->orderByDesc('avg_rating')
-        ->take(5)<<<
+        ->take(5)
         ->with('firstImage')
         ->get();
 
-        return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
-    }
+    return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
+}
+
 
 
 
