@@ -533,4 +533,15 @@ $(document).ready(function () {
             toastr.error("Có lỗi xảy ra!");
         });
     });
+
+//     if ($("#editor-contact").length) {
+//         CKEDITOR.replace("editor-contact");
+        
+//     }
+//    $(document).on("click", ".contact-item", function (e) {
+//     $(".mail_view").show();
+// });
+
+
+
 });

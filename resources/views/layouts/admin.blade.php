@@ -200,6 +200,9 @@
     </script>
 
     <!-- Custom JS -->
+    <script src="{{ asset('assets/admin/js/ckeditor/ckeditor.js') }}"></script>
+
+
     <script src="{{ asset('assets/js/custom.js') }}"></script>
 
     @stack('scripts')
