@@ -8,7 +8,7 @@ use App\Models\ShippingAddress;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-
+use Illuminate\Support\Facades\Storage;
 
 class AccountController extends Controller
 {
@@ -22,6 +22,45 @@ class AccountController extends Controller
         // Truyền biến $user sang view
         return view('clients.pages.account', compact('user', 'addresses', 'orders'));
     }
+
+  public function update(Request $request)
+{
+    $request->validate([
+        'ltn_name' => 'required|string|max:255',
+        'ltn_phone_number' => 'nullable|string|max:15',
+        'ltn_email' => 'nullable|email',
+        'ltn_address' => 'nullable|string|max:255',
+    ]);
+
+    $user = Auth::user();
+
+    // Xử lý ảnh đại diện
+    if ($request->hasFile('avatar')) {
+        // Xóa ảnh cũ nếu có
+        if ($user->avatar && Storage::disk('public')->exists('uploads/users/' . $user->avatar)) {
+            Storage::disk('public')->delete('uploads/users/' . $user->avatar);
+        }
+
+        $file = $request->file('avatar');
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+        // Lưu file vào storage/app/public/uploads/users
+        $file->storeAs('uploads/users', $filename, 'public');
+
+        // Lưu tên file vào database
+        $user->avatar = $filename;
+    }
+
+    // Cập nhật thông tin khác
+    $user->name = $request->input('ltn_name');
+    $user->phone_number = $request->input('ltn_phone_number');
+    $user->address = $request->input('ltn_address');
+    $user->save();
+
+    return redirect()->back()->with('success', 'Cập nhật thông tin thành công!');
+}
+
+
     public function changePassword(Request $request)
     {
         $request->validate(

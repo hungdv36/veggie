@@ -52,7 +52,9 @@ Route::middleware(['auth.custom'])->group(function () {
     // Account
     Route::prefix('account')->group(function () {
         // Trang chính account
-        Route::get('/', [AccountController::class, 'index'])->name('account');
+  Route::get('/', [AccountController::class, 'index'])->name('account');
+   Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+
 
         // Đổi mật khẩu
         Route::post('/change-password', [AccountController::class, 'changePassword'])

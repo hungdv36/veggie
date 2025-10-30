@@ -3,7 +3,10 @@
      <li>
                                                     <div class="ltn__comment-item clearfix">
                                                         <div class="ltn__commenter-img">
-                                                            <img src="{{ $review->user->avatar_url }}" alt="{{ $review->user->name }}">
+                                                          <img src="{{ $review->user && $review->user->avatar 
+    ? asset('storage/uploads/users/' . $review->user->avatar) 
+    : asset('assets/clients/img/default-avatar.png') }}" 
+    alt="avatar">
                                                         </div>
                                                         <div class="ltn__commenter-comment">
                                                             <h6>{{ $review->user->name }}</h6>

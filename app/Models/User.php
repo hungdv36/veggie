@@ -84,6 +84,15 @@ class User extends Authenticatable
     {
         return $this->status === 'deleted';
     }
+
+    public function getAvatarUrlAttribute()
+{
+    return $this->avatar
+        ? asset('storage/' . $this->avatar)
+        : asset('storage/uploads/users/tải xuống.png');
+}
+
+    
     public function hasRole($roleName): bool
     {
         // Kiểm tra xem user có role liên kết với tên role

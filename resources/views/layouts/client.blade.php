@@ -10,9 +10,9 @@
     <title>@yield(section: 'title')</title>
     <meta name="robots" content="noindex, follow" />
     <meta name="description" content="">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
     <!-- Place favicon.png in the root directory -->
     <link rel="shortcut icon" href="{{ asset('assets/clients/img/favicon.png') }}" type="image/x-icon" />
     <!-- Font Icons css -->
@@ -23,6 +23,12 @@
     <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
     <!-- Responsive css -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
+
+    <!-- Import CSS for Toastr -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+    <!-- Import Custom CSS -->
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
 
     
 </head>

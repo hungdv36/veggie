@@ -19,14 +19,17 @@
                                 <div class="ltn__shop-details-img-gallery">
                                     <div class="ltn__shop-details-large-img">
                                         <div class="single-large-img">
-                                            @if ($product->image)
-                                                <img src="{{ asset('assets/img/product/' . $product->image) }}"
-                                                    alt="{{ $product->name }}"
-                                                    style="height:100%;width:100%; object-fit:cover;">
-                                            @else
-                                                <img src="{{ asset('assets/img/product/default.png') }}" alt="Default"
-                                                    width="80">
-                                            @endif
+                                          @if($product->image)
+    <img src="{{ asset('storage/uploads/users/' . $product->image) }}" 
+         alt="{{ $product->name }}" 
+         style="height:100%;width:100%;object-fit:cover;">
+@else
+    <img src="{{ asset('assets/img/product/default.png') }}" 
+         alt="Default" 
+         width="80">
+@endif
+
+
                                         </div>
 
                                     </div>

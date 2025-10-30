@@ -72,7 +72,9 @@
                         <div class="account-card card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-4">
-                                    <img src="{{ $user->avatar ?? asset('https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_640.png') }}"
+                                 <img src="{{ Auth::user()->avatar 
+        ? asset('storage/uploads/users/' . Auth::user()->avatar) 
+        : asset('assets/img/default-avatar.png') }}"
                                         class="rounded-circle me-3 border border-3 border-primary-subtle shadow-sm"
                                         width="90" height="90" alt="Avatar người dùng">
                                     <div>
@@ -324,22 +326,41 @@
                         <div class="account-card card">
                             <div class="card-body">
                                 <h5 class="fw-bold mb-3"><i class="fas fa-user-edit me-2"></i> Thông tin cá nhân</h5>
-                                <form action="#" method="POST" enctype="multipart/form-data">
-                                    @method('PUT') @csrf
-                                    <div class="text-center mb-4">
-                                        <img src="{{ $user->avatar ?? asset('https://cdn.pixabay.com/photo/2020/07/01/12/58/icon-5359553_640.png') }}"
-                                        class="rounded-circle me-3 border border-3 border-primary-subtle shadow-sm"
-                                        width="90" height="90" alt="Avatar người dùng">
-                                        <input type="file" name="avatar" id="avatar" class="form-control mt-2" accept="image/*">
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3"><label>Họ và tên</label><input type="text" name="ltn__name" class="form-control" value="{{ $user->name }}"></div>
-                                        <div class="col-md-6 mb-3"><label>Số điện thoại</label><input type="text" name="ltn__phone_number" class="form-control" value="{{ $user->phone_number }}"></div>
-                                    </div>
-                                    <div class="mb-3"><label>Email</label><input type="email" class="form-control" value="{{ $user->email }}" readonly></div>
-                                    <div class="mb-3"><label>Địa chỉ</label><input type="text" name="ltn__adress" class="form-control" value="{{ $user->address }}"></div>
-                                    <button type="submit" class="btn btn-primary w-100">Cập nhật thông tin</button>
-                                </form>
+                               <form action="{{ route('account.update') }}" method="POST" enctype="multipart/form-data">
+    @csrf
+    @method('PUT')
+
+<div class="text-center mb-4">
+                                   <div class="profile-pic-container">
+                              <img src="{{ asset('storage/uploads/users/' . $user->avatar) }}" alt="Avatar" id="preview-image" class="profile-pic">
+                                <input type="file" name="avatar" id="avatar" accept="image/*" class="d-none">
+                                </div>
+                                  </div>                    
+                                  <div class="row">
+  <div class="col-md-6 mb-3">
+    <label>Họ và tên</label>
+    <input type="text" name="ltn_name" id="ltn_name" class="form-control" value="{{ $user->name }}">
+  </div>
+  <div class="col-md-6 mb-3">
+    <label>Số điện thoại</label>
+    <input type="text" name="ltn_phone_number" id="ltn_phone_number" class="form-control" value="{{ $user->phone_number }}">
+  </div>
+</div>
+
+<div class="mb-3">
+  <label>Email</label>
+  <input type="email" name="ltn_email" id="ltn_email" class="form-control" value="{{ $user->email }}" readonly>
+</div>
+
+<div class="mb-3">
+  <label>Địa chỉ</label>
+  <input type="text" name="ltn_address" id="ltn_address" class="form-control" value="{{ $user->address }}" required>
+</div>
+<div class="btn-wrapper">
+  <button type="submit" class="btn btn-primary w-100">Cập nhật thông tin</button>
+</div>
+</form>
+
                             </div>
                         </div>
                     </div>
