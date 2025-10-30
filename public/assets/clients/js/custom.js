@@ -85,6 +85,68 @@ $(document).ready(function () {
             e.preventDefault();
         }
     });
+    
+      /********************************
+    PAGE ACCOUNT
+    *******************************/
+   //when clicking on the image => open input file
+    $('.profile-pic').click(function(){
+            $("#avatar").click();
+    });
+     //when selecting a image => display preview image
+      $("#avatar").change(function(){
+          let input = this;
+          if(input.files && input.files[0]){
+            let reader = new FileReader();
+            reader.onload = function(e){
+                $('#preview-image').attr('src', e.target.result);
+            }
+            reader.readAsDataURL(input.files[0]);
+          }
+      });
+
+
+    $("#update-account").on("submit", function(e){
+        e.preventDefault();
+
+        let formData = new FormData(this);
+        formData.append('_method', 'PUT'); 
+        let urlUpdate = $(this).attr('action');
+  
+        $.ajaxSetup({
+           headers: {
+             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content'),
+           }
+        });
+
+       $.ajax({
+    url: urlUpdate,
+    type: 'POST',
+    data: formData,
+    processData: false,
+    contentType: false,
+    beforeSend: function () {
+        $(".btn-wrapper button").text("Đang cập nhật...").attr("disabled", true);
+    },
+    success: function (response) {
+        if (response.success) {
+            toastr.success(response.message);
+            if (response.avatar) {
+                $('#preview-image').attr('src', response.avatar);
+            }
+        } else {
+            toastr.error(response.message);
+        }
+            },
+           error: function(xhr) {
+  console.log('XHR status', xhr.status);
+  console.log(xhr.responseText);        // raw response
+  try { console.log(xhr.responseJSON); } catch(e){}
+}
+
+
+        })
+    })
 
     // Change password
     $(document).ready(function () {
@@ -474,6 +536,101 @@ $(document).ready(function () {
     //         },
     //     });
     // }
+
+     /********************************
+   HANDLE RATING PRODUCT
+    *******************************/
+   let seletedRating = 0;
+
+   //handle hover star
+    $(".rating-star").hover(function (){
+      let value = $(this).data("value");
+      highlightStars(value);
+   },function () {
+    highlightStars(seletedRating);
+   }
+);
+
+   $(".rating-star").click(function (e){
+      e.preventDefault();
+      seletedRating = $(this).data("value");
+      $("#rating-value").val(seletedRating);
+       highlightStars(seletedRating);
+   });
+
+   function highlightStars(value)
+   {
+    $(".rating-star i").each(function (){
+        let starValue = $(this).parent().data("value");
+        if(starValue <= value)
+        {
+            $(this).removeClass("far").addClass("fas"); //show star
+        }else{
+             $(this).removeClass("fas").addClass("far"); //show star empty
+        }
+    })
+   }
+
+   //handle submit rating with ajax
+   $("#review-form").submit(function (e){
+     e.preventDefault();
+
+     let productId = $(this).data("product-id");
+     let rating = $("#rating-value").val();
+     let content = $("#review-content").val();
+
+     if (rating == 0)
+     {
+        $("#review-content").html(
+            '<div class="alert alert-danger">Vui lòng chọn số sao!<div>'
+        )
+        return;
+     }
+
+     $.ajaxSetup({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+});
+
+
+       $.ajax({
+    url: "/review",
+    type: "POST",
+    headers: {
+        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+    },
+    data: {
+        product_id: productId,
+        rating: rating,
+        comment: content,
+    },
+    success: function (response) {
+    //      $("#review-content").val("");
+    //    highlightStars(0);
+    //     selectedRating = 0;
+    //    $(".ltn__comment-reply-area").hide();
+        alert(response.message);
+
+        loadReviews(productId);
+
+    },
+    error: function (xhr) {
+        console.log(xhr);
+        alert(xhr.responseJSON?.message || "Lỗi gửi đánh giá!");
+    }
+  });
+});
+
+   function loadReviews(productId) {
+       $.ajax({
+    url: "/review/" + productId,
+    type: "GET",
+    success: function (response) {
+         $(".ltn__comment-inner").html(response);
+    }
+});
+   }
 
     // ****************************
 // HANDLE PAGE CONTACT

@@ -117,12 +117,24 @@
                                 </a>
 
                                 <ul>
-                                    {{-- Nếu chưa đăng nhập --}}
-                                    @guest
-                                        <li><a href="{{ route('login') }}">Đăng nhập</a></li>
-                                        <li><a href="{{ route('register') }}">Đăng ký</a></li>
-                                    @endguest
+                                   {{-- Nếu chưa đăng nhập --}}
+@guest
+    <li><a href="{{ route('login') }}">Đăng nhập</a></li>
+    <li><a href="{{ route('register') }}">Đăng ký</a></li>
+@endguest
 
+{{-- Nếu đã đăng nhập --}}
+@auth
+<a href="{{ route('account') }}">Tài khoản</a>
+<li>
+    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+        @csrf
+        <button type="submit" style="background:none;border:none;padding:0;color:inherit;cursor:pointer;">
+            Đăng xuất
+        </button>
+    </form>
+</li>
+ @endauth
                                     {{-- Nếu đã đăng nhập --}}
                                     @auth
                                         <li><a href="{{ route('account') }}">Tài khoản</a></li>

@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ReviewController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -74,6 +75,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/coupons/delete', [CouponController::class, 'deleteCoupon'])->name('coupons.delete');
     });
 
+ 
     Route::middleware(['permission:manage_contacts'])->group(function () {
         Route::get('/contacts', [ContactController::class, 'index'])
             ->name('contacts.index');
@@ -81,5 +83,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
        Route::post('/contacts/reply', [ContactController::class, 'reply'])
     ->name('contacts.reply');
 
+
+    Route::middleware(['permission:manage_reviews'])->group(function () {
+        Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+        Route::post('/reviews/delete', [ReviewController::class, 'delete'])->name('reviews.delete');
+        Route::get('/reviews/logs', [ReviewController::class, 'deletionLogs'])->name('reviews.logs');
+        Route::get('/reviews/deletions', [ReviewController::class, 'deletionLogs'])->name('reviews.deletions');
+        Route::post('reviews/restore/{id}', [ReviewController::class, 'restore'])->name('reviews.restore');
+ 
     });
-});
+})

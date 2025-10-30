@@ -12,7 +12,11 @@ use App\Http\Controllers\Clients\ResetPasswordController;
 use App\Http\Controllers\Clients\WishListController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
+
 use App\Http\Controllers\PaymentController;
+
+use App\Http\Controllers\Clients\ReviewController;
+
 use App\Http\Controllers\Clients\SearchController;
 use App\Http\Controllers\Clients\WishController;
 
@@ -52,7 +56,9 @@ Route::middleware(['auth.custom'])->group(function () {
     // Account
     Route::prefix('account')->group(function () {
         // Trang chính account
-        Route::get('/', [AccountController::class, 'index'])->name('account');
+  Route::get('/', [AccountController::class, 'index'])->name('account');
+   Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+
 
         // Đổi mật khẩu
         Route::post('/change-password', [AccountController::class, 'changePassword'])
@@ -77,6 +83,12 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
+
+    
+
+    Route::post('/review', [ReviewController::class, 'createReview']);
+      Route::get('/review/{product}', [ReviewController::class, 'index']);
+
     // WishList
     Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
     Route::post('/wishlist/add', [WishListController::class, 'addToWishlist'])->name('wishlist.add');

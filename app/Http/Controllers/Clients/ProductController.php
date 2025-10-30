@@ -5,25 +5,22 @@ namespace App\Http\Controllers\Clients;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
+use App\Models\OrderItem;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use App\Models\Review;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
-    public function index()
-    {
-        $categories = Category::with('products')->get();
-        $products = Product::with(['firstImage', 'variants'])
-            ->where('status', 'in-stock')
-            ->paginate(9);
+public function index()
+{
+    $categories = Category::with('products')->get();
 
-        foreach ($products as $product) {
-            $product->image_url = $product->firstImage?->image
-                ? asset('storage/uploads/' . $product->firstImage->image)
-                : asset('storage/uploads/products/no-image.png');
-        }
+    // Tạm thời bỏ điều kiện where để chắc chắn có dữ liệu
+    $products = Product::with(['firstImage', 'variants'])->paginate(9);
 
-        // 🔥 Lấy sản phẩm đánh giá cao nhất
+    // 🔥 Lấy sản phẩm đánh giá cao nhất
     $topRatedProducts = Product::select('products.*', DB::raw('AVG(reviews.rating) as avg_rating'))
         ->join('reviews', 'products.id', '=', 'reviews.product_id')
         ->groupBy('products.id')
@@ -32,8 +29,11 @@ class ProductController extends Controller
         ->with('firstImage')
         ->get();
 
-        return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
-    }
+    return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
+}
+
+
+
 
     public function filter(Request $request)
     {
@@ -70,13 +70,13 @@ class ProductController extends Controller
         // Trả về kết quả (tuỳ mục đích có thể là JSON hoặc view)
         $products = $query->paginate(9);
 
-        foreach ($products as $product) {
-            foreach ($products as $product) {
-                $product->image_url = $product->firstImage?->image
-                    ? asset('storage/uploads/' . $product->firstImage->image)
-                    : asset('storage/uploads/products/no-image.png');
-            }
-        }
+        // foreach ($products as $product) {
+        //     foreach ($products as $product) {
+        //         $product->image_url = $product->firstImage?->image
+        //             ? asset('storage/uploads/' . $product->firstImage->image)
+        //             : asset('storage/uploads/products/no-image.png');
+        //     }
+        // }
         return response()->json(
             [
                 'products' => view('clients.components.products_grid', compact('products'))->render(),
@@ -88,7 +88,7 @@ class ProductController extends Controller
     public function detail($slug)
     {
         // load product with relations
-        $product = Product::with(['category', 'images', 'variants'])
+        $product = Product::with(['category', 'images', 'variants' , 'reviews.user'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -96,6 +96,29 @@ class ProductController extends Controller
             ->where('id', '!=', $product->id)
             ->limit(6)
             ->get();
+       
+        //Tính điểm đánh giá trung bình, đảm bảo không có giá trị null    
+        $averageRating = round($product->reviews()->avg('rating') ?? 0, 1);  
+       
+        
+        $hasPurchased = false;
+        $hasReviewed = false;
+
+if (Auth::check()) {
+    $user = Auth::user();
+
+    $hasPurchased = OrderItem::whereHas('order', function ($query) use ($user) {
+        $query->where('user_id', $user->id)
+              ->where('status', 'completed');
+    })
+    ->where('product_id', $product->id)
+    ->exists();
+
+    $hasReviewed = Review::where('user_id', $user->id)
+        ->where('product_id', $product->id)
+        ->exists();
+}
+  
 
         // prepare JS-safe variants array (no closure in blade)
         $jsVariants = $product->variants->map(function ($v) {
@@ -110,6 +133,6 @@ class ProductController extends Controller
             ];
         })->toArray();
 
-        return view('clients.pages.product-detail', compact('product', 'relatedProducts', 'jsVariants'));
+        return view('clients.pages.product-detail', compact('product', 'relatedProducts', 'jsVariants', 'hasPurchased', 'hasReviewed', 'averageRating' ));
     }
 }
