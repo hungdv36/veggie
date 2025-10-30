@@ -87,8 +87,16 @@
                              <li><a href="{{ route('admin.coupons.index') }}">Danh sách mã giảm giá</a></li>
                          </ul>
                      </li>
-
-
+                     <li>
+                         <a>
+                             <i class="fa fa-comments"></i> Quản lý bình luận
+                             <span class="fa fa-chevron-down"></span>
+                         </a>
+                         <ul class="nav child_menu">
+                             <li><a href="{{ route('admin.reviews.index') }}">Danh sách bình luận</a></li>
+                             <li><a href="{{ route('admin.reviews.logs') }}">Lịch sử xóa bình luận</a></li>
+                         </ul>
+                     </li>
                  </ul>
              </div>
          </div>
