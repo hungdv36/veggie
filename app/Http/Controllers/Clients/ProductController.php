@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Order; // ✅ THÊM DÒNG NÀY
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -117,3 +119,5 @@ class ProductController extends Controller
         return view('clients.pages.product-detail', compact('product', 'relatedProducts', 'jsVariants'));
     }
 }
+
+
