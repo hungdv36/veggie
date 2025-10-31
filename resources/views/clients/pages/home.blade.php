@@ -541,11 +541,11 @@
                                                     <div class="product-img">
                                                         <a href="{{ $product->id }}">
                                                             @if ($product->image)
-                                                                <img src="{{ asset('assets/img/product/' . $product->image) }}"
+                                                                <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
                                                                     alt="{{ $product->name }}"
-                                                                    style="height:100px;width:100px; object-fit:cover;">
+                                                                    style="height:200px;width:200px; object-fit:cover;">
                                                             @else
-                                                                <img src="{{ asset('assets/img/product/default.png') }}"
+                                                                <img src="{{ asset('assets/admin/img/product/default.png') }}"
                                                                     alt="Default" width="80">
                                                             @endif
                                                         </a>
@@ -771,11 +771,11 @@ $('.counter').counterUp({
                             <div class="product-img">
                                 <a href="{{ $product->id }}">
                                     @if ($product->image)
-                                        <img src="{{ asset('assets/img/product/' . $product->image) }}"
+                                        <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
                                             alt="{{ $product->name }}"
-                                            style="height:100px;width:100px; object-fit:cover;">
+                                            style="height:150px;width:150px; object-fit:cover;">
                                     @else
-                                        <img src="{{ asset('assets/img/product/default.png') }}" alt="Default"
+                                        <img src="{{ asset('assets/admin/img/product/default.png') }}" alt="Default"
                                             width="80">
                                     @endif
                                 </a>

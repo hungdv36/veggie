@@ -61,7 +61,7 @@
                             @foreach ($order->orderItems as $item)
                                 <tr>
                                     <td>
-                                        <img src="{{ asset('assets/clients/img/product/' . $item->product->image) }}"
+                                        <img src="{{ asset('assets/admin/img/product/' . $item->product->image) }}"
                                             alt="{{ $item->product->name }}" width="80">
                                     </td>
                                     <td class="fw-medium">{{ $item->product->name }}</td>
