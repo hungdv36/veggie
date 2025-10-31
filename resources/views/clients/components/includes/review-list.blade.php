@@ -3,7 +3,10 @@
      <li>
                                                     <div class="ltn__comment-item clearfix">
                                                         <div class="ltn__commenter-img">
-                                                            <img src="{{ $review->user->avatar_url }}" alt="{{ $review->user->name }}">
+                                                           <img src="{{ asset('storage/uploads/users/' . ($review->user->avatar ?? 'default-avatar.png')) }}" 
+     alt="{{ $review->user->name }}" 
+     style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
+
                                                         </div>
                                                         <div class="ltn__commenter-comment">
                                                             <h6>{{ $review->user->name }}</h6>
