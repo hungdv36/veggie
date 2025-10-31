@@ -4,17 +4,17 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\ReviewController;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
     // Dashboard
-    Route::get('/dashboard', function () {
-        return view('admin.pages.dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Login
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
@@ -72,5 +72,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/coupons/add', [CouponController::class, 'addCoupon'])->name('coupons.store');
         Route::post('/coupons/update', [CouponController::class, 'updateCoupon'])->name('coupons.update');
         Route::post('/coupons/delete', [CouponController::class, 'deleteCoupon'])->name('coupons.delete');
+    });
+
+    Route::middleware(['permission:manage_reviews'])->group(function () {
+        Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
+        Route::post('/reviews/delete', [ReviewController::class, 'delete'])->name('reviews.delete');
+        Route::get('/reviews/logs', [ReviewController::class, 'deletionLogs'])->name('reviews.logs');
+        Route::get('/reviews/deletions', [ReviewController::class, 'deletionLogs'])->name('reviews.deletions');
+        Route::post('reviews/restore/{id}', [ReviewController::class, 'restore'])->name('reviews.restore');
     });
 });

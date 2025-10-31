@@ -10,7 +10,11 @@ use App\Http\Controllers\Clients\OrderController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
+
 use App\Http\Controllers\PaymentController;
+
+use App\Http\Controllers\Clients\ReviewController;
+
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
@@ -48,7 +52,9 @@ Route::middleware(['auth.custom'])->group(function () {
     // Account
     Route::prefix('account')->group(function () {
         // Trang chính account
-        Route::get('/', [AccountController::class, 'index'])->name('account');
+  Route::get('/', [AccountController::class, 'index'])->name('account');
+   Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+
 
         // Đổi mật khẩu
         Route::post('/change-password', [AccountController::class, 'changePassword'])
@@ -73,6 +79,11 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
+
+    
+
+    Route::post('/review', [ReviewController::class, 'createReview']);
+      Route::get('/review/{product}', [ReviewController::class, 'index']);
 
 });
 
