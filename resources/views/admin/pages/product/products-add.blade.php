@@ -2,8 +2,6 @@
 @section('title', 'Thêm Sản Phẩm')
 
 @section('content')
-
-    <!-- page content -->
     <div class="right_col" role="main">
         <div class="">
             <div class="page-title">
@@ -11,7 +9,6 @@
                     <h3>Thêm Sản Phẩm</h3>
                 </div>
             </div>
-
             <div class="clearfix"></div>
 
             <div class="row">
@@ -19,9 +16,9 @@
                     <div class="x_panel">
                         <div class="x_content">
                             <br />
-                            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" novalidate>
+                            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data"
+                                novalidate>
                                 @csrf
-
                                 <div class="row">
                                     <!-- Cột trái 7/12 -->
                                     <div class="col-md-7">
@@ -48,7 +45,7 @@
                                         <div class="mb-3">
                                             <label for="categorySelect" class="form-label">Danh mục sản phẩm</label>
                                             <select id="categorySelect" name="category_id" class="form-select" required>
-                                                <option value="" hidden>Category</option>
+                                                <option value="" hidden>Chọn danh mục</option>
                                                 @foreach ($categories as $cat)
                                                     <option value="{{ $cat->id }}"
                                                         {{ old('category_id') == $cat->id ? 'selected' : '' }}>
@@ -56,7 +53,6 @@
                                                     </option>
                                                 @endforeach
                                             </select>
-
                                         </div>
 
                                         <div class="mb-3">
@@ -95,6 +91,7 @@
                                                 </div>
                                             </label>
                                         </div>
+
                                         <div class="mb-3">
                                             <label class="form-label">Đơn vị</label>
                                             <input type="text" name="unit" class="form-control"
@@ -102,6 +99,7 @@
                                         </div>
                                     </div>
                                 </div>
+
                                 <!-- Biến thể sản phẩm -->
                                 <h5>Biến thể sản phẩm</h5>
                                 <div id="variants-wrapper">
@@ -111,40 +109,40 @@
                                                 <div class="col-md-2">
                                                     <label class="form-label">Size</label>
                                                     <select name="variations[{{ $i }}][size_id]"
-                                                        class="form-select size-select">
+                                                        class="form-select size-select" required>
                                                         <option value="">Chọn size</option>
                                                         @foreach ($sizes as $size)
                                                             <option value="{{ $size->id }}"
                                                                 {{ old("variations.$i.size_id") == $size->id ? 'selected' : '' }}>
-                                                                {{ $size->name }}
-                                                            </option>
+                                                                {{ $size->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label class="form-label">Màu sắc</label>
                                                     <select name="variations[{{ $i }}][color_id]"
-                                                        class="form-select color-select">
+                                                        class="form-select color-select" required>
                                                         <option value="">Chọn màu</option>
                                                         @foreach ($colors as $color)
                                                             <option value="{{ $color->id }}"
                                                                 {{ old("variations.$i.color_id") == $color->id ? 'selected' : '' }}>
-                                                                {{ $color->name }}
-                                                            </option>
+                                                                {{ $color->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <div class="col-md-2">
-                                                    <label class="form-label">Giá gốc</label>
-                                                    <input type="number" name="variations[{{ $i }}][price]"
-                                                        class="form-control" value="{{ old("variations.$i.price") }}">
-                                                </div>
-                                                <div class="col-md-2">
-                                                    <label class="form-label">Giá khuyến mãi</label>
-                                                    <input type="number"
-                                                        name="variations[{{ $i }}][sale_price]"
-                                                        class="form-control"
-                                                        value="{{ old("variations.$i.sale_price") }}">
+                                                <div class="variant-row">
+                                                    <div class="col-md-2">
+                                                        <input type="number"
+                                                            name="variations[{{ $i }}][price]"
+                                                            class="form-control price-input"
+                                                            value="{{ old("variations.$i.price") }}">
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <input type="number"
+                                                            name="variations[{{ $i }}][sale_price]"
+                                                            class="form-control sale-price-input"
+                                                            value="{{ old("variations.$i.sale_price") }}">
+                                                    </div>
                                                 </div>
                                                 <div class="col-md-2">
                                                     <label class="form-label">Số lượng</label>
@@ -159,7 +157,6 @@
                                             </div>
                                         @endforeach
                                     @else
-                                        <!-- Row mặc định khi form mới -->
                                         <div class="row g-2 mb-2 variant-row align-items-end">
                                             <div class="col-md-2">
                                                 <label class="form-label">Size</label>
@@ -201,10 +198,13 @@
                                     @endif
                                 </div>
 
-                                <div class="mb-3"> <button type="button" class="btn btn-primary btn-sm mt-2"
-                                        id="add-variant-btn">+ Thêm biến thể</button>
+                                <div class="mb-3">
+                                    <button type="button" class="btn btn-primary btn-sm mt-2" id="add-variant-btn">+
+                                        Thêm biến thể</button>
                                 </div>
+
                                 <input type="hidden" name="status" value="in_stock">
+
                                 <div class="d-flex justify-content-between">
                                     <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Quay lại</a>
                                     <button type="submit" class="btn btn-primary">Thêm mới</button>
@@ -215,38 +215,11 @@
                 </div>
             </div>
         </div>
-        <style>
-            .imagesPreview img {
-                width: 80px;
-                height: 80px;
-                object-fit: cover;
-                border-radius: 4px;
-            }
-
-            /* Khi select chưa chọn gì, áp dụng màu mờ và font nhỏ */
-            #categorySelect:invalid {
-                color: #5d5c5c;
-                font-size: 0.85rem;
-            }
-
-            /* Khi người dùng chọn, màu và cỡ chữ bình thường */
-            #categorySelect option {
-                color: #000;
-                font-size: 0.875rem;
-                /* hoặc 1rem */
-            }
-
-            input::placeholder {
-                font-size: 0.85rem;
-                /* chữ nhỏ */
-                color: #999;
-                /* chữ mờ */
-            }
-        </style>
     </div>
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            // ======= ẢNH ĐẠI DIỆN =======
+            // ==== ẢNH ĐẠI DIỆN ====
             const imageInput = document.getElementById("imageInput");
             const imagePreview = document.getElementById("imagePreview");
             const imageLabel = imageInput.closest("label");
@@ -265,7 +238,7 @@
                 }
             });
 
-            // ======= ALBUM ẢNH =======
+            // ==== ALBUM ẢNH ====
             const imagesInput = document.getElementById("imagesInput");
             const imagesPreview = document.getElementById("imagesPreview");
             const albumLabel = imagesInput.closest("label");
@@ -295,8 +268,8 @@
                 });
             });
 
-            // ======= BIẾN THỂ SẢN PHẨM =======
-            let variantIndex = 1;
+            // ==== BIẾN THỂ SẢN PHẨM ====
+            let variantIndex = $("#variants-wrapper .variant-row").length;
 
             $("#add-variant-btn").click(function() {
                 let newRow = $(".variant-row:first").clone();
@@ -316,12 +289,11 @@
                     alert("Phải có ít nhất 1 biến thể!");
                 }
             });
-        });
-        $(document).ready(function() {
+
+            // ==== CHECK DUPLICATE SIZE-COLOR ====
             function checkDuplicateVariants() {
                 let variants = [];
                 let duplicate = false;
-
                 $("#variants-wrapper .variant-row").each(function() {
                     let size = $(this).find(".size-select").val();
                     let color = $(this).find(".color-select").val();
@@ -329,30 +301,47 @@
                         let key = size + "-" + color;
                         if (variants.includes(key)) {
                             duplicate = true;
-                            return false; // dừng loop
+                            return false;
                         }
                         variants.push(key);
                     }
                 });
-
-                if (duplicate) {
-                    toastr.error(
-                        "Biến thể size và màu không được trùng lặp",
-                        "Lỗi"
-                    );
-                }
+                return duplicate;
             }
 
-            // Bắt sự kiện change select size hoặc color
-            $("#variants-wrapper").on(
-                "change",
-                ".size-select, .color-select",
-                function() {
-                    checkDuplicateVariants();
+            $("#variants-wrapper").on("change", ".size-select, .color-select", function() {
+                if (checkDuplicateVariants()) {
+                    toastr.error("Biến thể size và màu không được trùng lặp", "Lỗi");
                 }
-            );
-        });
-        $(document).ready(function() {
+            });
+
+            $("form").on("submit", function(e) {
+                if (checkDuplicateVariants()) {
+                    toastr.error("Biến thể size và màu không được trùng lặp, vui lòng kiểm tra lại.",
+                        "Lỗi");
+                    e.preventDefault();
+                }
+            });
+            $(document).on("submit", "form", function(e) {
+                let invalid = false;
+
+                $(this).find(".variant-row").each(function() {
+                    let price = parseFloat($(this).find(".price-input").val()) || 0;
+                    let sale = parseFloat($(this).find(".sale-price-input").val()) || 0;
+
+                    if (sale > price) {
+                        invalid = true;
+                        toastr.error("Giá khuyến mãi phải nhỏ hơn hoặc bằng giá gốc", "Lỗi");
+                        return false; // dừng each
+                    }
+                });
+
+                if (invalid) {
+                    e.preventDefault(); // chặn submit
+                }
+            });
+
+            // ==== TOASTR ERROR/SUCCESS ====
             @if ($errors->any())
                 @foreach ($errors->all() as $error)
                     toastr.error("{!! addslashes($error) !!}", "Lỗi", {

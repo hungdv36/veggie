@@ -23,7 +23,7 @@ class ProductController extends Controller
     public function index()
     {
         // Lấy danh sách sản phẩm kèm category
-        $products = Product::with('category')->orderBy('created_at', 'DESC')->paginate(10);
+        $products = Product::with('category')->orderBy('id', 'DESC')->paginate(10);
         $categories = Category::all();
         return view('admin.pages.product.products', compact('products', 'categories'));
     }
@@ -55,7 +55,7 @@ class ProductController extends Controller
             'variations.*.color_id' => 'required|exists:colors,id',
             'variations.*.quantity' => 'required|integer|min:0',
             'variations.*.price' => 'required|numeric|min:0',
-            'variations.*.sale_price' => 'nullable|numeric|min:0',
+            'variations.*.sale_price' => 'nullable|numeric|min:0|lte:variations.*.price',
         ];
 
         $messages = [
@@ -72,6 +72,21 @@ class ProductController extends Controller
         ];
 
         $validator = Validator::make($request->all(), $rules, $messages);
+
+        $validator->after(function ($validator) use ($request) {
+            if ($request->variations) {
+                foreach ($request->variations as $index => $variant) {
+                    $price = $variant['price'] ?? 0;
+                    $sale = $variant['sale_price'] ?? 0;
+                    if ($sale > $price) {
+                        $validator->errors()->add(
+                            "variations.$index.sale_price",
+                            "Giá khuyến mãi phải nhỏ hơn hoặc bằng giá gốc ở biến thể #" . ($index + 1)
+                        );
+                    }
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return redirect()->back()

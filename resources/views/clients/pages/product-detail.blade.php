@@ -19,25 +19,22 @@
                                 <div class="ltn__shop-details-img-gallery">
                                     <div class="ltn__shop-details-large-img">
                                         <div class="single-large-img">
-                                          @if($product->image)
-    <img src="{{ asset('storage/uploads/users/' . $product->image) }}" 
-         alt="{{ $product->name }}" 
-         style="height:100%;width:100%;object-fit:cover;">
-@else
-    <img src="{{ asset('assets/img/product/default.png') }}" 
-         alt="Default" 
-         width="80">
-@endif
-
-
+                                            @if ($product->image)
+                                                <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
+                                                    alt="{{ $product->name }}"
+                                                    style="height:850px;width:850px; object-fit:cover;">
+                                            @else
+                                                <img src="{{ asset('assets/img/product/default.png') }}" alt="Default"
+                                                    width="80">
+                                            @endif
                                         </div>
 
                                     </div>
                                     <div class="ltn__shop-details-small-img slick-arrow-2">
-                                        @foreach ($product->images as $image)
-                                            <div class="single-small-img">
-                                                <img src="{{ asset('storage/' . $image->image) }}"
-                                                    alt="{{ $product->name }}">
+                                        @foreach ($product->images as $img)
+                                            <div class="col-md-3 mb-2">
+                                                <img src="{{ asset($img->image_path) }}" class="img-fluid rounded shadow-sm"
+                                                    style="height:100px; object-fit:cover;">
                                             </div>
                                         @endforeach
                                     </div>
@@ -47,9 +44,10 @@
                             <div class="col-md-6">
                                 <div class="modal-product-info shop-details-info pl-0">
                                     <div class="product-ratting">
-                                         @include('clients.components.includes.rating', [
-                                            'product' => $product,
-                                           ])
+                                        <ul>
+                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                            <li class="review-total"> <a href="#"> ( 95 Reviews )</a></li>
+                                        </ul>
                                     </div>
                                     <h3>{{ $product->name }}</h3>
                                     @php
@@ -203,65 +201,89 @@
                                     <h4 class="title-2">Đánh giá của khách hàng</h4>
                                     <div class="product-ratting">
                                         <ul>
-                                            @for ($i = 1; $i <=5; $i++)
-                                               @if ($i <= floor($averageRating))
-                                                  <li><a href="javascript:void(0)"><i class="fas fa-star"></i></a></li>
-                                               @elseif($i == ceil($averageRating) && $averageRating - floor($averageRating) >= 0.5)
-                                                   <li><a href="javascript:void(0)"><i class="fas fa-star-half-alt"></i></a></li>
-                                               @else
-                                                   <li><a href="javascript:void(0)"><i class="far fa-star"></i></a></li>
-                                               @endif
-                                            @endfor
- 
-                                            <li class="review-total"> <a href="javascript:void(0)"> ( {{ $product->reviews->count() }} Đánh giá )</a></li>
+                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                            <li class="review-total"> <a href="#"> ( 95 Reviews )</a></li>
                                         </ul>
                                     </div>
                                     <hr>
                                     <!-- comment-area -->
                                     <div class="ltn__comment-area mb-30">
                                         <div class="ltn__comment-inner">
-                                           @include('clients.components.includes.review-list', [
-                                            'product' => $product,
-                                           ])
+                                            <ul>
+                                                <li>
+                                                    <div class="ltn__comment-item clearfix">
+                                                        <div class="ltn__commenter-img">
+                                                            <img src="img/testimonial/1.jpg" alt="Image">
+                                                        </div>
+                                                        <div class="ltn__commenter-comment">
+                                                            <h6><a href="#">Adam Smit</a></h6>
+                                                            <div class="product-ratting">
+                                                                <ul>
+                                                                    <li><a href="#"><i class="fas fa-star"></i></a>
+                                                                    </li>
+                                                                    <li><a href="#"><i class="fas fa-star"></i></a>
+                                                                    </li>
+                                                                    <li><a href="#"><i class="fas fa-star"></i></a>
+                                                                    </li>
+                                                                    <li><a href="#"><i
+                                                                                class="fas fa-star-half-alt"></i></a>
+                                                                    </li>
+                                                                    <li><a href="#"><i class="far fa-star"></i></a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                            <p>Lorem ipsum dolor sit amet, consectetur adipisicing
+                                                                elit. Doloribus, omnis fugit corporis iste magnam
+                                                                ratione.</p>
+                                                            <span class="ltn__comment-reply-btn">September 3,
+                                                                2020</span>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
                                         </div>
                                     </div>
                                     <!-- comment-reply -->
-                               
-                               <div class="ltn__comment-reply-area ltn__form-box mb-30">
-                                      <form id="review-form" data-product-id = {{ $product->id }}>
+                                    <div class="ltn__comment-reply-area ltn__form-box mb-30">
+                                        <form action="#">
                                             <h4 class="title-2">Thêm đánh giá</h4>
                                             <div class="mb-30">
                                                 <div class="add-a-review">
                                                     <h6>Số sao:</h6>
                                                     <div class="product-ratting">
                                                         <ul>
-                                                           @for ($i = 1; $i <= 5; $i++)
-                                                               <li>
-                                                                <a href="javascript:void(0)" class="rating-star" data-value="{{ $i }}">
-                                                                <i class="far fa-star"></i>
-                                                            </a>
-                                                        </li>
-                                                           @endfor
-                                                            
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                                            <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
+                                                            </li>
+                                                            <li><a href="#"><i class="far fa-star"></i></a></li>
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <input type="hidden" name="rating" id="rating-value" value="0">
                                             <div class="input-item input-item-textarea ltn__custom-icon">
-                                                <textarea placeholder="Nhập đánh giá của bạn ..." id="review-content"></textarea>
+                                                <textarea placeholder="Type your comments...."></textarea>
                                             </div>
-                                           
-                                           
+                                            <div class="input-item input-item-name ltn__custom-icon">
+                                                <input type="text" placeholder="Type your name....">
+                                            </div>
+                                            <div class="input-item input-item-email ltn__custom-icon">
+                                                <input type="email" placeholder="Type your email....">
+                                            </div>
+                                            <div class="input-item input-item-website ltn__custom-icon">
+                                                <input type="text" name="website" placeholder="Type your website....">
+                                            </div>
+                                            <label class="mb-0"><input type="checkbox" name="agree"> Save my name,
+                                                email, and website in this browser for the next time I
+                                                comment.</label>
                                             <div class="btn-wrapper">
                                                 <button class="btn theme-btn-1 btn-effect-1 text-uppercase"
-                                                    type="submit">Gửi</button>
+                                                    type="submit">Submit</button>
                                             </div>
                                         </form>
-                                    </div> 
-                                         <!-- @if (Auth::check() && $hasPurchased && !$hasReviewed) -->
-                                   <!-- @endif -->
-                                   
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -288,8 +310,10 @@
                     <div class="col-lg-12">
                         <div class="ltn__product-item ltn__product-item-3 text-center">
                             <div class="product-img">
-                                <a href="{{ route('products.detail', $product->slug) }}"><img
-                                        src="{{ $product->image_url }}" alt="{{ $product->name }}"></a>
+                                <a href="{{ route('products.detail', $product->slug) }}"> <img
+                                        src="{{ asset('assets/admin/img/product/' . $product->image) }}"
+                                        alt="{{ $product->name }}"
+                                        style="height:100px;width:100px; object-fit:cover;">></a>
                                 <div class="product-hover-action">
                                     <ul>
                                         <li>
@@ -315,9 +339,9 @@
                             </div>
                             <div class="product-info">
                                 <div class="product-ratting">
-                                      @include('clients.components.includes.rating', [
-                                            'product' => $product,
-                                           ])
+                                    <ul>
+                                        <li><a href="#"><i class="fas fa-star"></i></a></li>
+                                    </ul>
                                 </div>
                                 <h2 class="product-title"><a
                                         href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>

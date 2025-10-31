@@ -132,7 +132,8 @@
                                 @foreach ($cartItems as $item)
                                     <tr>
                                         <td>{{ $item->product->name }} <strong>x {{ $item->quantity }}</strong></td>
-                                        <td>{{ number_format($item->product->price * $item->quantity, 0, ',', '.') }} đ
+                                        <td>{{ number_format($item->variant->sale_price * $item->quantity, 0, ',', '.') }}
+                                            đ</td>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -142,7 +143,8 @@
                                 </tr>
                                 <tr>
                                     <td><strong>Tổng tiền</strong></td>
-                                    <td><strong>{{ number_format($totalPrice + 25000, 0, ',', '.') }} đ</strong></td>
+                                    <td><strong>{{ number_format($cartItems->sum(fn($item) => ($item->variant->sale_price ?? $item->product->price) * $item->quantity) + 25000, 0, ',', '.') }}
+                                            đ</strong></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -181,43 +183,43 @@
             });
         });
         document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('checkout-form');
-    const paypalRadio = document.getElementById('payment_paypal');
-    const codRadio = document.getElementById('payment_cod');
+            const form = document.getElementById('checkout-form');
+            const paypalRadio = document.getElementById('payment_paypal');
+            const codRadio = document.getElementById('payment_cod');
 
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
 
-        const method = document.querySelector('input[name="payment_method"]:checked').value;
+                const method = document.querySelector('input[name="payment_method"]:checked').value;
 
-        if (method === 'paypal') {
-            // Nếu chọn PayPal, chuyển hướng sang route PayPal
-            const amount = {{ $totalPrice + 25000 }};
-            const formData = new FormData();
-            formData.append('amount', amount);
+                if (method === 'paypal') {
+                    // Nếu chọn PayPal, chuyển hướng sang route PayPal
+                    const amount = {{ $totalPrice + 25000 }};
+                    const formData = new FormData();
+                    formData.append('amount', amount);
 
-fetch('{{ route('checkout.paypal') }}', {
-    method: 'POST',
-    headers: {
-        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-    },
-    body: formData
-})
-.then(res => res.json())
-.then(data => {
-    if (data.redirect_url) {
-        window.location.href = data.redirect_url;
-    } else {
-        alert('Không thể tạo thanh toán PayPal.');
-    }
-})
-.catch(() => alert('Lỗi khi kết nối với PayPal.'));
+                    fetch('{{ route('checkout.paypal') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.redirect_url) {
+                                window.location.href = data.redirect_url;
+                            } else {
+                                alert('Không thể tạo thanh toán PayPal.');
+                            }
+                        })
+                        .catch(() => alert('Lỗi khi kết nối với PayPal.'));
 
-        } else {
-            // Nếu chọn COD -> submit form bình thường
-            form.submit();
-        }
-    });
-});
+                } else {
+                    // Nếu chọn COD -> submit form bình thường
+                    form.submit();
+                }
+            });
+        });
     </script>
 @endsection

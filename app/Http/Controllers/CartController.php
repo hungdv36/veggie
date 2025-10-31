@@ -195,12 +195,12 @@ class CartController extends Controller
 
                     return [
                         'product_id' => $product->id,
-                        'variant_id' => $variant->id ?? null,
+                     'variant_id' => $variant->id ?? null,
                         'name'       => $product->name,
                         'price'      => $item->price,
                         'quantity'   => $item->quantity,
                         'stock'      => $product->stock ?? 0,
-                        'image'      => 'assets/img/product/' . ($product->image ?? 'default-product.png'),
+                        'image'      => 'assets/admin/img/product/' . ($product->image ?? 'default-product.png'),
                         'color_name' => $variant->color->name ?? null,
                         'size_name'  => $variant->size->name ?? null,
                     ];
@@ -208,7 +208,7 @@ class CartController extends Controller
         } else {
             $cartItems = session()->get('cart', []);
             foreach ($cartItems as &$item) {
-                $item['image'] = 'assets/img/product/' . ($item['image'] ?? 'default-product.png');
+                $item['image'] = 'assets/admin/img/product/' . ($item['image'] ?? 'default-product.png');
                 $item['color_name'] = isset($item['color']) ? \App\Models\Color::find($item['color'])->name ?? null : null;
                 $item['size_name']  = isset($item['size']) ? \App\Models\Size::find($item['size'])->name ?? null : null;
             }
@@ -216,6 +216,7 @@ class CartController extends Controller
 
         return view('clients.pages.cart', compact('cartItems'));
     }
+
 
     public function removeCartItem(Request $request)
     {

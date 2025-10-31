@@ -12,20 +12,20 @@ class OrderController extends Controller
     public function showOrder($id)
     {
         $order = Order::with(['orderItems.product', 'user', 'shippingAddress', 'payment'])
+            ->where('user_id', auth()->id()) // ✅ chỉ xem được đơn của mình
             ->findOrFail($id);
-        $userId = auth()->id();
 
         return view('clients.pages.order-detail', compact('order'));
     }
 
     public function cancelOrder(Request $request, $id): RedirectResponse
     {
-        $order = Order::where('id', $id)
+        $order = Order::with('orderItems.product') // ✅ tránh N+1 query
+            ->where('id', $id)
             ->where('user_id', auth()->id())
             ->where('status', 'pending')
             ->firstOrFail();
 
-        // ✅ Xác thực lý do hủy
         $request->validate([
             'cancel_reason' => 'required|string|max:255',
         ]);
