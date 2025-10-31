@@ -9,21 +9,35 @@ use App\Models\Product;
 
 class ProductController extends Controller
 {
-    public function index()
-    {
-        $categories = Category::with('products')->get();
-        $products = Product::with(['firstImage', 'variants'])
-            ->where('status', 'in-stock')
-            ->paginate(9);
+   public function index()
+{
+    $categories = Category::with('products')->get();
 
-        foreach ($products as $product) {
-            $product->image_url = $product->firstImage?->image
-                ? asset('storage/uploads/' . $product->firstImage->image)
-                : asset('storage/uploads/products/no-image.png');
-        }
+    $products = Product::with(['firstImage', 'variants'])
+        ->where('status', 'in-stock')
+        ->paginate(9);
 
-        return view('clients.pages.products', compact('categories', 'products'));
+    foreach ($products as $product) {
+        $product->image_url = $product->firstImage
+            ? asset('storage/uploads/' . $product->firstImage->image)
+            : asset('storage/uploads/products/no-image.png');
     }
+
+    // ✅ Lấy sản phẩm được đánh giá cao
+    $topRatedProducts = Product::with(['firstImage'])
+        ->where('status', 'in-stock')
+        ->take(5)
+        ->get();
+
+    foreach ($topRatedProducts as $item) {
+        $item->image_url = $item->firstImage
+            ? asset('storage/uploads/' . $item->firstImage->image)
+            : asset('storage/uploads/products/no-image.png');
+    }
+
+    return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
+}
+
 
     public function filter(Request $request)
     {

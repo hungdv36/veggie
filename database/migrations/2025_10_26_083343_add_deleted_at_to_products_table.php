@@ -9,12 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
-        Schema::table('products', function (Blueprint $table) {
-            $table->softDeletes(); // Thêm cột deleted_at kiểu timestamp
-        });
-    }
+    public function up()
+{
+    Schema::table('products', function (Blueprint $table) {
+        // $table->softDeletes(); // đã có rồi, không cần thêm nữa
+    });
+}
 
     /**
      * Reverse the migrations.
