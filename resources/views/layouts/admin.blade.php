@@ -10,6 +10,8 @@
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    <script src="{{ asset('assets/admin/vendors/jquery/dist/jquery.min.js') }}"></script>
+
     <!-- Bootstrap JS (cần Popper) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -36,16 +38,6 @@
 
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <!-- jQuery (nếu chưa load) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-    <script>
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-    </script>
 
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -68,7 +60,7 @@
     <!-- ========================= JS ========================= -->
 
     <!-- jQuery (PHẢI load trước tất cả plugin) -->
-    <script src="{{ asset('assets/admin/vendors/jquery/dist/jquery.min.js') }}"></script>
+
     <!-- Bootstrap JS -->
     <script src="{{ asset('assets/admin/vendors/bootstrap/dist/js/bootstrap.bundle.min.js') }}"></script>
     <!-- Toastr JS -->
@@ -81,7 +73,6 @@
     <script src="{{ asset('assets/admin/vendors/bootstrap-progressbar/bootstrap-progressbar.min.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/iCheck/icheck.min.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/skycons/skycons.js') }}"></script>
-    <!-- Flot charts -->
     <script src="{{ asset('assets/admin/vendors/Flot/jquery.flot.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/Flot/jquery.flot.pie.js') }}"></script>
     <script src="{{ asset('assets/admin/vendors/Flot/jquery.flot.time.js') }}"></script>
@@ -159,13 +150,42 @@
     @stack('scripts')
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
     <script>
-        CKEDITOR.replace('description');
+        CKEDITOR.replace('description', {
+            height: 150,
+            removeButtons: 'PasteFromWord'
+        });
+    </script>
+    <script>
+        $(document).on("change", "input[id^='imageInput-']", function() {
+            let input = $(this);
+            let id = input.attr("id").replace("imageInput-", "");
+            console.log("File input change:", id);
+
+            let label = $("label[for='imageInput-" + id + "']");
+            let oldImg = label.find(".old-image");
+            let newPreview = $("#imagePreview-" + id);
+
+            console.log("Label found:", label.length, " | Old image:", oldImg.length, " | New preview:", newPreview
+                .length);
+
+            if (this.files && this.files[0]) {
+                let reader = new FileReader();
+                reader.onload = function(e) {
+                    oldImg.hide();
+                    newPreview.attr("src", e.target.result).show();
+                    console.log("Preview updated for", id);
+                };
+                reader.readAsDataURL(this.files[0]);
+            } else {
+                newPreview.hide();
+                oldImg.show();
+            }
+        });
     </script>
 
-    <!-- Toastr hiển thị lỗi & success -->
+    <!-- Toastr session + error -->
     <script>
         $(document).ready(function() {
-            // Hiển thị toastr cho lỗi validate
             @if ($errors->any())
                 @foreach ($errors->all() as $error)
                     toastr.error({!! json_encode($error) !!}, "Lỗi", {
@@ -177,7 +197,6 @@
                 @endforeach
             @endif
 
-            // Hiển thị toastr cho session success
             @if (session('success'))
                 toastr.success({!! json_encode(session('success')) !!}, "Thành công", {
                     closeButton: true,
@@ -187,7 +206,6 @@
                 });
             @endif
 
-            // Hiển thị toastr cho session error
             @if (session('error'))
                 toastr.error({!! json_encode(session('error')) !!}, "Lỗi", {
                     closeButton: true,
@@ -199,10 +217,13 @@
         });
     </script>
 
-    <!-- Custom JS -->
-    <script src="{{ asset('assets/js/custom.js') }}"></script>
-
     @stack('scripts')
+    <script>
+        console.log("Script loaded");
+        $(document).on("click", ".btn-update-product", function() {
+            console.log("Clicked!", $(this).data("id"));
+        });
+    </script>
 </body>
 
 </html>

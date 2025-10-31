@@ -6,8 +6,8 @@
                     <div class="product-img">
                         <a href="{{ route('products.detail', $product->slug) }}">
                             @if ($product->image)
-                                <img src="{{ asset('assets/img/product/' . $product->image) }}" alt="{{ $product->name }}"
-                                    style="height:100px;width:100px; object-fit:cover;">
+                                <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
+                                    alt="{{ $product->name }}" style="height:100px;width:100px; object-fit:cover;">
                             @else
                                 <img src="{{ asset('assets/img/product/default.png') }}" alt="Default" width="80">
                             @endif
@@ -37,9 +37,9 @@
                     </div>
                     <div class="product-info">
                         <div class="product-ratting">
-                             @include('clients.components.includes.rating', [
-                                            'product' => $product,
-                                           ]) 
+                            @include('clients.components.includes.rating', [
+                                'product' => $product,
+                            ])
                         </div>
                         <h2 class="product-title"><a
                                 href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a></h2>

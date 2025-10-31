@@ -10,7 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Order extends Model
 {
     use \Illuminate\Database\Eloquent\Factories\HasFactory;
-    protected $fillable = ['user_id', 'total_price', 'status', 'shipping_address_id', 'cancel_reason'];
+
+    protected $casts = [
+        'invoice_sent_at' => 'datetime',
+    ];
+    protected $fillable = ['user_id', 'total_amount', 'status', 'shipping_address_id', 'cancel_reason', 'invoice_sent', 'invoice_sent_at', 'order_code'];
 
     public function orderItems(): HasMany
     {
@@ -32,8 +36,8 @@ class Order extends Model
         return $this->hasOne(related: Payment::class);
     }
 
-    public function orderStatusHistory(): HasMany
+    public function status_logs(): HasMany
     {
-        return $this->hasMany(related: OrderStatusHistory::class);
+        return $this->hasMany(OrderStatusHistory::class, 'order_id');
     }
 }

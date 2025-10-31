@@ -87,7 +87,6 @@ $(document).ready(function () {
                     toastr.error(res.message);
                     return;
                 }
-
                 if (res.new_status === "deleted") {
                     // Chuyển nút Xóa thành Khôi phục
                     button
@@ -153,12 +152,9 @@ $(document).ready(function () {
         e.preventDefault();
         let button = $(this);
         let categoryId = button.data("id");
-        // Tìm đúng form bên trong modal
-        let form = button.closest(".modal").find("form")[0];
+        let form = button.closest(".modal").find("form");
+        let formData = new FormData(form[0]);
 
-        if (!form) return; // phòng trường hợp không tìm thấy form
-
-        let formData = new FormData(form);
         formData.append("category_id", categoryId);
 
         $.ajaxSetup({
@@ -168,7 +164,7 @@ $(document).ready(function () {
         });
 
         $.ajax({
-            url: "/admin/categories/update", // đúng url route
+            url: "/categories/update", // đúng url route
             type: "POST",
             data: formData,
             processData: false,
@@ -304,86 +300,129 @@ $(document).ready(function () {
     });
 
     $(document).ready(function () {
-        // =========================
-        // Ảnh đại diện
-        // =========================
+        console.log("✅ Custom JS loaded");
+
+        // ================= Ảnh đại diện =================
         $(document).on("change", "input[name='image']", function () {
-            let input = this;
-            let productId = $(input).attr("id").split("-")[1];
-            let preview = $("#imagePreview-" + productId);
+            const input = $(this)[0];
+            const id = $(this).attr("id").split("-")[1];
+            const oldImg = $(this).siblings("label").find(".old-image");
+            const preview = $("#imagePreview-" + id);
 
             if (input.files && input.files[0]) {
-                let reader = new FileReader();
+                const reader = new FileReader();
                 reader.onload = function (e) {
+                    oldImg.hide();
                     preview.attr("src", e.target.result).show();
                 };
                 reader.readAsDataURL(input.files[0]);
             } else {
                 preview.hide();
+                oldImg.show();
             }
         });
 
-        // =========================
-        // Album ảnh
-        // =========================
-        $(document).on("change", "input[name='images[]']", function () {
-            let input = this;
-            let productId = $(input).attr("id").split("-")[1];
-            let container = $("#imagesPreview-" + productId);
-            container.empty(); // Xóa ảnh cũ
+        // ================= Album ảnh =================
+        $(document).on("change", "input[id^='imagesInput-']", function () {
+            const id = $(this).attr("id").replace("imagesInput-", "");
+            const previewContainer = $("#imagesPreview-" + id);
+            previewContainer.empty();
 
-            if (input.files) {
-                Array.from(input.files).forEach((file) => {
-                    let reader = new FileReader();
+            if (this.files && this.files.length > 0) {
+                Array.from(this.files).forEach((file) => {
+                    const reader = new FileReader();
                     reader.onload = function (e) {
-                        let img = $("<img>")
-                            .attr("src", e.target.result)
-                            .css({
+                        const img = $("<img>", {
+                            src: e.target.result,
+                            class: "rounded border",
+                            css: {
                                 height: "80px",
                                 width: "80px",
                                 objectFit: "cover",
-                            })
-                            .addClass("rounded border");
-                        container.append(img);
+                            },
+                        });
+                        previewContainer.append(img);
                     };
                     reader.readAsDataURL(file);
                 });
             }
         });
 
-        // =========================
-        // Cập nhật sản phẩm AJAX
-        // =========================
-        $(document).on("click", ".btn-update-product", function () {
-            let button = $(this); // lưu button
-            let id = button.data("id");
-            let form = $("#update-product-" + id)[0];
-            let formData = new FormData(form);
+        // ================= AJAX cập nhật sản phẩm =================
+        $(document).on("click", ".btn-update-submit-product", function (e) {
+            e.preventDefault();
+            let button = $(this);
+            let productId = button.data("id");
+            let form = button.closest(".modal").find("form");
+            let formData = new FormData(form[0]);
+
+            formData.append("id", productId);
+            $.ajaxSetup({
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                        "content"
+                    ),
+                },
+            });
 
             $.ajax({
-                url: "/admin/products/update",
-                method: "POST",
+                url: "/products/update",
+                type: "POST",
                 data: formData,
-                processData: false,
                 contentType: false,
+                processData: false,
                 beforeSend: function () {
-                    button.prop("disabled", true).text("Đang cập nhật...");
+                    button.prop("disabled", true);
+                    button.text("Đang cập nhật...");
                 },
-                success: function (res) {
-                    if (res.status) {
-                        toastr.success(res.message);
-                        location.reload(); // hoặc cập nhật row bằng JS
+                success: function (response) {
+                    if (response.status) {
+                        toastr.success(response.message);
+                        let product = response.data; // <-- dùng đây
+                        let productId = product.id;
+                        let imageSrc = product.image
+                            ? `/assets/admin/img/product/${product.image}`
+                            : "#";
+
+                        //Regenerate new HTML for update row
+                        let newRow = `
+                        <tr id="product-row-${productId}">
+                            <td>
+                                <img src = "${imageSrc}" alt="${product.name}" class="image-product" width="80">
+                            </td>
+                            <td>${product.name}</td>
+                            <td>${product.category.name}</td>
+                            <td>number_format(${product.price}, 0, ',', '.') }}VNĐ</td>
+                            <td>${product.unit}</td>
+                            <td>${product.stock}</td>
+                            <td>${product.description}</td>
+                            <td>${product.status}</td>
+                            <td>
+                                <a class="btn btn-app btn-update-product" data-toggle="modal"
+                                    data-target="#modalUpdate-${productId}">
+                                    <i class="fa fa-edit"></i>Chỉnh sửa
+                                </a>
+</td>
+                            <td>
+                                <a class="btn btn-app btn-delete-product" data-id="${productId}">
+                                    <i class="fa fa-trash"></i>Xóa
+                                </a>
+                            </td>
+                        </tr>`;
+                        //Replace old row with new row
+                        $("#product-row-" + productId).replaceWith(newRow);
+                        toastr.success(response.message);
+                        $("#modalUpdate-" + productId).modal("hide");
                     } else {
-                        toastr.error(res.message);
+                        toastr.error(response.message);
                     }
                 },
-                error: function (xhr) {
-                    toastr.error(
-                        "Có lỗi xảy ra: " + xhr.responseText || xhr.statusText
-                    );
+                error: function (xhr, status, error) {
+                    alert("An error occurred: " + error);
                 },
                 complete: function () {
-                    button.prop("disabled", false).text("Lưu thay đổi");
+                    button.prop("disabled", false);
+                    button.text("Chỉnh sửa");
                 },
             });
         });

@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\UsersController;
@@ -73,7 +74,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/coupons/update', [CouponController::class, 'updateCoupon'])->name('coupons.update');
         Route::post('/coupons/delete', [CouponController::class, 'deleteCoupon'])->name('coupons.delete');
     });
-
+    Route::middleware(['permission:manage_orders'])->group(function () {
+        Route::get('orders/', [OrderController::class, 'index'])->name('orders.index');
+        Route::post('orders/confirm', [OrderController::class, 'confirmOrder'])->name('orders.confirm');
+        Route::post('orders/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::get('orders/detail/{id}', [OrderController::class, 'showOrderDetail'])->name('orders.detail');
+        Route::post('/orders/send-invoice', [OrderController::class, 'sendMailInvoice'])->name('orders.send-invoice');
+        Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancel');
+    });
     Route::middleware(['permission:manage_reviews'])->group(function () {
         Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
         Route::post('/reviews/delete', [ReviewController::class, 'delete'])->name('reviews.delete');

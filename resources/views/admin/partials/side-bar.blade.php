@@ -88,6 +88,11 @@
                          </ul>
                      </li>
                      <li>
+                         <a href="{{ route('admin.orders.index') }}">
+                             <i class="fa fa-shopping-cart"></i> Quản lý đơn hàng
+                         </a>
+                     </li>
+                     <li>
                          <a>
                              <i class="fa fa-comments"></i> Quản lý bình luận
                              <span class="fa fa-chevron-down"></span>
