@@ -200,19 +200,19 @@
                                     <h4 class="title-2">Đánh giá của khách hàng</h4>
                                     <div class="product-ratting">
                                          <ul>
-                                            @php
-    $avg = $averageRating ?? 0;
+                                         @php
+    $avg = $product->average_rating ?? 0;
 @endphp
-                                          @for ($i = 1; $i <= 5; $i++)
+
+@for ($i = 1; $i <= 5; $i++)
     @if ($i <= floor($avg))
-        <li><a href="javascript:void(0)"><i class="fas fa-star"></i></a></li>
+        <li><a href="javascript:void(0)"><i class="fas fa-star text-warning"></i></a></li>
     @elseif ($i - $avg < 1 && $avg - floor($avg) >= 0.5)
-        <li><a href="javascript:void(0)"><i class="fas fa-star-half-alt"></i></a></li>
+        <li><a href="javascript:void(0)"><i class="fas fa-star-half-alt text-warning"></i></a></li>
     @else
-        <li><a href="javascript:void(0)"><i class="far fa-star"></i></a></li>
+        <li><a href="javascript:void(0)"><i class="far fa-star text-warning"></i></a></li>
     @endif
 @endfor
-
  
                                             <li class="review-total"> <a href="javascript:void(0)"> ( {{ $product->reviews->count() }} Đánh giá )</a></li>
                                         </ul>
