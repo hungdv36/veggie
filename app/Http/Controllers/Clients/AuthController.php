@@ -86,37 +86,47 @@ class AuthController extends Controller
         return view('clients.pages.login');
     }
 
-    public function login(Request $request)
-    {
-        // Validate 
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:6',
-        ], [
-            'email.required' => 'Email là bắt buộc',
-            'email.email' => 'Email không hợp lệ',
-            'password.required' => 'Mật khẩu là bắt buộc',
-            'password.min' => 'Mật khẩu phải ít nhất 6 ký tự',
-        ]);
+   public function login(Request $request)
+{
+    // Validate dữ liệu đầu vào
+    $request->validate([
+        'email' => 'required|email',
+        'password' => 'required|min:6',
+    ], [
+        'email.required' => 'Email là bắt buộc',
+        'email.email' => 'Email không hợp lệ',
+        'password.required' => 'Mật khẩu là bắt buộc',
+        'password.min' => 'Mật khẩu phải ít nhất 6 ký tự',
+    ]);
 
-        // check login information
-        if(Auth::attempt(['email' => $request->email, 'password' => $request->password, 'status' => 'active']))
-        {
-            if(in_array(Auth::user()->role->name, ['customer']))
-            {
-                $request->session()->regenerate();
-                toastr()->success('Đăng nhập thành công');
-                return redirect()->route('home');
-            }else{
-                Auth::logout();
-                toastr()->warning('Tài khoản của bạn không có quyền truy cập');
-                return redirect()->back();
-            }
-        }
+    // Lấy user theo email
+    $user = \App\Models\User::where('email', $request->email)->first();
 
-        toastr()->error('Thông tin đăng nhập không hợp lệ hoặc tài khoản chưa được kích hoạt');
-        return redirect()->route('home');
+    // Không tồn tại user
+    if (! $user) {
+        toastr()->error('Email không tồn tại trong hệ thống');
+        return redirect()->back();
     }
+
+    // Kiểm tra trạng thái tài khoản
+    if ($user->status !== 'active') {
+        toastr()->warning('Tài khoản chưa được kích hoạt hoặc bị khóa');
+        return redirect()->back();
+    }
+
+    // Kiểm tra mật khẩu
+    if (! \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+        toastr()->error('Mật khẩu không đúng');
+        return redirect()->back();
+    }
+
+    // Đăng nhập
+    \Illuminate\Support\Facades\Auth::login($user);
+    $request->session()->regenerate();
+
+    toastr()->success('Đăng nhập thành công');
+    return redirect()->route('home');
+}
 
     public function logout(Request $request)
     {
