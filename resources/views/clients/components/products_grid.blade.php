@@ -12,6 +12,21 @@
                                 <img src="{{ asset('assets/img/product/default.png') }}" alt="Default" width="80">
                             @endif
                         </a>
+                        @if ($product->is_flash_sale ?? false)
+                            <div
+                                style="
+        position: absolute;
+        top: 8px; left: 8px;
+        background: linear-gradient(45deg, #ff0000, #ff6600);
+        color: white;
+        font-weight: bold;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 4px;">
+                                FLASH SALE
+                            </div>
+                        @endif
+
                         <div class="product-hover-action">
                             <ul>
                                 <li>
@@ -44,8 +59,25 @@
                         <h2 class="product-title"><a
                                 href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a></h2>
                         <div class="product-price">
-                            <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                            @if ($product->is_flash_sale ?? false)
+                                <span class="text-danger fw-bold">
+                                    {{ number_format($product->sale_price, 0, ',', '.') }} VNĐ
+                                </span>
+                                <span class="text-muted text-decoration-line-through ms-2" style="font-size: 14px;">
+                                    {{ number_format($product->price, 0, ',', '.') }} VNĐ
+                                </span>
+                                <span class="badge bg-danger ms-1">-{{ $product->discount_price }}%</span>
+                            @else
+                                <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                            @endif
                         </div>
+@if ($product->is_flash_sale ?? false)
+    <div class="flash-countdown text-danger small" 
+         data-end="{{ $product->flash_end_time }}">
+         ⏰ Sale kết thúc trong: <span class="time-left"></span>
+    </div>
+@endif
+
                     </div>
                 </div>
             </div>

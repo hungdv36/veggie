@@ -46,7 +46,7 @@
                                     <div class="product-ratting">
                                         @include('clients.components.includes.rating', [
                                             'product' => $product,
-                                           ])
+                                        ])
                                     </div>
                                     <h3>{{ $product->name }}</h3>
                                     @php
@@ -55,13 +55,88 @@
                                     @endphp
 
                                     <div class="product-price">
-                                        @if ($minPrice == $maxPrice)
-                                            <span id="product-price">{{ number_format($minPrice, 0, ',', '.') }} VNĐ</span>
+                                        @if ($product->is_flash_sale ?? false)
+                                            {{-- ✅ Nếu đang Flash Sale --}}
+                                            <div class="flash-sale-price-box p-3 rounded"
+                                                style="background:#fff5f5; border:1px solid #ffc6c6;">
+                                                <h5 class="text-danger mb-2">
+                                                    🔥 Flash Sale đang diễn ra! Giảm {{ $product->discount_price }}%
+                                                </h5>
+
+                                                {{-- Hiển thị giá gốc bị gạch và giá Flash Sale nổi bật --}}
+                                                <p class="mb-1">
+                                                    <span class="text-muted text-decoration-line-through"
+                                                        style="font-size:16px;">
+                                                        {{ number_format($product->price ?? $maxPrice, 0, ',', '.') }} VNĐ
+                                                    </span>
+                                                    <span class="fw-bold text-danger ms-2" id="product-price"
+                                                        style="font-size:22px;">
+                                                        {{ number_format($product->flash_sale_price ?? $minPrice, 0, ',', '.') }}
+                                                        VNĐ
+                                                    </span>
+                                                </p>
+
+                                                {{-- Countdown --}}
+                                                <div id="countdown" class="fw-semibold text-danger mt-2"></div>
+
+                                                {{-- Progress bar (hiển thị đã bán nếu muốn) --}}
+                                                @if (!empty($flashItem))
+                                                    @php
+                                                        $sold = $flashItem->sold ?? 0;
+                                                        $total = $flashItem->quantity ?? 1;
+                                                        $percent = $total > 0 ? round(($sold / $total) * 100, 0) : 0;
+                                                    @endphp
+                                                    <div class="mt-2">
+                                                        <div class="progress" style="height: 10px;">
+                                                            <div class="progress-bar bg-danger" role="progressbar"
+                                                                style="width: {{ $percent }}%;"
+                                                                aria-valuenow="{{ $percent }}" aria-valuemin="0"
+                                                                aria-valuemax="100"></div>
+                                                        </div>
+                                                        <small class="text-muted d-block mt-1">
+                                                            Đã bán {{ $sold }}/{{ $total }} sản phẩm
+                                                            ({{ $percent }}%)
+                                                        </small>
+                                                    </div>
+                                                @endif
+                                            </div>
+
+                                            {{-- JS đếm ngược thời gian --}}
+                                            <script>
+                                                const endTime = new Date("{{ $product->flash_end_time }}").getTime();
+                                                const countdownEl = document.getElementById("countdown");
+
+                                                const timer = setInterval(() => {
+                                                    const now = new Date().getTime();
+                                                    const distance = endTime - now;
+
+                                                    if (distance <= 0) {
+                                                        clearInterval(timer);
+                                                        countdownEl.innerHTML = "⏰ Flash Sale đã kết thúc!";
+                                                        return;
+                                                    }
+
+                                                    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                                                    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                                                    countdownEl.innerHTML = `Kết thúc sau: ${hours}h ${minutes}m ${seconds}s`;
+                                                }, 1000);
+                                            </script>
                                         @else
-                                            <span id="product-price">{{ number_format($minPrice, 0, ',', '.') }} -
-                                                {{ number_format($maxPrice, 0, ',', '.') }} VNĐ</span>
+                                            {{-- ❌ Không có Flash Sale --}}
+                                            @if ($minPrice == $maxPrice)
+                                                <span id="product-price">{{ number_format($minPrice, 0, ',', '.') }}
+                                                    VNĐ</span>
+                                            @else
+                                                <span id="product-price">{{ number_format($minPrice, 0, ',', '.') }} -
+                                                    {{ number_format($maxPrice, 0, ',', '.') }} VNĐ</span>
+                                            @endif
                                         @endif
                                     </div>
+
+
+
                                     <div class="modal-product-meta ltn__product-details-menu-1">
                                         <ul class="list-unstyled mb-0">
                                             <!-- Danh mục -->
@@ -157,10 +232,12 @@
                                             <li>
                                                 <a href="javascript:void(0)"
                                                     class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
-                                                    title="Thêm vào giỏ hàng" data-id="{{ $product->id }}">
+                                                    title="Thêm vào giỏ hàng" data-id="{{ $product->id }}"
+                                                    data-price="{{ $product->is_flash_sale ? $product->flash_sale_price : $product->price }}">
                                                     <i class="fas fa-shopping-cart"></i>
                                                     <span>THÊM VÀO GIỎ HÀNG</span>
                                                 </a>
+
                                             </li>
                                         </ul>
                                     </div>
@@ -199,65 +276,70 @@
                                 <div class="ltn__shop-details-tab-content-inner">
                                     <h4 class="title-2">Đánh giá của khách hàng</h4>
                                     <div class="product-ratting">
-                                         <ul>
-                                         @php
-    $avg = $product->average_rating ?? 0;
-@endphp
+                                        <ul>
+                                            @php
+                                                $avg = $product->average_rating ?? 0;
+                                            @endphp
 
-@for ($i = 1; $i <= 5; $i++)
-    @if ($i <= floor($avg))
-        <li><a href="javascript:void(0)"><i class="fas fa-star text-warning"></i></a></li>
-    @elseif ($i - $avg < 1 && $avg - floor($avg) >= 0.5)
-        <li><a href="javascript:void(0)"><i class="fas fa-star-half-alt text-warning"></i></a></li>
-    @else
-        <li><a href="javascript:void(0)"><i class="far fa-star text-warning"></i></a></li>
-    @endif
-@endfor
- 
-                                            <li class="review-total"> <a href="javascript:void(0)"> ( {{ $product->reviews->count() }} Đánh giá )</a></li>
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                @if ($i <= floor($avg))
+                                                    <li><a href="javascript:void(0)"><i
+                                                                class="fas fa-star text-warning"></i></a></li>
+                                                @elseif ($i - $avg < 1 && $avg - floor($avg) >= 0.5)
+                                                    <li><a href="javascript:void(0)"><i
+                                                                class="fas fa-star-half-alt text-warning"></i></a></li>
+                                                @else
+                                                    <li><a href="javascript:void(0)"><i
+                                                                class="far fa-star text-warning"></i></a></li>
+                                                @endif
+                                            @endfor
+
+                                            <li class="review-total"> <a href="javascript:void(0)"> (
+                                                    {{ $product->reviews->count() }} Đánh giá )</a></li>
                                         </ul>
                                     </div>
                                     <hr>
                                     <!-- comment-area -->
                                     <div class="ltn__comment-area mb-30">
                                         <div class="ltn__comment-inner">
-                                             @include('clients.components.includes.review-list', [
-                                            'product' => $product,
-                                           ])
+                                            @include('clients.components.includes.review-list', [
+                                                'product' => $product,
+                                            ])
                                         </div>
                                     </div>
                                     <!-- comment-reply -->
                                     <div class="ltn__comment-reply-area ltn__form-box mb-30">
-                                         <form id="review-form" data-product-id = {{ $product->id }}>
+                                        <form id="review-form" data-product-id={{ $product->id }}>
                                             <h4 class="title-2">Thêm đánh giá</h4>
                                             <div class="mb-30">
                                                 <div class="add-a-review">
                                                     <h6>Số sao:</h6>
                                                     <div class="product-ratting">
                                                         <ul>
-                                                           @for ($i = 1; $i <= 5; $i++)
-                                                               <li>
-                                                                <a href="javascript:void(0)" class="rating-star" data-value="{{ $i }}">
-                                                                <i class="far fa-star"></i>
-                                                            </a>
-                                                        </li>
-                                                           @endfor
-                                                            
+                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                <li>
+                                                                    <a href="javascript:void(0)" class="rating-star"
+                                                                        data-value="{{ $i }}">
+                                                                        <i class="far fa-star"></i>
+                                                                    </a>
+                                                                </li>
+                                                            @endfor
+
                                                         </ul>
                                                     </div>
                                                 </div>
                                             </div>
-                                               <input type="hidden" name="rating" id="rating-value" value="0">
+                                            <input type="hidden" name="rating" id="rating-value" value="0">
                                             <div class="input-item input-item-textarea ltn__custom-icon">
-                                               <textarea placeholder="Nhập đánh giá của bạn ..." id="review-content"></textarea>
-                                                </div>
+                                                <textarea placeholder="Nhập đánh giá của bạn ..." id="review-content"></textarea>
+                                            </div>
                                             <div class="btn-wrapper">
                                                 <button class="btn theme-btn-1 btn-effect-1 text-uppercase"
                                                     type="submit">Gửi</button>
                                             </div>
                                         </form>
                                     </div>
-                                   
+
                                 </div>
                             </div>
                         </div>
@@ -313,9 +395,9 @@
                             </div>
                             <div class="product-info">
                                 <div class="product-ratting">
-                                     @include('clients.components.includes.rating', [
-                                            'product' => $product,
-                                           ])
+                                    @include('clients.components.includes.rating', [
+                                        'product' => $product,
+                                    ])
                                 </div>
                                 <h2 class="product-title"><a
                                         href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>

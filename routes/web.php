@@ -10,7 +10,7 @@ use App\Http\Controllers\Clients\OrderController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
-
+use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
 
 use App\Http\Controllers\Clients\ReviewController;
@@ -111,5 +111,7 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/checkout/cod', [CheckoutController::class, 'handleCOD'])->name('checkout.cod');
     Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
 });
+
+Route::get('/flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale.index');
 
 require __DIR__ . '/admin.php';
