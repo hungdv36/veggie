@@ -128,7 +128,7 @@
                                         <tr>
                                             <td>{{ $item->product->name }}</td>
                                             <td>
-                                                <a href="{{ route('product.detail', $item->product->slug) }}"
+                                                <a href="{{ route('products.detail', $item->product->slug) }}"
                                                     class="btn btn-primary btn-sm">
                                                     <i class="fas fa-pen me-1"></i>Đánh giá
                                                 </a>
