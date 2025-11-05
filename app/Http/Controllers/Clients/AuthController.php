@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ActivationMail;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\ChatController;
 
 class AuthController extends Controller
 {
@@ -36,10 +37,8 @@ class AuthController extends Controller
         // Check If email exists
         $existingUser = User::where('email', $request->email)->first();
 
-        if ($existingUser) 
-        {
-            if($existingUser->isPending())
-            {
+        if ($existingUser) {
+            if ($existingUser->isPending()) {
                 toastr()->error('Email nay đã được đăng ký, vui lòng kiểm tra email');
                 return redirect()->route('register');
             }
@@ -60,7 +59,7 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new ActivationMail($token, $user));
 
-       toastr()->success('Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.');
+        toastr()->success('Đăng ký thành công! Vui lòng kiểm tra email để kích hoạt tài khoản.');
         return redirect()->route('login');
     }
 
@@ -86,47 +85,47 @@ class AuthController extends Controller
         return view('clients.pages.login');
     }
 
-   public function login(Request $request)
-{
-    // Validate dữ liệu đầu vào
-    $request->validate([
-        'email' => 'required|email',
-        'password' => 'required|min:6',
-    ], [
-        'email.required' => 'Email là bắt buộc',
-        'email.email' => 'Email không hợp lệ',
-        'password.required' => 'Mật khẩu là bắt buộc',
-        'password.min' => 'Mật khẩu phải ít nhất 6 ký tự',
-    ]);
+    public function login(Request $request)
+    {
+        // Validate dữ liệu đầu vào
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|min:6',
+        ], [
+            'email.required' => 'Email là bắt buộc',
+            'email.email' => 'Email không hợp lệ',
+            'password.required' => 'Mật khẩu là bắt buộc',
+            'password.min' => 'Mật khẩu phải ít nhất 6 ký tự',
+        ]);
 
-    // Lấy user theo email
-    $user = \App\Models\User::where('email', $request->email)->first();
+        // Lấy user theo email
+        $user = User::where('email', $request->email)->first();
 
-    // Không tồn tại user
-    if (! $user) {
-        toastr()->error('Email không tồn tại trong hệ thống');
-        return redirect()->back();
+        // Không tồn tại user
+        if (! $user) {
+            toastr()->error('Email không tồn tại trong hệ thống');
+            return redirect()->back();
+        }
+
+        // Kiểm tra trạng thái tài khoản
+        if ($user->status !== 'active') {
+            toastr()->warning('Tài khoản chưa được kích hoạt hoặc bị khóa');
+            return redirect()->back();
+        }
+
+        // Kiểm tra mật khẩu
+        if (! Hash::check($request->password, $user->password)) {
+            toastr()->error('Mật khẩu không đúng');
+            return redirect()->back();
+        }
+        \App\Http\Controllers\ChatController::mergeGuestChatToUser($user->id);
+        // Đăng nhập
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        toastr()->success('Đăng nhập thành công');
+        return redirect()->route('home');
     }
-
-    // Kiểm tra trạng thái tài khoản
-    if ($user->status !== 'active') {
-        toastr()->warning('Tài khoản chưa được kích hoạt hoặc bị khóa');
-        return redirect()->back();
-    }
-
-    // Kiểm tra mật khẩu
-    if (! \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-        toastr()->error('Mật khẩu không đúng');
-        return redirect()->back();
-    }
-
-    // Đăng nhập
-    \Illuminate\Support\Facades\Auth::login($user);
-    $request->session()->regenerate();
-
-    toastr()->success('Đăng nhập thành công');
-    return redirect()->route('home');
-}
 
     public function logout(Request $request)
     {

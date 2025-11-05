@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Clients\AccountController;
 use App\Http\Controllers\Clients\AuthController;
@@ -52,8 +53,8 @@ Route::middleware(['auth.custom'])->group(function () {
     // Account
     Route::prefix('account')->group(function () {
         // Trang chính account
-  Route::get('/', [AccountController::class, 'index'])->name('account');
-   Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+        Route::get('/', [AccountController::class, 'index'])->name('account');
+        Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
 
 
         // Đổi mật khẩu
@@ -80,11 +81,10 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
 
-    
+
 
     Route::post('/review', [ReviewController::class, 'createReview']);
-      Route::get('/review/{product}', [ReviewController::class, 'index']);
-
+    Route::get('/review/{product}', [ReviewController::class, 'index']);
 });
 
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
@@ -111,6 +111,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/checkout/cod', [CheckoutController::class, 'handleCOD'])->name('checkout.cod');
     Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
 });
+Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+Route::get('/chat/history', [ChatController::class, 'history'])->name('chat.history');
 
 Route::get('/flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale.index');
 
