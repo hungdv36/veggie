@@ -11,6 +11,8 @@ use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\FlashSaleController;
+
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -88,5 +90,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reviews/logs', [ReviewController::class, 'deletionLogs'])->name('reviews.logs');
         Route::get('/reviews/deletions', [ReviewController::class, 'deletionLogs'])->name('reviews.deletions');
         Route::post('reviews/restore/{id}', [ReviewController::class, 'restore'])->name('reviews.restore');
+    });
+
+    Route::middleware(['permission:manage_products'])->group(function () {
+        Route::get('/flash-sales', [FlashSaleController::class, 'index'])->name('flash_sales.index');
+        Route::get('/flash-sales/create', [FlashSaleController::class, 'create'])->name('flash_sales.create');
+        Route::post('/flash-sales', [FlashSaleController::class, 'store'])->name('flash_sales.store');
+        Route::get('/flash-sales/{id}/edit', [FlashSaleController::class, 'edit'])->name('flash_sales.edit');
+        Route::post('/flash-sales/{id}', [FlashSaleController::class, 'update'])->name('flash_sales.update');
+        Route::delete('/flash-sales/{id}', [FlashSaleController::class, 'destroy'])->name('flash_sales.destroy');
     });
 });

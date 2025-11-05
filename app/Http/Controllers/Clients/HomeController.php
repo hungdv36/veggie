@@ -7,6 +7,7 @@ use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Models\FlashSale;
 
 use function Laravel\Prompts\select;
 
@@ -44,7 +45,11 @@ class HomeController extends Controller
             ->orderByDesc('total_sold')
             ->limit(8)
             ->get();
-
-        return view('clients.pages.home', compact('categories', 'bestSellingProducts'));
+// ✅ Lấy Flash Sale đang hoạt động
+    $flashSale = FlashSale::with(['items.product'])
+        ->where('start_time', '<=', now())
+        ->where('end_time', '>=', now())
+        ->first();
+        return view('clients.pages.home', compact('categories', 'bestSellingProducts', 'flashSale'));
     }
 }

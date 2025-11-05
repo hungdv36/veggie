@@ -12,30 +12,55 @@ use App\Models\Review;
 
 class ProductController extends Controller
 {
-   public function index()
-{
-    $categories = Category::with('products')->get();
+    public function index()
+    {
+        $categories = Category::with('products')->get();
 
-    // Tạm thời bỏ điều kiện where để chắc chắn có dữ liệu
-    $products = Product::with(['firstImage', 'variants'])->paginate(9);
+        // ✅ Lấy toàn bộ sản phẩm (có ảnh và biến thể)
+        $products = Product::with(['firstImage', 'variants'])->paginate(9);
 
-    // ✅ Lấy sản phẩm được đánh giá cao
-    $topRatedProducts = Product::with(['firstImage', 'reviews'])
-        ->withAvg('reviews', 'rating') // trung bình số sao
-        ->orderByDesc('reviews_avg_rating')
-        ->where('status', 'in-stock')
-        ->take(5)
-        ->get();
+        // ✅ Lấy sản phẩm được đánh giá cao
+        $topRatedProducts = Product::with(['firstImage', 'reviews'])
+            ->withAvg('reviews', 'rating')
+            ->orderByDesc('reviews_avg_rating')
+            ->where('status', 'in_stock')
+            ->take(5)
+            ->get();
 
-    foreach ($topRatedProducts as $item) {
-        $item->image_url = $item->firstImage
-            ? asset('storage/uploads/' . $item->firstImage->image)
-            : asset('storage/uploads/products/no-image.png');
+        foreach ($topRatedProducts as $item) {
+            $item->image_url = $item->firstImage
+                ? asset('storage/uploads/' . $item->firstImage->image)
+                : asset('storage/uploads/products/no-image.png');
+        }
+
+        // ✅ Lấy Flash Sale đang hoạt động
+        $flashSale = \App\Models\FlashSale::with('items')
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->first();
+
+        // ✅ Nếu có Flash Sale, xử lý giá giảm
+        if ($flashSale) {
+            foreach ($products as $product) {
+                $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+                if ($flashItem) {
+                    $product->is_flash_sale = true;
+                    $product->discount_price = $flashItem->discount_price;
+                    $product->sale_price = round($product->price * (1 - $flashItem->discount_price / 100), 0);
+                    $product->flash_end_time = $flashSale->end_time;
+                } else {
+                    $product->is_flash_sale = false;
+                    $product->sale_price = $product->price;
+                }
+            }
+        }
+
+
+
+        // ✅ Trả dữ liệu về view
+        return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts', 'flashSale'));
     }
 
-    // ✅ Return 1 lần duy nhất
-    return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
-}
 
 
 
@@ -90,8 +115,7 @@ class ProductController extends Controller
 
     public function detail($slug)
     {
-        // load product with relations
-         $product = Product::with(['category', 'images', 'variants' , 'reviews.user'])
+        $product = Product::with(['category', 'images', 'variants', 'reviews.user'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -100,30 +124,44 @@ class ProductController extends Controller
             ->limit(6)
             ->get();
 
-                
-        //Tính điểm đánh giá trung bình, đảm bảo không có giá trị null    
-        $averageRating = round($product->reviews()->avg('rating') ?? 0, 1);  
-       
-        
+        $averageRating = round($product->reviews()->avg('rating') ?? 0, 1);
+
         $hasPurchased = false;
         $hasReviewed = false;
 
-if (Auth::check()) {
-    $user = Auth::user();
+        if (Auth::check()) {
+            $user = Auth::user();
 
-    $hasPurchased = OrderItem::whereHas('order', function ($query) use ($user) {
-        $query->where('user_id', $user->id)
-              ->where('status', 'completed');
-    })
-    ->where('product_id', $product->id)
-    ->exists();
+            $hasPurchased = OrderItem::whereHas('order', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->where('status', 'completed');
+            })->where('product_id', $product->id)
+                ->exists();
 
-    $hasReviewed = Review::where('user_id', $user->id)
-        ->where('product_id', $product->id)
-        ->exists();
-}
+            $hasReviewed = Review::where('user_id', $user->id)
+                ->where('product_id', $product->id)
+                ->exists();
+        }
 
-        // prepare JS-safe variants array (no closure in blade)
+        // ✅ Kiểm tra xem sản phẩm có trong Flash Sale đang diễn ra không
+        $flashSale = \App\Models\FlashSale::with(['items' => function ($q) use ($product) {
+            $q->where('product_id', $product->id);
+        }])
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->first();
+
+        $flashItem = null;
+        if ($flashSale && $flashSale->items->count() > 0) {
+            $flashItem = $flashSale->items->first();
+            $product->is_flash_sale = true;
+            $product->discount_price = $flashItem->discount_price; // % giảm
+            $product->flash_sale_price = round($product->price * (1 - $flashItem->discount_price / 100), 0);
+            $product->flash_end_time = $flashSale->end_time;
+        } else {
+            $product->is_flash_sale = false;
+        }
+
         $jsVariants = $product->variants->map(function ($v) {
             return [
                 'id'         => $v->id,
@@ -133,12 +171,17 @@ if (Auth::check()) {
                 'sale_price' => (float) ($v->sale_price ?? 0),
                 'quantity'   => (int) ($v->quantity ?? 0),
                 'image'      => $v->image ?? null,
-                'images'     => $v->images ?? null,
             ];
         })->toArray();
 
-        return view('clients.pages.product-detail', compact('product', 'relatedProducts', 'jsVariants', 'hasPurchased', 'hasReviewed', 'averageRating' ));
+        return view('clients.pages.product-detail', compact(
+            'product',
+            'relatedProducts',
+            'jsVariants',
+            'hasPurchased',
+            'hasReviewed',
+            'averageRating',
+            'flashItem'
+        ));
     }
 }
-
-

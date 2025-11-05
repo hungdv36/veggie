@@ -102,6 +102,12 @@
                              <li><a href="{{ route('admin.reviews.logs') }}">Lịch sử xóa bình luận</a></li>
                          </ul>
                      </li>
+                     <li class="{{ request()->routeIs('admin.flash_sales.*') ? 'active' : '' }}">
+                         <a href="{{ route('admin.flash_sales.index') }}">
+                             <i class="fa fa-bolt"></i> Flash Sale
+                         </a>
+                     </li>
+
                  </ul>
              </div>
          </div>

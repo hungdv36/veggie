@@ -11,7 +11,7 @@ use App\Http\Controllers\Clients\OrderController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
-
+use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
 
 use App\Http\Controllers\Clients\ReviewController;
@@ -113,5 +113,7 @@ Route::middleware(['auth.custom'])->group(function () {
 });
 Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
 Route::get('/chat/history', [ChatController::class, 'history'])->name('chat.history');
+
+Route::get('/flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale.index');
 
 require __DIR__ . '/admin.php';
