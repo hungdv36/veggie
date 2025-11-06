@@ -53,7 +53,7 @@
 
                              <li><a href="{{ route('admin.products.index') }}">Danh sách sản phẩm</a></li>
 
-                             <li><a href="#">Thùng rác</a></li>
+                             <li><a href="{{ route('admin.products.trash') }}">Thùng rác</a></li>
                          </ul>
                      </li>
                      <li>

@@ -73,3 +73,63 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+<script>
+$(document).ready(function () {
+
+    // 🟢 Khôi phục danh mục
+    $('.btn-restore-category').click(function () {
+        let id = $(this).data('id');
+
+        if (confirm('Bạn có chắc muốn khôi phục danh mục này không?')) {
+            $.ajax({
+                url: "{{ route('admin.categories.restore') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: id
+                },
+                success: function (response) {
+                    if (response.status) {
+                        alert(response.message);
+                        $('#row-' + id).remove();
+                    } else {
+                        alert('Khôi phục thất bại: ' + response.message);
+                    }
+                },
+                // error: function () {
+                //     alert('Đã xảy ra lỗi khi khôi phục.');
+                // }
+            });
+        }
+    });
+
+    // 🔴 Xóa vĩnh viễn danh mục
+    $('.btn-force-delete-category').click(function () {
+        let id = $(this).data('id');
+
+        if (confirm('Bạn có chắc muốn xóa vĩnh viễn danh mục này không?')) {
+            $.ajax({
+                url: "{{ route('admin.categories.forceDelete') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category_id: id
+                },
+                success: function (response) {
+                    if (response.status) {
+                        alert(response.message);
+                        $('#row-' + id).remove();
+                    } else {
+                        alert('Xóa thất bại: ' + response.message);
+                    }
+                },
+                // error: function () {
+                //     alert('Đã xảy ra lỗi khi xóa.');
+                // }
+            });
+        }
+    });
+});
+</script>
+@endpush

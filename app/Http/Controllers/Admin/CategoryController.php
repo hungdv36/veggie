@@ -41,7 +41,7 @@ class CategoryController extends Controller
             'image' => $imagePath,
         ]);
 
-        return redirect()->route('admin.category.categories.index')->with('success', 'Thêm danh mục thành công!');
+        return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
     }
     public function updateCategory(Request $request)
     {

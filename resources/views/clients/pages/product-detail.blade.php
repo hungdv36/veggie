@@ -369,7 +369,7 @@
                                 <a href="{{ route('products.detail', $product->slug) }}"> <img
                                         src="{{ asset('assets/admin/img/product/' . $product->image) }}"
                                         alt="{{ $product->name }}"
-                                        style="height:100px;width:100px; object-fit:cover;">></a>
+                                        style="height:100px;width:100px; object-fit:cover;"></a>
                                 <div class="product-hover-action">
                                     <ul>
                                         <li>
