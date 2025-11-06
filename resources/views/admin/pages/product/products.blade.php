@@ -210,10 +210,7 @@
                                                                                 <img id="imagePreview-{{ $product->id }}"
                                                                                     class="new-preview" src="#"
                                                                                     alt="Preview mới"
-                                                                                    style="display:none; position:absolute; top:50%; left:50%;
-                                                                                            transform:translate(-50%,-50%); max-width:100%; max-height:100%;
-object-fit:cover; border-radius:4px; pointer-events:none;">
-
+                                                                                    style="display:none; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); max-width:100%; max-height:100%; object-fit:cover; border-radius:4px; pointer-events:none;">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                                                     width="20" height="20"
                                                                                     fill="currentColor"
@@ -563,6 +560,62 @@ object-fit:cover; border-radius:4px; pointer-events:none;">
                         console.log("❌ Không có file nào được chọn");
                     }
                 });
+        });
+
+        $(document).ready(function() {
+            // 🟦 Nút CHỈNH SỬA
+            $(".btn-update-submit-product").click(function() {
+                const id = $(this).data("id");
+                const form = $("#update-product-" + id)[0];
+                const formData = new FormData(form);
+
+                $.ajax({
+                    url: "{{ route('admin.products.update') }}",
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(res) {
+                        if (res.status) {
+                            alert(res.message);
+                            location.reload();
+                        } else {
+                            alert(res.message || "Cập nhật thất bại!");
+                        }
+                    },
+                    error: function(xhr) {
+                        alert("❌ Lỗi: " + (xhr.responseJSON?.message ||
+                            "Không thể cập nhật sản phẩm."));
+                    }
+                });
+            });
+
+            // 🟥 Nút XÓA
+            $(".btn-delete-product").click(function() {
+                if (!confirm("Bạn có chắc muốn xóa sản phẩm này không?")) return;
+
+                const id = $(this).data("id");
+
+                $.ajax({
+                    url: "{{ route('admin.products.delete') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        product_id: id
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            $("#product-row-" + id).fadeOut();
+                            alert(res.message);
+                        } else {
+                            alert(res.message || "Không thể xóa sản phẩm.");
+                        }
+                    },
+                    error: function() {
+                        alert("❌ Lỗi không xác định khi xóa sản phẩm.");
+                    }
+                });
+            });
         });
     </script>
 @endpush

@@ -88,3 +88,70 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+            // 🔄 KHÔI PHỤC SẢN PHẨM
+            $(document).on('click', '.btn-restore-product', function() {
+                const id = $(this).data('id');
+
+                if (!confirm('Bạn có chắc muốn khôi phục sản phẩm này không?')) return;
+
+                $.ajax({
+                    url: `{{ route('admin.products.restore') }}`, // KHÔNG dùng /${id} nữa
+                    type: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        product_id: id
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            alert('✅ ' + res.message);
+                            $(`#row-${id}`).fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                        } else {
+                            alert('⚠️ ' + (res.message || 'Khôi phục thất bại.'));
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                        alert('❌ Có lỗi xảy ra khi khôi phục sản phẩm.');
+                    }
+                });
+            });
+            // 🗑️ XÓA VĨNH VIỄN SẢN PHẨM
+            $(document).on('click', '.btn-force-delete-product', function() {
+                const id = $(this).data('id');
+
+                if (!confirm(
+                        '⚠️ Bạn có chắc muốn xóa VĨNH VIỄN sản phẩm này không?\nHành động này KHÔNG THỂ hoàn tác!'
+                        )) return;
+
+                $.ajax({
+                    url: `{{ route('admin.products.forceDelete') }}`, // dùng route có sẵn
+                    type: 'POST', // vì route hiện tại dùng POST
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        product_id: id
+                    },
+                    success: function(res) {
+                        if (res.status) {
+                            alert('🗑️ ' + res.message);
+                            $(`#row-${id}`).fadeOut(400, function() {
+                                $(this).remove();
+                            });
+                        } else {
+                            alert('⚠️ ' + (res.message || 'Không thể xóa vĩnh viễn.'));
+                        }
+                    },
+                    error: function(xhr) {
+                        console.error(xhr.responseText);
+                        alert('❌ Lỗi khi xóa vĩnh viễn sản phẩm.');
+                    }
+                });
+            });
+
+        });
+    </script>
+@endpush
