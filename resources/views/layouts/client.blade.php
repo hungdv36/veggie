@@ -76,6 +76,8 @@
     @include('clients.partials.chat_ai')
     <script>
         window.chatConfig = {
+            userId: {{ Auth::check() ? Auth::id() : 'null' }},
+            userName: "{{ Auth::check() ? Auth::user()->name : '' }}",
             sendUrl: "{{ route('chat.send') }}",
             historyUrl: "{{ route('chat.history') }}",
             csrfToken: "{{ csrf_token() }}"

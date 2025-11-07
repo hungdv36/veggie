@@ -30,7 +30,9 @@
                                             </ul>
                                         </div>
                                         <div class="right col-md-5 col-sm-5 text-center">
-                                            <img src="images/img.jpg" alt="" class="img-circle img-fluid">
+                                            <img src="{{ asset($user->avatar ?? 'assets/clients/img/admin.png') }}"
+                                                alt="{{ $user->name }}" class="img-circle img-fluid"
+                                                style="object-fit: cover; width: 120px; height: 120px;">
                                         </div>
                                     </div>
                                     <div class=" profile-bottom text-center">

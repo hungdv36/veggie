@@ -1,6 +1,6 @@
 @php
     $shippingFee = 25000; // phí vận chuyển cố định
-    $statusOrder = ['pending', 'processing', 'shipped', 'failed_delivery', 'completed', 'canceled'];
+    $statusOrder = ['pending', 'processing', 'shipped', 'failed_delivery', 'completed', 'received', 'canceled'];
     $currentIndex = array_search($order->status, $statusOrder);
     $cancellableStatuses = ['pending', 'processing'];
 @endphp
@@ -150,6 +150,7 @@
                                     'shipped' => 'Đang giao',
                                     'failed_delivery' => 'Giao hàng thất bại',
                                     'completed' => 'Giao hàng thành công',
+                                    'received' => 'Đã nhận được hàng',
                                     'canceled' => 'Đơn hàng đã hủy',
                                 ];
                             @endphp
@@ -157,12 +158,10 @@
                             @forelse ($order->status_logs->sortBy('changed_at') as $index => $log)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td>
-                                        {{ $statusVN[$log->old_status] ?? $log->old_status }} →
-                                        {{ $statusVN[$log->status] ?? $log->status }}
-                                    </td>
+                                    <td>{{ $statusVN[$log->old_status] ?? $log->old_status }} →
+                                        {{ $statusVN[$log->status] ?? $log->status }}</td>
                                     <td>{{ $log->notes ?? '-' }}</td>
-                                    <td>{{ $log->role?->name ?? 'Admin' }}</td>
+                                    <td>{{ $log->role_id == 1 ? 'Admin' : 'Customer' }}</td>
                                     <td>{{ $log->changed_at ? \Carbon\Carbon::parse($log->changed_at)->format('H:i d/m/Y') : '-' }}
                                     </td>
                                 </tr>
@@ -175,6 +174,7 @@
                     </table>
                 </div>
             </div>
+
 
             {{-- #4. Thay Đổi Trạng Thái --}}
             <div class="card shadow-sm border-0 rounded-3">
@@ -191,7 +191,7 @@
                             <div class="col-12">
                                 <label class="form-label">Trạng Thái</label>
                                 <select id="statusSelect" name="status" class="form-select"
-                                    {{ in_array($order->status, ['completed', 'canceled', 'failed_delivery']) ? 'disabled' : '' }}>
+                                    {{ in_array($order->status, ['completed', 'received', 'canceled', 'failed_delivery']) ? 'disabled' : '' }}>
 
                                     {{-- Nếu chưa có trạng thái --}}
                                     @if (!$order->status)
@@ -229,6 +229,10 @@
 
                                                     @case('completed')
                                                         Giao hàng thành công
+                                                    @break
+
+                                                    @case('received')
+                                                        Đã nhận được hàng
                                                     @break
 
                                                     @case('canceled')

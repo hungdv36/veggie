@@ -224,6 +224,14 @@
             console.log("Clicked!", $(this).data("id"));
         });
     </script>
+    <script>
+        console.log("Test script loaded");
+        $(document).on("click", ".btn-update-submit-product", function(e) {
+            e.preventDefault();
+            console.log("Clicked update button!");
+        });
+    </script>
+
 </body>
 
 </html>
