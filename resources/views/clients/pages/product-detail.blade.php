@@ -16,29 +16,60 @@
                     <div class="ltn__shop-details-inner mb-60">
                         <div class="row">
                             <div class="col-md-6">
-                                <div class="ltn__shop-details-img-gallery">
-                                    <div class="ltn__shop-details-large-img">
-                                        <div class="single-large-img">
-                                            @if ($product->image)
-                                                <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
-                                                    alt="{{ $product->name }}"
-                                                    style="height:850px;width:850px; object-fit:cover;">
-                                            @else
-                                                <img src="{{ asset('assets/img/product/default.png') }}" alt="Default"
-                                                    width="80">
-                                            @endif
-                                        </div>
-
+                                <div class="product-gallery text-center">
+                                    {{-- Ảnh lớn --}}
+                                    <div class="main-image mb-3">
+                                        @if ($product->image)
+                                            <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
+                                                alt="{{ $product->name }}" class="img-fluid main-img"
+                                                style="max-height:600px; object-fit:cover; border-radius:8px;">
+                                        @else
+                                            <img src="{{ asset('assets/img/product/default.png') }}" alt="Default"
+                                                class="img-fluid" width="400">
+                                        @endif
                                     </div>
-                                    <div class="ltn__shop-details-small-img slick-arrow-2">
+                                    {{-- Ảnh nhỏ --}}
+                                    <div class="thumb-list d-flex justify-content-center flex-wrap gap-2">
                                         @foreach ($product->images as $img)
-                                            <div class="col-md-3 mb-2">
-                                                <img src="{{ asset($img->image_path) }}" class="img-fluid rounded shadow-sm"
-                                                    style="height:100px; object-fit:cover;">
+                                            <div class="thumb-item"
+                                                style="width:100px; height:100px; overflow:hidden; border-radius:8px; cursor:pointer;">
+                                                <img src="{{ asset($img->image_path) }}" class="w-100 h-100"
+                                                    style="object-fit:cover;">
                                             </div>
                                         @endforeach
                                     </div>
+                                    <style>
+                                        .product-gallery {
+                                            display: flex;
+                                            flex-direction: column;
+                                            align-items: center;
+                                            margin-bottom: 20px;
+                                        }
 
+                                        .main-image img {
+                                            display: block;
+                                            margin: 0 auto;
+                                            max-width: 100%;
+                                            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                                        }
+
+                                        .thumb-list img {
+                                            border: 2px solid transparent;
+                                            transition: all 0.2s ease;
+                                        }
+
+                                        .thumb-list img:hover {
+                                            border-color: #28a745;
+                                            transform: scale(1.05);
+                                        }
+                                    </style>
+                                    <script>
+                                        document.querySelectorAll('.thumb-item img').forEach(img => {
+                                            img.addEventListener('click', function() {
+                                                document.querySelector('.main-img').src = this.src;
+                                            });
+                                        });
+                                    </script>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -351,69 +382,78 @@
     </div>
     <!-- SHOP DETAILS AREA END -->
 
-    <!-- PRODUCT SLIDER AREA START -->
-    <div class="ltn__product-slider-area ltn__product-gutter pb-70">
+    <!-- 🌟 PRODUCT SLIDER AREA START -->
+    <div class="related-products-area py-5">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title-area ltn__section-title-2">
-                        <h1 class="section-title">Sản phẩm tương tự<span>.</span></h1>
-                    </div>
-                </div>
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-uppercase mb-2" style="letter-spacing: 5px;">
+                    Sản phẩm tương tự<span class="text-gradient">.</span>
+                </h2>
+                <p class="text-muted mb-0">Khám phá thêm những lựa chọn phù hợp với phong cách của bạn 💫</p>
             </div>
-            <div class="row ltn__related-product-slider-one-active slick-arrow-1">
+
+            <div class="related-slider">
                 @foreach ($relatedProducts as $product)
-                    <div class="col-lg-12">
-                        <div class="ltn__product-item ltn__product-item-3 text-center">
-                            <div class="product-img">
-                                <a href="{{ route('products.detail', $product->slug) }}"> <img
-                                        src="{{ asset('assets/admin/img/product/' . $product->image) }}"
-                                        alt="{{ $product->name }}"
-                                        style="height:100px;width:100px; object-fit:cover;">></a>
-                                <div class="product-hover-action">
-                                    <ul>
-                                        <li>
-                                            <a href="javascript:void(0)" title="Xem nhanh" data-bs-toggle="modal"
-                                                data-bs-target="#quick_view_modal-{{ $product->id }}">
-                                                <i class="far fa-eye"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:void(0)" title="Thêm vào giỏ hàng" data-bs-toggle="modal"
-                                                data-bs-target="#add_to_cart_modal-{{ $product->id }}">
-                                                <i class="fas fa-shopping-cart"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="javascript:void(0)" title="Yêu thích" data-bs-toggle="modal"
-                                                data-bs-target="#liton_wishlist_modal-{{ $product->id }}">
-                                                <i class="far fa-heart"></i>
-                                            </a>
-                                        </li>
-                                    </ul>
+                    <div class="px-2">
+                        <div class="product-card-new bg-white border-0 shadow-sm">
+                            <div class="product-image-wrapper">
+                                <a href="{{ route('products.detail', $product->slug) }}">
+                                    <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
+                                        alt="{{ $product->name }}" class="img-fluid rounded-3 product-image">
+                                </a>
+
+                                <!-- Hover actions -->
+                                <div class="hover-actions">
+                                    <a href="javascript:void(0)" class="action-btn" title="Xem nhanh"
+                                        data-bs-toggle="modal" data-bs-target="#quick_view_modal-{{ $product->id }}">
+                                        <i class="far fa-eye"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" class="action-btn" title="Thêm vào giỏ hàng"
+                                        data-bs-toggle="modal" data-bs-target="#add_to_cart_modal-{{ $product->id }}">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </a>
+                                    <a href="javascript:void(0)" class="action-btn" title="Yêu thích"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#liton_wishlist_modal-{{ $product->id }}">
+                                        <i class="far fa-heart"></i>
+                                    </a>
                                 </div>
                             </div>
-                            <div class="product-info">
-                                <div class="product-ratting">
-                                    @include('clients.components.includes.rating', [
-                                        'product' => $product,
-                                    ])
+
+                            <div class="card-body text-center p-3">
+                                <div class="rating-stars mb-2">
+                                    @php
+                                        $avg = $product->reviews->avg('rating');
+                                    @endphp
+                                    @if ($avg)
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <i
+                                                class="fas fa-star {{ $i <= $avg ? 'text-warning' : 'text-secondary opacity-25' }}"></i>
+                                        @endfor
+                                    @else
+                                        <span class="text-muted small">Chưa có đánh giá</span>
+                                    @endif
                                 </div>
-                                <h2 class="product-title"><a
-                                        href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
-                                </h2>
+
+                                <h6 class="fw-semibold mb-1">
+                                    <a href="{{ route('products.detail', $product->slug) }}"
+                                        class="text-dark text-decoration-none product-title">
+                                        {{ $product->name }}
+                                    </a>
+                                </h6>
+
                                 @php
                                     $prices = $product->variants->pluck('price')->sort()->values();
                                 @endphp
 
-                                <div class="product-price">
+                                <div class="text-primary fw-bold small">
                                     @if ($prices->count() > 1)
-                                        <span>{{ number_format($prices->first(), 0, ',', '.') }} –
-                                            {{ number_format($prices->last(), 0, ',', '.') }} VNĐ</span>
+                                        {{ number_format($prices->first(), 0, ',', '.') }} –
+                                        {{ number_format($prices->last(), 0, ',', '.') }} VNĐ
                                     @elseif($prices->count() == 1)
-                                        <span>{{ number_format($prices->first(), 0, ',', '.') }} VNĐ</span>
+                                        {{ number_format($prices->first(), 0, ',', '.') }} VNĐ
                                     @else
-                                        <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                                        {{ number_format($product->price, 0, ',', '.') }} VNĐ
                                     @endif
                                 </div>
                             </div>
@@ -421,12 +461,164 @@
                     </div>
                 @endforeach
             </div>
+
             @foreach ($relatedProducts as $product)
                 @include('clients.components.includes.include-modals')
             @endforeach
         </div>
     </div>
-    <!-- PRODUCT SLIDER AREA END -->
+    <!-- 🌟 PRODUCT SLIDER AREA END -->
+
+
+    <!-- Slick Slider Script -->
+    <script>
+        $(document).ready(function() {
+            $('.related-slider').slick({
+                slidesToShow: 4,
+                slidesToScroll: 1,
+                autoplay: true,
+                autoplaySpeed: 3500,
+                arrows: true,
+                dots: false,
+                infinite: true,
+                prevArrow: '<button type="button" class="slick-prev"><i class="fas fa-chevron-left"></i></button>',
+                nextArrow: '<button type="button" class="slick-next"><i class="fas fa-chevron-right"></i></button>',
+                responsive: [{
+                        breakpoint: 992,
+                        settings: {
+                            slidesToShow: 3
+                        }
+                    },
+                    {
+                        breakpoint: 768,
+                        settings: {
+                            slidesToShow: 2
+                        }
+                    },
+                    {
+                        breakpoint: 576,
+                        settings: {
+                            slidesToShow: 1
+                        }
+                    }
+                ]
+            });
+        });
+    </script>
+
+
+    <style>
+        .related-products-area {
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+
+        .text-gradient {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .product-card-new {
+            border-radius: 14px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .product-card-new:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-image-wrapper {
+            position: relative;
+            overflow: hidden;
+            border-radius: 14px;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            transition: all 0.4s ease;
+        }
+
+        .product-card-new:hover .product-image {
+            transform: scale(1.05);
+            filter: brightness(0.9);
+        }
+
+        .hover-actions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            opacity: 0;
+            display: flex;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .product-card-new:hover .hover-actions {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: #fff;
+            color: #333;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+        .slick-prev,
+        .slick-next {
+            position: absolute;
+            top: 45%;
+            background: #fff;
+            color: #000;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 5;
+            transition: all 0.3s ease;
+        }
+
+        .slick-prev:hover,
+        .slick-next:hover {
+            background: linear-gradient(45deg, #007bff, #6610f2);
+            color: #fff;
+        }
+
+        .slick-prev {
+            left: -15px;
+        }
+
+        .slick-next {
+            right: -15px;
+        }
+
+        .rating-stars i {
+            font-size: 13px;
+            margin: 0 1px;
+        }
+    </style>
+
 @endsection
 <script>
     document.addEventListener('DOMContentLoaded', function() {

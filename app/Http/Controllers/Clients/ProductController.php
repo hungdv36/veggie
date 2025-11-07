@@ -24,7 +24,7 @@ class ProductController extends Controller
             ->withAvg('reviews', 'rating')
             ->orderByDesc('reviews_avg_rating')
             ->where('status', 'in_stock')
-            ->take(5)
+            ->take(3)
             ->get();
 
         foreach ($topRatedProducts as $item) {
