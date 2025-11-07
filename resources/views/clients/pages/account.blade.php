@@ -77,15 +77,38 @@
                             <div class="account-card card">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center mb-4">
-                                        <img src="{{ asset('assets/clients/img/avt.png') }}"
-                                            class="rounded-circle me-3 border border-3 border-primary-subtle shadow-sm"
-                                            width="90" height="90" alt="Avatar người dùng">
-                                        <div>
-                                            <h5 class="fw-bold mb-1">{{ $user->name ?? 'Người dùng' }}</h5>
-                                            <p class="text-muted mb-1">{{ $user->email }}</p>
-                                            <a href="{{ route('logout') }}" class="text-danger small"><i
-                                                    class="fas fa-sign-out-alt me-1"></i> Đăng xuất</a>
-                                        </div>
+                                        <!-- Form upload avatar -->
+                                        <form action="{{ route('account.updateAvatar') }}" method="POST"
+                                            enctype="multipart/form-data" id="avatarForm" class="d-flex align-items-center">
+                                            @csrf
+
+                                            <!-- Ẩn input file -->
+                                            <input type="file" name="avatar" id="avatarInput" style="display: none;"
+                                                accept="image/*">
+
+                                            <!-- Avatar hiện tại, click vào là chọn file -->
+                                            <label for="avatarInput" style="cursor: pointer; margin-right: 1rem;">
+                                                <img id="avatarPreview"
+                                                    src="{{ $user->avatar ? asset('assets/clients/img/' . $user->avatar) : asset('assets/clients/img/avt.png') }}"
+                                                    class="rounded-circle border border-3 border-primary-subtle shadow-sm"
+                                                    width="90" height="90" alt="Avatar người dùng">
+                                            </label>
+
+                                            <!-- Thông tin user và nút submit -->
+                                            <div class="flex-grow-1">
+                                                <h5 class="fw-bold mb-1">{{ $user->name ?? 'Người dùng' }}</h5>
+                                                <p class="text-muted mb-2">{{ $user->email }}</p>
+                                                <button type="submit" class="btn btn-primary btn-sm"
+                                                    style="padding: 2px 6px; font-size: 0.8rem;">Cập nhật</button>
+
+                                                <a href="{{ route('logout') }}" class="text-danger small d-block mt-1"><i
+                                                        class="fas fa-sign-out-alt me-1"></i> Đăng xuất</a>
+
+                                                @if (session('success'))
+                                                    <p class="text-success small mt-1">{{ session('success') }}</p>
+                                                @endif
+                                            </div>
+                                        </form>
                                     </div>
 
                                     <div class="row text-center mb-4">
@@ -123,6 +146,10 @@
                                                                             @elseif ($order->status == 'completed')
                                                                                 <span class="badge bg-success">Hoàn
                                                                                     thành</span>
+                                                                            @elseif ($order->status == 'received')
+                                                                                <span class="badge bg-primary">
+                                                                                    Đã nhận hàng
+                                                                                </span>
                                                                             @elseif ($order->status == 'canceled')
                                                                                 <span class="badge bg-danger">Đã hủy</span>
                                                                             @endif
@@ -181,7 +208,8 @@
                                                     class="text-decoration-underline" data-bs-toggle="tab">Cập nhật thông
                                                     tin cá nhân</a></li>
                                             <li><i class="fas fa-key me-2 text-secondary"></i> <a href="#password"
-                                                    class="text-decoration-underline" data-bs-toggle="tab">Đổi mật khẩu</a>
+                                                    class="text-decoration-underline" data-bs-toggle="tab">Đổi mật
+                                                    khẩu</a>
                                             </li>
                                         </ul>
                                     </div>
@@ -222,8 +250,16 @@
                                                                     <span class="badge bg-primary">Đang xử lý</span>
                                                                 @break
 
+                                                                @case('shipped')
+                                                                    <span class="badge bg-secondary">Đang giao hàng</span>
+                                                                @break
+
                                                                 @case('completed')
                                                                     <span class="badge bg-success">Hoàn thành</span>
+                                                                @break
+
+                                                                @case('received')
+                                                                    <span class="badge bg-info">Đã nhận được hàng</span>
                                                                 @break
 
                                                                 @case('canceled')

@@ -5,6 +5,12 @@
 @section('breadcrumb', 'Chi tiết đơn hàng')
 
 @section('content')
+    <style>
+        .btn-success.btn-sm {
+            padding: 4px 10px;
+            font-size: 14px;
+        }
+    </style>
     <div class="container my-5">
         <div class="card shadow-lg border-0 rounded-4">
             <div class="card-body p-4">
@@ -110,9 +116,17 @@
                         </button>
                     </form>
                 @endif
-
-                <!-- Đánh giá -->
                 @if ($order->status == 'completed')
+                    <form action="{{ route('orders.confirmReceived', $order->id) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit" class="btn btn-success btn-sm">
+                            <i class="fas fa-check-circle me-1"></i> Đã nhận được hàng
+                        </button>
+                    </form>
+                @endif
+                <!-- Đánh giá -->
+                @if ($order->status == 'received')
                     <div class="mt-5">
                         <h5 class="fw-bold mb-3"><i class="fas fa-star me-2 text-warning"></i>Đánh giá sản phẩm</h5>
                         <div class="table-responsive">
@@ -129,7 +143,7 @@
                                             <td>{{ $item->product->name }}</td>
                                             <td>
                                                 <a href="{{ route('products.detail', $item->product->slug) }}"
-                                                    class="btn btn-primary btn-sm">
+                                                   class="btn btn-success btn-sm">
                                                     <i class="fas fa-pen me-1"></i>Đánh giá
                                                 </a>
                                             </td>

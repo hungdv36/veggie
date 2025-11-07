@@ -54,7 +54,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::prefix('account')->group(function () {
         // Trang chính account
         Route::get('/', [AccountController::class, 'index'])->name('account');
-        Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+        Route::put('/update', [AccountController::class, 'update'])->name('account.update');
+        Route::post('/avatar', [AccountController::class, 'updateAvatar'])->name('account.updateAvatar');
 
 
         // Đổi mật khẩu
@@ -80,6 +81,8 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
+    Route::patch('/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])
+        ->name('orders.confirmReceived');
 
 
 

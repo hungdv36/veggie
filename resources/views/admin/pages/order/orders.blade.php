@@ -69,6 +69,9 @@
                                                                 <span class="badge bg-success fs-7 px-3 py-2">Giao hàng
                                                                     thành
                                                                     công</span>
+                                                            @elseif ($order->status == 'received')
+                                                                <span class="badge bg-info fs-7 px-3 py-2">Đã nhận được
+                                                                    hàng</span>
                                                             @elseif($order->status == 'failed_delivery')
                                                                 <span class="badge bg-secondary fs-7 px-3 py-2">Giao hàng
                                                                     thất bại</span>
