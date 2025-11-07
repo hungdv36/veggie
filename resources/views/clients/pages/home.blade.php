@@ -9,7 +9,7 @@
     <script src="{{ asset('assets/clients/js/slick.min.js') }}"></script>
     <script src="{{ asset('assets/clients/js/main.js') }}"></script>
 
-    <!-- ============ SLIDER START ============ -->
+    <!-- ============ SMOOTH FASHION SLIDER START ============ -->
     <style>
         .fashion-slider {
             position: relative;
@@ -21,23 +21,20 @@
 
         .fashion-slide {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             background-size: cover;
             background-position: center;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             opacity: 0;
             visibility: hidden;
-            transition: opacity 1s ease-in-out, visibility 1s ease-in-out;
+            transform: scale(1.05);
+            transition: opacity 1.5s ease-in-out, transform 5s ease-in-out;
         }
 
         .fashion-slide.active {
             opacity: 1;
             visibility: visible;
+            transform: scale(1);
+            z-index: 2;
         }
 
         .fashion-slide::before {
@@ -48,96 +45,10 @@
             z-index: 1;
         }
 
-        .fashion-slide-content {
-            position: relative;
-            z-index: 2;
-            color: #fff;
-            text-align: center;
-            padding: 20px;
-            max-width: 800px;
-            animation: fadeUp 1.2s ease;
-        }
-
-        @keyframes fadeUp {
-            from {
-                transform: translateY(40px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .fashion-slide h1 {
-            font-size: 58px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            line-height: 1.1;
-            text-transform: uppercase;
-            margin-bottom: 20px;
-        }
-
-        .fashion-slide p {
-            font-size: 18px;
-            color: #f5f5f5;
-            margin-bottom: 35px;
-            line-height: 1.6;
-        }
-
-        .fashion-btn {
-            background: linear-gradient(90deg, #198754, #198754);
-            color: #fff;
-            padding: 14px 38px;
-            border: none;
-            border-radius: 50px;
-            font-size: 16px;
-            font-weight: 600;
-            text-transform: uppercase;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .fashion-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 16px rgba(255, 90, 95, 0.4);
-        }
-
-        /* Arrows */
-        .fashion-arrow {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 48px;
-            color: #fff;
-            cursor: pointer;
-            z-index: 10;
-            opacity: 0.7;
-            transition: 0.3s;
-            padding: 8px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .fashion-arrow:hover {
-            opacity: 1;
-            background: rgba(0, 0, 0, 0.4);
-        }
-
-        .fashion-prev {
-            left: 40px;
-        }
-
-        .fashion-next {
-            right: 40px;
-        }
-
         /* Dots */
         .fashion-dots {
             position: absolute;
-            bottom: 35px;
+            bottom: 30px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
@@ -151,31 +62,19 @@
             border-radius: 50%;
             background-color: rgba(255, 255, 255, 0.5);
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.4s ease;
         }
 
         .fashion-dot.active {
             background-color: #198754;
-            transform: scale(1.2);
+            transform: scale(1.3);
+            box-shadow: 0 0 10px rgba(25, 135, 84, 0.6);
         }
 
         /* Responsive */
-        @media (max-width: 992px) {
-            .fashion-slide h1 {
-                font-size: 38px;
-            }
-
-            .fashion-slide p {
-                font-size: 16px;
-            }
-
-            .fashion-btn {
-                padding: 12px 28px;
-                font-size: 15px;
-            }
-
-            .fashion-arrow {
-                font-size: 36px;
+        @media (max-width: 768px) {
+            .fashion-slider {
+                height: 60vh;
             }
         }
     </style>
@@ -183,53 +82,32 @@
     <div class="fashion-slider">
         <!-- Slide 1 -->
         <div class="fashion-slide active" style="background-image: url('{{ asset('assets/clients/img/slider/1.png') }}')">
-            <div class="fashion-slide-content">
-                <h1>Bộ Sưu Tập Mùa Thu</h1>
-                <p>Khám phá phong cách thời trang mới nhất, giúp bạn tỏa sáng trong mọi khoảnh khắc.</p>
-                <a href="{{ route('products.index') }}" class="fashion-btn">Mua Ngay</a>
-            </div>
         </div>
-
         <!-- Slide 2 -->
-        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/2.png') }}')">
-            <div class="fashion-slide-content">
-                <h1>Ưu Đãi Đặc Biệt 50%</h1>
-                <p>Bộ sưu tập giới hạn - phong cách sang trọng, trẻ trung, năng động.</p>
-                <a href="{{ route('products.index') }}" class="fashion-btn">Khám Phá</a>
-            </div>
-        </div>
-
+        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/2.png') }}')"></div>
         <!-- Slide 3 -->
-        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/3.png') }}')">
-            <div class="fashion-slide-content">
-                <h1>Thời Trang Cá Tính</h1>
-                <p>Sự kết hợp hoàn hảo giữa vẻ đẹp hiện đại và tinh tế, chỉ có tại FashionStore.</p>
-                <a href="{{ route('products.index') }}" class="fashion-btn">Xem Ngay</a>
-            </div>
-        </div>
-
-        <!-- Arrows -->
-        <div class="fashion-arrow fashion-prev">&#10094;</div>
-        <div class="fashion-arrow fashion-next">&#10095;</div>
+        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/3.png') }}')"></div>
 
         <!-- Dots -->
         <div class="fashion-dots"></div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', () => {
             const slides = document.querySelectorAll('.fashion-slide');
-            const prev = document.querySelector('.fashion-prev');
-            const next = document.querySelector('.fashion-next');
             const dotsContainer = document.querySelector('.fashion-dots');
             let index = 0;
+            let autoSlide;
 
-            // Tạo dot
+            // Tạo dots
             slides.forEach((_, i) => {
                 const dot = document.createElement('div');
                 dot.classList.add('fashion-dot');
                 if (i === 0) dot.classList.add('active');
-                dot.addEventListener('click', () => showSlide(i));
+                dot.addEventListener('click', () => {
+                    showSlide(i);
+                    resetAutoSlide();
+                });
                 dotsContainer.appendChild(dot);
             });
 
@@ -244,17 +122,23 @@
                 dots[index].classList.add('active');
             }
 
-            next.addEventListener('click', () => showSlide(index + 1));
-            prev.addEventListener('click', () => showSlide(index - 1));
+            function nextSlide() {
+                showSlide(index + 1);
+            }
 
-            // Auto slide
-            setInterval(() => showSlide(index + 1), 6000);
+            function startAutoSlide() {
+                autoSlide = setInterval(nextSlide, 6000);
+            }
+
+            function resetAutoSlide() {
+                clearInterval(autoSlide);
+                startAutoSlide();
+            }
+
+            startAutoSlide();
         });
     </script>
-    <!-- ============ SLIDER END ============ -->
-
-
-    <!-- SLIDER AREA END -->
+    <!-- ============ SMOOTH FASHION SLIDER END ============ -->
 
     <!-- BANNER AREA START -->
     <div class="ltn__banner-area mt-120 mb-90">
@@ -637,11 +521,14 @@
                     <div class="section-title-area ltn__section-title-2 text-center">
                         <h1 class="section-title">Sản phẩm</h1>
                     </div>
-                    <div class="ltn__tab-menu ltn__tab-menu-2 ltn__tab-menu-top-right-- text-uppercase text-center">
-                        <div class="nav">
+                    <!-- Danh sách danh mục -->
+                    <div class="ltn__tab-menu ltn__tab-menu-2 text-uppercase text-center">
+                        <div class="nav category-filter">
                             @foreach ($categories as $index => $category)
-                                <a class="{{ $index == 0 ? 'active show' : '' }}" data-bs-toggle="tab"
-                                    href="#tab_{{ $category->id }}">{{ $category->name }}</a>
+                                <a href="javascript:void(0);" class="category-link {{ $index == 0 ? 'active' : '' }}"
+                                    data-category="tab_{{ $category->id }}">
+                                    {{ $category->name }}
+                                </a>
                             @endforeach
                         </div>
                     </div>
@@ -757,12 +644,30 @@
                             </div>
                         @endforeach
                     </div>
-
-
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryLinks = document.querySelectorAll('.category-link');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+
+            categoryLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    // Xóa trạng thái active cũ
+                    categoryLinks.forEach(l => l.classList.remove('active'));
+                    tabPanes.forEach(tab => tab.classList.remove('show', 'active'));
+
+                    // Thêm active cho danh mục được chọn
+                    this.classList.add('active');
+                    const categoryId = this.getAttribute('data-category');
+                    const activeTab = document.getElementById(categoryId);
+                    activeTab.classList.add('show', 'active');
+                });
+            });
+        });
+    </script>
     <!-- PRODUCT TAB AREA END -->
 
     <!-- COUNTER UP AREA START -->
