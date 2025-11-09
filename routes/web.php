@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
 use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Clients\WishController;
 
 use App\Http\Controllers\Clients\ReviewController;
-
+use App\Http\Controllers\Clients\WishListController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
@@ -76,6 +77,9 @@ Route::middleware(['auth.custom'])->group(function () {
     });
     // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/add', [WishListController::class, 'addToWishList']);
+
     Route::get('/checkout/get-address', [CheckoutController::class, 'getAddress'])->name('checkout.getAddress');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 

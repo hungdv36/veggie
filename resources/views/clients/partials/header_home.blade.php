@@ -119,6 +119,9 @@
 {{-- Nếu đã đăng nhập --}}
 @auth
 <a href="{{ route('account') }}">Tài khoản</a>
+<br>
+<a href="{{ route('wishlist') }}">Yêu thích</a>
+
 <li>
     <form action="{{ route('logout') }}" method="POST" style="display:inline;">
         @csrf
