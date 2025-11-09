@@ -29,7 +29,7 @@ class ProductController extends Controller
 
         foreach ($topRatedProducts as $item) {
             $item->image_url = $item->firstImage
-                ? asset('storage/uploads/' . $item->firstImage->image)
+                ? asset($item->firstImage->image_path)
                 : asset('storage/uploads/products/no-image.png');
         }
 
@@ -54,32 +54,32 @@ class ProductController extends Controller
                 }
             }
         }
-
-
-
         // ✅ Trả dữ liệu về view
         return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts', 'flashSale'));
     }
 
-
-
-
     public function filter(Request $request)
     {
-        $query = Product::query();
+        $query = Product::with('firstImage');
 
-        // Filter Category if exist
-        if ($request->has('category_id') && $request->category_id != '') {
+        // ✅ Lọc danh mục nếu có
+        if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Filter Price if exist
-        if ($request->has('min_price') && $request->has('max_price')) {
-            $query->whereBetween('price', [$request->min_price, $request->max_price]);
+        // ✅ Lọc theo khoảng giá (nếu người dùng chỉnh thanh trượt)
+        if ($request->filled('min_price') && $request->filled('max_price')) {
+            $min = (float) $request->min_price;
+            $max = (float) $request->max_price;
+
+            // Nếu min/max trùng giá trị ban đầu (0–300000) thì bỏ lọc
+            if (!($min == 0 && $max == 300000)) {
+                $query->whereBetween('price', [$min, $max]);
+            }
         }
 
-        // Filter SortBy if exist
-        if ($request->has('sort_by')) {
+        // ✅ Lọc sắp xếp
+        if ($request->filled('sort_by')) {
             switch ($request->sort_by) {
                 case 'price_asc':
                     $query->orderBy('price', 'asc');
@@ -96,22 +96,14 @@ class ProductController extends Controller
             }
         }
 
-        // Trả về kết quả (tuỳ mục đích có thể là JSON hoặc view)
         $products = $query->paginate(9);
 
-        // foreach ($products as $product) {
-        //     $product->image_url = $product->firstImage?->image
-        //         ? asset('assets/admin/img/product/' . $product->firstImage->image)
-        //         : asset('assets/admin/img/product/default.png');
-        // }
-
-        return response()->json(
-            [
-                'products' => view('clients.components.products_grid', compact('products'))->render(),
-                'pagination' => $products->links('clients.components.pagination.pagination_custom')
-            ]
-        );
+        return response()->json([
+            'products' => view('clients.components.products_grid', compact('products'))->render(),
+            'pagination' => $products->links('clients.components.pagination.pagination_custom')
+        ]);
     }
+
 
     public function detail($slug)
     {
