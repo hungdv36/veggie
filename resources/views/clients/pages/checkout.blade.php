@@ -86,7 +86,7 @@
                             @csrf
                             <input type="hidden" name="address_id" id="address_hidden"
                                 value="{{ $defaultAddress->id ?? '' }}">
-
+                            <input type="hidden" name="coupon_id" id="coupon_id" value="">
                             <div id="checkout_payment">
                                 <div class="card">
                                     <h5 class="ltn__card-title">
@@ -153,67 +153,69 @@
                                     <td>{{ number_format(25000, 0, ',', '.') }} đ</td>
                                 </tr>
                                 <tr>
+                                    <td>Giảm giá</td>
+                                    <td><strong id="discount-amount">0 đ</strong></td>
+                                </tr>
+                                <tr>
                                     <td><strong>Tổng tiền</strong></td>
-                                    <td><strong>{{ number_format($cartItems->sum(fn($item) => ($item->variant->sale_price ?? $item->product->price) * $item->quantity) + 25000, 0, ',', '.') }}
+                                    <td><strong
+                                            id="total-amount">{{ number_format($cartItems->sum(fn($item) => ($item->variant->sale_price ?? $item->product->price) * $item->quantity) + 25000, 0, ',', '.') }}
                                             đ</strong></td>
                                 </tr>
                             </tbody>
                         </table>
+                        <div class="coupon-section mt-3">
+                            <input type="text" id="coupon-code" placeholder="Nhập mã giảm giá" class="form-control" />
+                            <button type="button" id="apply-coupon" class="btn btn-primary mt-2">Áp dụng</button>
+                            <div id="coupon-message" class="text-danger mt-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
+   <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('checkout-form');
     const button = document.getElementById('order_button_cash');
     const totalAmount = {{ $totalPrice + 25000 }};
 
+    // --- XỬ LÝ SUBMIT FORM (Thanh toán) ---
     form.addEventListener('submit', async function(e) {
         e.preventDefault();
-
         button.disabled = true;
-        button.innerText = "Đang xử lý...";
+        button.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...`;
 
         const method = document.querySelector('input[name="payment_method"]:checked').value;
         const formData = new FormData(form);
         formData.append('amount', totalAmount);
 
         try {
-            // ✅ PAYPAL
             if (method === 'paypal') {
+                // PayPal
                 const res = await fetch('{{ route('checkout.paypal') }}', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                     body: formData
                 });
                 const data = await res.json();
-                if (data.redirect_url) {
-                    window.location.href = data.redirect_url;
-                } else {
-                    alert('Không thể khởi tạo thanh toán PayPal.');
-                }
-
-            // ✅ MOMO SANDBOX
+                if (data.redirect_url) window.location.href = data.redirect_url;
+                else alert('Không thể khởi tạo thanh toán PayPal.');
             } else if (method === 'momo') {
-                // Gửi form đến placeOrder để tạo đơn hàng trước
+                // MoMo
                 const res = await fetch('{{ route('checkout.placeOrder') }}', {
                     method: 'POST',
                     headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                     body: formData
                 });
-
                 const data = await res.json();
-
                 if (data.redirect) {
                     const url = data.redirect;
                     const params = new URLSearchParams(url.split('?')[1]);
                     const order_id = params.get('order_id');
                     const amount = params.get('amount');
 
-                    // Gửi POST thật đến handleMoMo (đúng chuẩn API)
                     const momoForm = new FormData();
                     momoForm.append('order_id', order_id);
                     momoForm.append('amount', amount);
@@ -223,26 +225,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                         body: momoForm
                     });
-
                     const momoData = await momoRes.json();
-                    if (momoData.redirect_url) {
-                        // Redirect đến trang thanh toán sandbox của MoMo
-                        window.location.href = momoData.redirect_url;
-                    } else {
-                        alert('Không thể khởi tạo thanh toán MoMo.');
-                        console.error(momoData);
-                    }
+                    if (momoData.redirect_url) window.location.href = momoData.redirect_url;
+                    else alert('Không thể khởi tạo thanh toán MoMo.');
                 } else {
-                    console.error(data);
                     alert('Không thể tạo đơn hàng cho MoMo.');
                 }
-
-            // ✅ COD
-            } else if (method === 'cash') {
+            } else {
+                // COD
                 form.submit();
             }
-
-        } catch (err) {
+        } catch(err) {
             console.error(err);
             alert('Có lỗi xảy ra khi xử lý thanh toán.');
         } finally {
@@ -250,8 +243,37 @@ document.addEventListener('DOMContentLoaded', function() {
             button.innerText = "Đặt hàng";
         }
     });
+
+    // --- AJAX ÁP DỤNG COUPON ---
+    $('#apply-coupon').click(function() {
+        let couponCode = $('#coupon-code').val();
+        if(!couponCode) {
+            $('#coupon-message').removeClass('text-success').addClass('text-danger').text("Vui lòng nhập mã giảm giá");
+            return;
+        }
+
+        $.ajax({
+            url: "{{ route('checkout.applyCoupon') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                coupon_code: couponCode
+            },
+            success: function(res) {
+                if(res.success) {
+                    $('#coupon-message').removeClass('text-danger').addClass('text-success')
+                        .text("Mã giảm giá áp dụng thành công!");
+                    $('#discount-amount').text(new Intl.NumberFormat().format(res.discount_amount)+" đ");
+                    $('#total-amount').text(new Intl.NumberFormat().format(res.new_total)+" đ");
+                    $('#coupon_id').val(res.coupon_id);
+                }
+            },
+            error: function(xhr) {
+                let err = xhr.responseJSON?.error || "Lỗi không xác định";
+                $('#coupon-message').removeClass('text-success').addClass('text-danger').text(err);
+            }
+        });
+    });
 });
 </script>
-
-
 @endsection

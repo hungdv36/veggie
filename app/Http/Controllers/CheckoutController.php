@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\CartItem;
 use App\Models\ShippingAddress;
 use App\Models\Order;
+use App\Models\Coupon;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use Illuminate\Http\Request;
@@ -60,7 +61,20 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            $totalAmount = $cartItems->sum(fn($item) => $item->quantity * ($item->variant->sale_price ?? $item->product->price)) + 25000;
+            $totalAmount = $cartItems->sum(function ($item) {
+                return $item->quantity * ($item->variant->sale_price ?? $item->product->price);
+            }) + 25000;
+
+            $discountAmount = 0;
+            if ($request->coupon_id) {
+                $coupon = Coupon::find($request->coupon_id);
+                if ($coupon) {
+                    $discountAmount = $coupon->type === 'fixed'
+                        ? $coupon->value
+                        : $totalAmount * $coupon->value / 100;
+                    $totalAmount -= $discountAmount;
+                }
+            }
 
             do {
                 $orderCode = 'DH-' . date('Ymd') . '-' . strtoupper(Str::random(4));
@@ -83,6 +97,20 @@ class CheckoutController extends Controller
                     'quantity' => $item->quantity,
                     'price' => $item->variant->sale_price ?? $item->product->price,
                 ]);
+            }
+
+            // Lưu vào order_coupons nếu có
+            if (isset($coupon)) {
+                DB::table('order_coupons')->insert([
+                    'order_id' => $order->id,
+                    'coupon_id' => $coupon->id,
+                    'discount_amount' => $discountAmount,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+
+                // Tăng số lượt dùng
+                $coupon->increment('used');
             }
 
             // Tạo thanh toán
@@ -119,8 +147,45 @@ class CheckoutController extends Controller
             return redirect()->route('checkout');
         }
     }
+    public function applyCoupon(Request $request)
+    {
+        $request->validate([
+            'coupon_code' => 'required|string|exists:coupons,code',
+        ]);
 
-    // PayPal (giả lập)
+        $user = Auth::user();
+        $coupon = Coupon::where('code', $request->coupon_code)->first();
+
+        if ($coupon->usage_limit <= $coupon->used_count) {
+            return response()->json(['error' => 'Mã giảm giá đã hết lượt sử dụng'], 400);
+        }
+
+        $cartItems = CartItem::where('user_id', $user->id)->with('product', 'variant')->get();
+        if ($cartItems->isEmpty()) {
+            return response()->json(['error' => 'Giỏ hàng trống'], 400);
+        }
+
+        $cartTotal = $cartItems->sum(function ($item) {
+            return $item->quantity * ($item->variant->sale_price ?? $item->product->price);
+        }) + 25000;
+
+        if ($cartTotal < ($coupon->min_order ?? 0)) {
+            return response()->json(['error' => 'Đơn hàng phải tối thiểu ' . number_format($coupon->min_order, 0, ',', '.') . ' đ để áp dụng mã này'], 400);
+        }
+        $discountAmount = $coupon->type === 'fixed'
+            ? $coupon->value
+            : $cartTotal * $coupon->value / 100;
+
+        $newTotal = $cartTotal - $discountAmount;
+
+        return response()->json([
+            'success' => true,
+            'coupon_id' => $coupon->id,
+            'discount_amount' => $discountAmount,
+            'new_total' => $newTotal
+        ]);
+    }
+
     public function handlePayPal(Request $request)
     {
         $amount = $request->input('amount');

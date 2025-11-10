@@ -116,7 +116,9 @@
 
                     <div class="d-flex justify-content-end flex-column align-items-end mt-3">
                         <p class="mb-1">Mã giảm giá (Voucher):
-                            <strong class="text-danger">-{{ number_format($order->discount, 0, ',', '.') }}₫</strong>
+                            <strong class="text-danger">
+                                -{{ number_format($order->orderCoupons->sum('discount_amount'), 0, ',', '.') }}₫
+                            </strong>
                         </p>
                         <p class="mb-1">Phí vận chuyển:
                             <strong class="text-secondary">{{ number_format($shippingFee, 0, ',', '.') }}₫</strong>
@@ -294,7 +296,6 @@
         const select = document.getElementById('statusSelect');
         const cancelBtn = document.getElementById('cancelOrderBtn');
 
-        // Kiểm tra trạng thái hiện tại
         const cancellableStatuses = ['pending', 'processing', 'failed_delivery'];
         const orderStatus = '{{ $order->status }}';
 

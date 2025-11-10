@@ -165,7 +165,7 @@ class OrderController extends Controller
 
         $order = Order::find($request->order_id);
 
-        $cancellableStatuses = ['pending', 'processing', 'failed_delivery'];
+        $cancellableStatuses = ['pending', 'processing'];
         if (!in_array($order->status, $cancellableStatuses)) {
             return response()->json([
                 'status' => false,
