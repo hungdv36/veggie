@@ -6,7 +6,7 @@
          <!-- menu profile quick info -->
          <div class="profile clearfix">
              <div class="profile_pic">
-                 <img src="{{ asset('assets/clients/img/admin.png') }}" alt=""
+                 <img src="{{ asset('assets/clients/img/avt.png') }}" alt=""
                      class="img-circle img-fluid" style="object-fit: cover; width: 100px; height: 100px;">
              </div>
              <div class="profile_info">

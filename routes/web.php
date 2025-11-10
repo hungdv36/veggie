@@ -13,9 +13,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
 use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Clients\WishController;
 
 use App\Http\Controllers\Clients\ReviewController;
-
+use App\Http\Controllers\Clients\WishListController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
@@ -76,6 +77,9 @@ Route::middleware(['auth.custom'])->group(function () {
     });
     // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/add', [WishListController::class, 'addToWishList']);
+
     Route::get('/checkout/get-address', [CheckoutController::class, 'getAddress'])->name('checkout.getAddress');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
     Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
@@ -114,6 +118,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/cod', [CheckoutController::class, 'handleCOD'])->name('checkout.cod');
     Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
+    Route::post('/checkout/momo', [CheckoutController::class, 'handleMoMo'])->name('checkout.momo');
+    Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('momo.return');
 });
 Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
 Route::get('/chat/history', [ChatController::class, 'history'])->name('chat.history');

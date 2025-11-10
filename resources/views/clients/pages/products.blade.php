@@ -78,13 +78,13 @@
                         </div>
 
                         <!-- TÌM KIẾM -->
-                        <div class="widget ltn__search-widget">
+                        {{-- <div class="widget ltn__search-widget">
                             <h4 class="ltn__widget-title ltn__widget-title-border">Tìm kiếm</h4>
                             <form action="#">
                                 <input type="text" name="search" placeholder="Tìm kiếm sản phẩm...">
                                 <button type="submit"><i class="fas fa-search"></i></button>
                             </form>
-                        </div>
+                        </div> --}}
 
                         <!-- SẢN PHẨM ĐƯỢC ĐÁNH GIÁ CAO -->
                         <div class="widget ltn__top-rated-product-widget">
