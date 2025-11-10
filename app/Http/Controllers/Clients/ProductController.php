@@ -29,8 +29,8 @@ class ProductController extends Controller
 
         foreach ($topRatedProducts as $item) {
             $item->image_url = $item->firstImage
-                ? asset('storage/uploads/' . $item->firstImage->image)
-                : asset('storage/uploads/products/no-image.png');
+                ? asset('assets/admin/img/product/' . $item->firstImage->image)
+                : asset('assets/admin/img/product/default.png');
         }
 
         // ✅ Lấy Flash Sale đang hoạt động

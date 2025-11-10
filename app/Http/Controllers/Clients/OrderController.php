@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Models\OrderStatusHistory;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -49,30 +50,41 @@ class OrderController extends Controller
 
         return back()->with('success', 'Xác nhận đã nhận hàng thành công!');
     }
-
     public function cancelOrder(Request $request, $id): RedirectResponse
     {
-        $order = Order::with('orderItems.product') // ✅ tránh N+1 query
+        $order = Order::with(['orderItems.product', 'orderCoupons.coupon'])
             ->where('id', $id)
             ->where('user_id', auth()->id())
-            ->where('status', 'pending')
+            ->where('status', 'pending','processing')
             ->firstOrFail();
 
         $request->validate([
             'cancel_reason' => 'required|string|max:255',
         ]);
 
-        // ✅ Hoàn kho
-        foreach ($order->orderItems as $item) {
-            $item->product->increment('stock', $item->quantity);
+        DB::beginTransaction();
+
+        try {
+            foreach ($order->orderItems as $item) {
+                $item->product->increment('stock', $item->quantity);
+            }
+
+            foreach ($order->orderCoupons as $orderCoupon) {
+                $coupon = $orderCoupon->coupon;
+                if ($coupon && $coupon->used > 0) {
+                    $coupon->decrement('used');
+                }
+            }
+            $order->update([
+                'status' => 'canceled',
+                'cancel_reason' => $request->cancel_reason,
+            ]);
+
+            DB::commit();
+            return redirect()->back()->with('success', 'Đơn hàng đã được hủy, sản phẩm được hoàn kho và mã giảm giá đã được trả lại.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại.');
         }
-
-        // ✅ Cập nhật trạng thái & lý do hủy
-        $order->update([
-            'status' => 'canceled',
-            'cancel_reason' => $request->cancel_reason,
-        ]);
-
-        return redirect()->back()->with('success', 'Đơn hàng đã được hủy và sản phẩm được hoàn kho.');
     }
 }

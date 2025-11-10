@@ -86,7 +86,7 @@
                             @csrf
                             <input type="hidden" name="address_id" id="address_hidden"
                                 value="{{ $defaultAddress->id ?? '' }}">
-
+                            <input type="hidden" name="coupon_id" id="coupon_id" value="">
                             <div id="checkout_payment">
                                 <div class="card">
                                     <h5 class="ltn__card-title">
@@ -142,12 +142,22 @@
                                     <td>{{ number_format(25000, 0, ',', '.') }} đ</td>
                                 </tr>
                                 <tr>
+                                    <td>Giảm giá</td>
+                                    <td><strong id="discount-amount">0 đ</strong></td>
+                                </tr>
+                                <tr>
                                     <td><strong>Tổng tiền</strong></td>
-                                    <td><strong>{{ number_format($cartItems->sum(fn($item) => ($item->variant->sale_price ?? $item->product->price) * $item->quantity) + 25000, 0, ',', '.') }}
+                                    <td><strong
+                                            id="total-amount">{{ number_format($cartItems->sum(fn($item) => ($item->variant->sale_price ?? $item->product->price) * $item->quantity) + 25000, 0, ',', '.') }}
                                             đ</strong></td>
                                 </tr>
                             </tbody>
                         </table>
+                        <div class="coupon-section mt-3">
+                            <input type="text" id="coupon-code" placeholder="Nhập mã giảm giá" class="form-control" />
+                            <button type="button" id="apply-coupon" class="btn btn-primary mt-2">Áp dụng</button>
+                            <div id="coupon-message" class="text-danger mt-1"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -216,9 +226,40 @@
                         .catch(() => alert('Lỗi khi kết nối với PayPal.'));
 
                 } else {
-                    // Nếu chọn COD -> submit form bình thường
                     form.submit();
                 }
+            });
+        });
+        $(document).ready(function() {
+            $('#apply-coupon').click(function() {
+                let couponCode = $('#coupon-code').val();
+
+                $.ajax({
+                    url: "{{ route('checkout.applyCoupon') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        coupon_code: couponCode
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            $('#coupon-message').removeClass('text-danger').addClass(
+                                    'text-success')
+                                .text("Mã giảm giá áp dụng thành công!");
+                            $('#discount-amount').text(new Intl.NumberFormat().format(res
+                                .discount_amount) + " đ");
+                            $('#total-amount').text(new Intl.NumberFormat().format(res
+                                .new_total) + " đ");
+                            $('#coupon_id').val(res.coupon_id); // <-- lưu coupon_id
+                        }
+                    },
+                    error: function(xhr) {
+                        let err = xhr.responseJSON?.error || "Lỗi không xác định";
+                        $('#coupon-message').removeClass('text-success').addClass('text-danger')
+                            .text(err);
+                         $('#discount-row').hide();
+                    }
+                });
             });
         });
     </script>

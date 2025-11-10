@@ -40,4 +40,14 @@ class Order extends Model
     {
         return $this->hasMany(OrderStatusHistory::class, 'order_id');
     }
+    public function coupons()
+    {
+        return $this->belongsToMany(Coupon::class, 'order_coupons')
+            ->withPivot('discount_amount')
+            ->withTimestamps();
+    }
+    public function orderCoupons()
+    {
+        return $this->hasMany(OrderCoupon::class, 'order_id');
+    }
 }

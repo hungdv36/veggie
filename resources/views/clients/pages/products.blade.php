@@ -95,10 +95,9 @@
                                         <div class="top-rated-product-item clearfix">
                                             <div class="top-rated-product-img">
                                                 <a href="{{ route('products.detail', $item->slug) }}">
-                                                    <img src="{{ $item->firstImage
-                                                        ? asset('storage/uploads/' . $item->firstImage->image)
-                                                        : asset('storage/uploads/products/no-image.png') }}"
-                                                        alt="{{ $item->name }}">
+                                                    <img src="{{ asset('assets/admin/img/product/' . $item->image) }}"
+                                                        alt="{{ $item->name }}"
+                                                        style="height:100px;width:100px; object-fit:cover;">
                                                 </a>
                                             </div>
 
