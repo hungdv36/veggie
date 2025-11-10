@@ -106,6 +106,16 @@
                                         </label>
                                     </h5>
                                 </div>
+                                <div class="card">
+                                    <h5 class="collapsed ltn__card-title">
+                                        <input type="radio" name="payment_method" value="momo" id="payment_momo">
+                                        <label for="payment_momo">
+                                            Thanh toán qua MoMo
+                                            <img src="{{ asset('assets/clients/img/icons/momo.webp') }}" alt="MoMo">
+                                        </label>
+                                    </h5>
+                                </div>
+
                             </div>
 
                             <div class="ltn__payment-note mt-30 mb-30">
@@ -115,8 +125,9 @@
                                     của
                                     chúng tôi.</p>
                             </div>
-                            <button class="btn theme-btn-1 btn-effect-1 text-uppercase" type="submit"
-                                id="order_button_cash">
+                            <button id="order_button_cash" class="btn theme-btn-1 btn-effect-1 text-uppercase"
+                                type="submit">
+                                <span class="spinner-border spinner-border-sm me-2 d-none" id="loadingSpinner"></span>
                                 Đặt hàng
                             </button>
                         </form>
@@ -154,72 +165,93 @@
         </div>
     </div>
 
-    {{-- AJAX cập nhật địa chỉ --}}
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectAddress = document.getElementById('list_address');
-            const hiddenAddress = document.getElementById('address_hidden');
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('checkout-form');
+    const button = document.getElementById('order_button_cash');
+    const totalAmount = {{ $totalPrice + 25000 }};
 
-            const nameField = document.getElementById('name_field');
-            const phoneField = document.getElementById('phone_field');
-            const addressField = document.getElementById('address_field');
-            const cityField = document.getElementById('city_field');
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
 
-            selectAddress?.addEventListener('change', function() {
-                const id = this.value;
-                hiddenAddress.value = id;
+        button.disabled = true;
+        button.innerText = "Đang xử lý...";
 
-                if (!id) return;
+        const method = document.querySelector('input[name="payment_method"]:checked').value;
+        const formData = new FormData(form);
+        formData.append('amount', totalAmount);
 
-                fetch(`/addresses/${id}`)
-                    .then(res => res.json())
-                    .then(data => {
-                        nameField.value = data.full_name || '';
-                        phoneField.value = data.phone || '';
-                        addressField.value = data.address || '';
-                        cityField.value = data.city || '';
-                    })
-                    .catch(() => alert('Không thể tải thông tin địa chỉ!'));
-            });
-        });
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('checkout-form');
-            const paypalRadio = document.getElementById('payment_paypal');
-            const codRadio = document.getElementById('payment_cod');
-
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-
-                const method = document.querySelector('input[name="payment_method"]:checked').value;
-
-                if (method === 'paypal') {
-                    // Nếu chọn PayPal, chuyển hướng sang route PayPal
-                    const amount = {{ $totalPrice + 25000 }};
-                    const formData = new FormData();
-                    formData.append('amount', amount);
-
-                    fetch('{{ route('checkout.paypal') }}', {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: formData
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.redirect_url) {
-                                window.location.href = data.redirect_url;
-                            } else {
-                                alert('Không thể tạo thanh toán PayPal.');
-                            }
-                        })
-                        .catch(() => alert('Lỗi khi kết nối với PayPal.'));
-
+        try {
+            // ✅ PAYPAL
+            if (method === 'paypal') {
+                const res = await fetch('{{ route('checkout.paypal') }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: formData
+                });
+                const data = await res.json();
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
                 } else {
-                    // Nếu chọn COD -> submit form bình thường
-                    form.submit();
+                    alert('Không thể khởi tạo thanh toán PayPal.');
                 }
-            });
-        });
-    </script>
+
+            // ✅ MOMO SANDBOX
+            } else if (method === 'momo') {
+                // Gửi form đến placeOrder để tạo đơn hàng trước
+                const res = await fetch('{{ route('checkout.placeOrder') }}', {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (data.redirect) {
+                    const url = data.redirect;
+                    const params = new URLSearchParams(url.split('?')[1]);
+                    const order_id = params.get('order_id');
+                    const amount = params.get('amount');
+
+                    // Gửi POST thật đến handleMoMo (đúng chuẩn API)
+                    const momoForm = new FormData();
+                    momoForm.append('order_id', order_id);
+                    momoForm.append('amount', amount);
+
+                    const momoRes = await fetch('{{ route('checkout.momo') }}', {
+                        method: 'POST',
+                        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+                        body: momoForm
+                    });
+
+                    const momoData = await momoRes.json();
+                    if (momoData.redirect_url) {
+                        // Redirect đến trang thanh toán sandbox của MoMo
+                        window.location.href = momoData.redirect_url;
+                    } else {
+                        alert('Không thể khởi tạo thanh toán MoMo.');
+                        console.error(momoData);
+                    }
+                } else {
+                    console.error(data);
+                    alert('Không thể tạo đơn hàng cho MoMo.');
+                }
+
+            // ✅ COD
+            } else if (method === 'cash') {
+                form.submit();
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert('Có lỗi xảy ra khi xử lý thanh toán.');
+        } finally {
+            button.disabled = false;
+            button.innerText = "Đặt hàng";
+        }
+    });
+});
+</script>
+
+
 @endsection

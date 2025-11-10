@@ -117,6 +117,8 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/cod', [CheckoutController::class, 'handleCOD'])->name('checkout.cod');
     Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
+    Route::post('/checkout/momo', [CheckoutController::class, 'handleMoMo'])->name('checkout.momo');
+    Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('momo.return');
 });
 Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
 Route::get('/chat/history', [ChatController::class, 'history'])->name('chat.history');
