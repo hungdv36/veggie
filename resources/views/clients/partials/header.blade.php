@@ -85,16 +85,23 @@
                         <div class="header-search-1">
                             <div class="search-icon">
                                 <i class="icon-search for-search-show"></i>
-                                <i class="icon-cancel  for-search-close"></i>
+                                <i class="icon-cancel for-search-close"></i>
                             </div>
                         </div>
+
                         <div class="header-search-1-form">
-                            <form id="#" method="get" action="#">
-                                <input type="text" name="search" value="" placeholder="Search here..." />
+                            <form id="search-form" method="GET" action="{{ route('search.index') }}">
+                                <input type="text" name="query" value="{{ request('query') }}"
+                                    placeholder="Tìm kiếm sản phẩm..." autocomplete="off" />
+                                    <i class="fa fa-microphone" aria-hidden="true" id="voice-search"></i>
+
                                 <button type="submit">
                                     <span><i class="icon-search"></i></span>
                                 </button>
                             </form>
+
+                            <!-- Gợi ý kết quả (hiển thị bằng JS sau này) -->
+                            <div id="search-suggestions" class="search-suggestions"></div>
                         </div>
                     </div>
                     <!-- user-menu -->

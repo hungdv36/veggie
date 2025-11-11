@@ -32,3 +32,12 @@
     font-weight: 500; /* đậm nhẹ cho rõ hơn */
     padding: 6px 10px !important; /* tăng nhẹ khoảng cách trong badge */
 }
+
+
+  #avatar-preview {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;   /* giữ đúng tỉ lệ, cắt phần thừa */
+        border-radius: 50%;  /* bo tròn */
+        border: 2px solid #ddd;
+    }

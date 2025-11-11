@@ -572,4 +572,52 @@ $(document).ready(function () {
             toastr.error("Có lỗi xảy ra!");
         });
     });
+
+    //     if ($("#editor-contact").length) {
+    //         CKEDITOR.replace("editor-contact");
+
+    //     }
+    //    $(document).on("click", ".contact-item", function (e) {
+    //     $(".mail_view").show();
+    // });
+    
+
+    /*
+    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    * MANAGEMENT PROFILE
+    * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+    */
+
+    $(".form-change-pass").on("click", function (e) {
+        e.preventDefault();
+        $("#change-password").toggle();
+        if ($("#change-password").is(":visible")) {
+            $(this).text("Đóng");
+        } else {
+            $(this).text("Đổi mật khẩu");
+        }
+    });
+
+
+    $(".update-avatar").on("click", function (e) {
+        e.preventDefault();
+        $("#avatar").trigger("click");
+    });
+
+
+    $("#avatar").on("change", function (e) {
+        let file = e.target.files[0];
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function (e) {
+                $("#avatar-preview").attr('src', e.target.result);
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $("#avatar-preview").attr('src', '');
+        }
+    });
+
+
+
 });

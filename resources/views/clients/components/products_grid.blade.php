@@ -45,9 +45,12 @@
                                     <a href="javascript:void(0)" title="Yêu thích" data-bs-toggle="modal"
                                         class="add-to-wishlist"
                                         data-id="{{ $product->id }}">
+                                    <a href="javascript:void(0)" title="Yêu thích" class="add-to-wishlist"
+                                        data-id="{{ $product->id }}">
                                         <i class="far fa-heart"></i>
                                     </a>
                                 </li>
+
                             </ul>
                         </div>
                     </div>

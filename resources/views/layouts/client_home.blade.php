@@ -11,16 +11,15 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('assets/clients/css/chat.css') }}">
     <!-- Place favicon.png in the root directory -->
+
+    <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/clients/img/favicon.png') }}" type="image/x-icon" />
-    <!-- Font Icons css -->
+
+    <!-- CSS -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/font-icons.css') }}">
-    <!-- plugins css -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/plugins.css') }}">
-    <!-- Main Stylesheet -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/style.css') }}">
-    <!-- Responsive css -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/responsive.css') }}">
-    <!-- ✅ Toastr CSS -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/toastr.min.css') }}">
 
 
@@ -34,15 +33,13 @@
     <!-- ✅ Toastr CSS -->
     <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
 </head>
+
 <style>
     .category-container {
         display: flex;
         flex-wrap: wrap;
-        /* cho phép xuống hàng nếu hết chỗ */
         gap: 20px;
-        /* khoảng cách giữa các ô */
         justify-content: flex-start;
-        /* canh trái, hoặc center */
         height: auto;
     }
 
@@ -52,7 +49,6 @@
         border-radius: 8px;
         text-align: center;
         width: 180px;
-        /* chiều ngang mỗi ô */
         padding: 15px;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
         transition: transform 0.2s;
@@ -81,7 +77,6 @@
         color: #555;
     }
 
-    /* Nút biến thể */
     .variant-btn {
         padding: 6px 12px;
         border: 1px solid #ccc;
@@ -91,20 +86,15 @@
         align-items: center;
         margin: 3px;
         transition: all 0.2s ease;
-        /* mượt khi hover */
     }
 
-    /* Hover */
     .variant-btn:hover {
         border-color: #ff5722;
         background-color: #fff3e0;
-        /* nền nhạt */
         transform: translateY(-2px);
-        /* nổi lên */
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
     }
 
-    /* Khi được chọn */
     .variant-btn.selected {
         border-color: #ff5722;
         background-color: #ffe0b2;
@@ -139,16 +129,41 @@
 <body>
     <div class="body-wrapper">
         @include('clients.partials.header_home')
+
         <main>
             @yield('content')
         </main>
+
         @include('clients.partials.footer_home')
     </div>
 
-    <!-- preloader area start -->
-    <script src="{{ asset('assets/clients/js/vendor/jquery-3.6.0.min.js') }}"></script>
-    <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
+    <!-- ✅ Scripts -->
+   <script src="https://cdn.jsdelivr.net/npm/@flasher/flasher-notyf@1.3.1/dist/flasher-notyf.min.js"></script>
 
+<!-- Hiển thị thông báo nếu có -->
+@if (session('success'))
+    <script>
+        notyf.success("{{ session('success') }}");
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        notyf.error("{{ session('error') }}");
+    </script>
+@endif
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/main.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
+    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
+
+    <!-- ✅ Toastr render (PHẢI để dưới cùng, sau khi load JS) -->
+    @toastr_js
+    @toastr_render
+
+    <!-- ✅ CSRF setup (nếu cần AJAX) -->
     <script>
         $(document).ready(function() {
             $.ajaxSetup({
@@ -156,8 +171,6 @@
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             });
-
-            console.log('CSRF Token:', $('meta[name="csrf-token"]').attr('content')); // kiểm tra
         });
     </script>
 
@@ -178,5 +191,4 @@
     <script src="{{ asset('assets/clients/js/chat.js') }}"></script>
 
 </body>
-
 </html>

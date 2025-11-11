@@ -43,5 +43,19 @@
     100% {
         transform: rotate(360deg);
     }
+
+    
+}
+/* Search */
+#voice-search {
+    position: absolute;
+    right: 50px;
+    text-align: center;
+    top: 20px;
+}
+
+.img-account {
+    width: 220px;
+    height: 220px;
 }
 

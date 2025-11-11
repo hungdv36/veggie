@@ -106,6 +106,14 @@
                          </a>
                      </li>
 
+
+                      <li>
+                         <a href="{{ route('admin.contacts.index') }}">
+                             <i class="fa fa-users"></i> Quản lý Liên hệ
+                         </a>
+                     </li>
+
+
                  </ul>
              </div>
          </div>

@@ -1,18 +1,20 @@
 <?php
 
+use App\Http\Controllers\Admin\AccountController;
 use App\Http\Controllers\Admin\AdminAuthController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ColorController;
+use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\ProductController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\FlashSaleController;
 
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
@@ -43,6 +45,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/categories/restore', [CategoryController::class, 'restoreCategory'])->name('categories.restore');
         Route::post('/categories/force-delete', [CategoryController::class, 'forceDeleteCategory'])->name('categories.forceDelete');
     });
+
+    // Products (cần permission: manage_products)
     Route::middleware(['permission:manage_products'])->group(function () {
         Route::get('/products', [ProductController::class, 'index'])->name('products.index');
         Route::get('/products/add', [ProductController::class, 'showFormAddProduct'])->name('products.add');
@@ -54,23 +58,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/products/restore', [ProductController::class, 'restoreProduct'])->name('products.restore');
         Route::post('/products/force-delete', [ProductController::class, 'forceDeleteProduct'])->name('products.forceDelete');
     });
-    // Variants (cần permission: manage_variants)
+
+    // Sizes (cần permission: manage_sizes)
     Route::middleware(['permission:manage_sizes'])->group(function () {
-        Route::get('sizes/', [SizeController::class, 'index'])->name('sizes.index');
+        Route::get('/sizes', [SizeController::class, 'index'])->name('sizes.index');
         Route::get('/sizes/add', [SizeController::class, 'showSizeForm'])->name('sizes.add');
         Route::post('/sizes/add', [SizeController::class, 'addSize'])->name('sizes.store');
         Route::post('/sizes/update', [SizeController::class, 'updateSize'])->name('sizes.update');
         Route::post('/sizes/delete', [SizeController::class, 'deleteSize'])->name('sizes.delete');
     });
+
+    // Colors (cần permission: manage_colors)
     Route::middleware(['permission:manage_colors'])->group(function () {
-        Route::get('colors/', [ColorController::class, 'index'])->name('colors.index');
+        Route::get('/colors', [ColorController::class, 'index'])->name('colors.index');
         Route::get('/colors/add', [ColorController::class, 'showColorForm'])->name('colors.add');
         Route::post('/colors/add', [ColorController::class, 'addColor'])->name('colors.store');
         Route::post('/colors/update', [ColorController::class, 'updateColor'])->name('colors.update');
         Route::post('/colors/delete', [ColorController::class, 'deleteColor'])->name('colors.delete');
     });
+
+    // Coupons (cần permission: manage_coupons)
     Route::middleware(['permission:manage_coupons'])->group(function () {
-        Route::get('coupons/', [CouponController::class, 'index'])->name('coupons.index');
+        Route::get('/coupons', [CouponController::class, 'index'])->name('coupons.index');
         Route::get('/coupons/add', [CouponController::class, 'showCouponForm'])->name('coupons.add');
         Route::post('/coupons/add', [CouponController::class, 'addCoupon'])->name('coupons.store');
         Route::post('/coupons/update', [CouponController::class, 'updateCoupon'])->name('coupons.update');
@@ -84,12 +93,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/orders/send-invoice', [OrderController::class, 'sendMailInvoice'])->name('orders.send-invoice');
         Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancel');
     });
+
+    // Contacts (cần permission: manage_contacts)
+    Route::middleware(['permission:manage_contacts'])->group(function () {
+        Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
+        Route::post('/contacts/reply', [ContactController::class, 'reply'])->name('contacts.reply');
+    });
+
+    // Reviews (cần permission: manage_reviews)
     Route::middleware(['permission:manage_reviews'])->group(function () {
         Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews.index');
         Route::post('/reviews/delete', [ReviewController::class, 'delete'])->name('reviews.delete');
         Route::get('/reviews/logs', [ReviewController::class, 'deletionLogs'])->name('reviews.logs');
         Route::get('/reviews/deletions', [ReviewController::class, 'deletionLogs'])->name('reviews.deletions');
-        Route::post('reviews/restore/{id}', [ReviewController::class, 'restore'])->name('reviews.restore');
+        Route::post('/reviews/restore/{id}', [ReviewController::class, 'restore'])->name('reviews.restore');
+    });
+
+
+
+      Route::middleware(['auth:admin'])->group(function () {
+        Route::get('/profile', [AccountController::class, 'index'])->name('profile');
+        Route::post('/profile/update', [AccountController::class, 'updateProfile'])->name('profile.update');
+        Route::post('/profile/change-password', [AccountController::class, 'changePassword'])->name('profile.change-password');
     });
 
     Route::middleware(['permission:manage_products'])->group(function () {
