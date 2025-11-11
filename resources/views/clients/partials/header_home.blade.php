@@ -76,7 +76,7 @@
                                     </li>
                                     <li class="menu-icon"><a href="/products">Cửa hàng</a>
                                     </li>
-                                    <li><a href="/about">Liên hệ</a></li>
+                                    
                                     <li class="special-link"><a href="/about">GET A QUOTE</a></li>
                                     <li>
                                         <a href="{{ route('contact.index') }}">Liên hệ</a>
@@ -107,7 +107,7 @@
                             <form id="search-form" method="GET" action="{{ route('search.index') }}">
                                 <input type="text" name="query" value="{{ request('query') }}"
                                     placeholder="Tìm kiếm sản phẩm..." autocomplete="off" />
-                                    <i class="fa fa-microphone" aria-hidden="true" id="voice-search"></i>
+                                <i class="fa fa-microphone" aria-hidden="true" id="voice-search"></i>
 
                                 <button type="submit">
                                     <span><i class="icon-search"></i></span>
@@ -134,34 +134,8 @@
                                         <li><a href="{{ route('register') }}">Đăng ký</a></li>
                                     @endguest
 
-{{-- Nếu đã đăng nhập --}}
-@auth
-<a href="{{ route('account') }}">Tài khoản</a>
-<br>
-<a href="{{ route('wishlist') }}">Yêu thích</a>
-
-<li>
-    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-        @csrf
-        <button type="submit" style="background:none;border:none;padding:0;color:inherit;cursor:pointer;">
-            Đăng xuất
-        </button>
-    </form>
-</li>
- @endauth
-                                    {{-- Nếu đã đăng nhập --}}
-                                    @auth
-                                        <a href="{{ route('account') }}">Tài khoản</a>
-                                        <li>
-                                            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-                                                @csrf
-                                                <button type="submit"
-                                                    style="background:none;border:none;padding:0;color:inherit;cursor:pointer;">
-                                                    Đăng xuất
-                                                </button>
-                                            </form>
-                                        </li>
-                                    @endauth
+                                   
+                                    
                                     {{-- Nếu đã đăng nhập --}}
                                     @auth
                                         <li><a href="{{ route('account') }}">Tài khoản</a></li>
