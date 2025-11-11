@@ -15,13 +15,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
 use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\Clients\WishController;
+// use App\Http\Controllers\Clients\WishController;
 
 use App\Http\Controllers\Clients\ReviewController;
-use App\Http\Controllers\Clients\WishListController;
+// use App\Http\Controllers\Clients\WishListController;
 
 use App\Http\Controllers\Clients\SearchController;
-use App\Http\Controllers\Clients\WishController;
+// use App\Http\Controllers\Clients\WishController;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', function () {
