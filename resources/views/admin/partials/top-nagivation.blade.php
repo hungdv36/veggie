@@ -12,6 +12,8 @@
                         {{ Auth::guard('admin')->check() ? Auth::guard('admin')->user()->name : 'Guest' }}
                     </a>
                     <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="{{ route('admin.profile') }}">Tài khoản</a>
+
                         <a class="dropdown-item" href="{{ route('admin.logout') }}"
                             onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="fa fa-sign-out pull-right"></i> Log Out

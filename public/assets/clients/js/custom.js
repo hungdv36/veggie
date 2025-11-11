@@ -85,64 +85,64 @@ $(document).ready(function () {
             e.preventDefault();
         }
     });
-    
-      /********************************
-    PAGE ACCOUNT
-    *******************************/
-   //when clicking on the image => open input file
-    $('.profile-pic').click(function(){
-            $("#avatar").click();
+
+    /********************************
+  PAGE ACCOUNT
+  *******************************/
+    //when clicking on the image => open input file
+    $('.profile-pic').click(function () {
+        $("#avatar").click();
     });
-     //when selecting a image => display preview image
-      $("#avatar").change(function(){
-          let input = this;
-          if(input.files && input.files[0]){
+    //when selecting a image => display preview image
+    $("#avatar").change(function () {
+        let input = this;
+        if (input.files && input.files[0]) {
             let reader = new FileReader();
-            reader.onload = function(e){
+            reader.onload = function (e) {
                 $('#preview-image').attr('src', e.target.result);
             }
             reader.readAsDataURL(input.files[0]);
-          }
-      });
+        }
+    });
 
 
-    $("#update-account").on("submit", function(e){
+    $("#update-account").on("submit", function (e) {
         e.preventDefault();
 
         let formData = new FormData(this);
-        formData.append('_method', 'PUT'); 
+        formData.append('_method', 'PUT');
         let urlUpdate = $(this).attr('action');
-  
+
         $.ajaxSetup({
-           headers: {
-             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content'),
-           }
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr('content'),
+            }
         });
 
-       $.ajax({
-    url: urlUpdate,
-    type: 'POST',
-    data: formData,
-    processData: false,
-    contentType: false,
-    beforeSend: function () {
-        $(".btn-wrapper button").text("Đang cập nhật...").attr("disabled", true);
-    },
-    success: function (response) {
-        if (response.success) {
-            toastr.success(response.message);
-            if (response.avatar) {
-                $('#preview-image').attr('src', response.avatar);
-            }
-        } else {
-            toastr.error(response.message);
-        }
+        $.ajax({
+            url: urlUpdate,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $(".btn-wrapper button").text("Đang cập nhật...").attr("disabled", true);
             },
-           error: function(xhr) {
-  console.log('XHR status', xhr.status);
-  console.log(xhr.responseText);        // raw response
-  try { console.log(xhr.responseJSON); } catch(e){}
-}
+            success: function (response) {
+                if (response.success) {
+                    toastr.success(response.message);
+                    if (response.avatar) {
+                        $('#preview-image').attr('src', response.avatar);
+                    }
+                } else {
+                    toastr.error(response.message);
+                }
+            },
+            error: function (xhr) {
+                console.log('XHR status', xhr.status);
+                console.log(xhr.responseText);        // raw response
+                try { console.log(xhr.responseJSON); } catch (e) { }
+            }
 
 
         })
@@ -200,7 +200,7 @@ $(document).ready(function () {
                     } else {
                         toastr.error(
                             response.message ||
-                                "Đã có lỗi xảy ra, vui lòng thử lại."
+                            "Đã có lỗi xảy ra, vui lòng thử lại."
                         );
                     }
                 },
@@ -327,9 +327,9 @@ $(document).ready(function () {
 
     $(".amount").val(
         $(".slider-range").slider("values", 0) +
-            " - " +
-            $(".slider-range").slider("values", 1) +
-            " VNĐ"
+        " - " +
+        $(".slider-range").slider("values", 1) +
+        " VNĐ"
     );
 
     $(document).on("click", ".qtybutton", function () {
@@ -537,197 +537,239 @@ $(document).ready(function () {
     //     });
     // }
 
-     /********************************
-   HANDLE RATING PRODUCT
-    *******************************/
-   let seletedRating = 0;
+    /********************************
+  HANDLE RATING PRODUCT
+   *******************************/
+    let seletedRating = 0;
 
-   //handle hover star
-    $(".rating-star").hover(function (){
-      let value = $(this).data("value");
-      highlightStars(value);
-   },function () {
-    highlightStars(seletedRating);
-   }
-);
+    //handle hover star
+    $(".rating-star").hover(function () {
+        let value = $(this).data("value");
+        highlightStars(value);
+    }, function () {
+        highlightStars(seletedRating);
+    }
+    );
 
-   $(".rating-star").click(function (e){
-      e.preventDefault();
-      seletedRating = $(this).data("value");
-      $("#rating-value").val(seletedRating);
-       highlightStars(seletedRating);
-   });
+    $(".rating-star").click(function (e) {
+        e.preventDefault();
+        seletedRating = $(this).data("value");
+        $("#rating-value").val(seletedRating);
+        highlightStars(seletedRating);
+    });
 
-   function highlightStars(value)
-   {
-    $(".rating-star i").each(function (){
-        let starValue = $(this).parent().data("value");
-        if(starValue <= value)
-        {
-            $(this).removeClass("far").addClass("fas"); //show star
-        }else{
-             $(this).removeClass("fas").addClass("far"); //show star empty
+    function highlightStars(value) {
+        $(".rating-star i").each(function () {
+            let starValue = $(this).parent().data("value");
+            if (starValue <= value) {
+                $(this).removeClass("far").addClass("fas"); //show star
+            } else {
+                $(this).removeClass("fas").addClass("far"); //show star empty
+            }
+        })
+    }
+
+    //handle submit rating with ajax
+    $("#review-form").submit(function (e) {
+        e.preventDefault();
+
+        let productId = $(this).data("product-id");
+        let rating = $("#rating-value").val();
+        let content = $("#review-content").val();
+
+        if (rating == 0) {
+            $("#review-content").html(
+                '<div class="alert alert-danger">Vui lòng chọn số sao!<div>'
+            )
+            return;
         }
-    })
-   }
 
-   //handle submit rating with ajax
-   $("#review-form").submit(function (e){
-     e.preventDefault();
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
 
-     let productId = $(this).data("product-id");
-     let rating = $("#rating-value").val();
-     let content = $("#review-content").val();
 
-     if (rating == 0)
-     {
-        $("#review-content").html(
-            '<div class="alert alert-danger">Vui lòng chọn số sao!<div>'
-        )
-        return;
-     }
+        $.ajax({
+            url: "/review",
+            type: "POST",
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+            data: {
+                product_id: productId,
+                rating: rating,
+                comment: content,
+            },
+            success: function (response) {
+                //      $("#review-content").val("");
+                //    highlightStars(0);
+                //     selectedRating = 0;
+                //    $(".ltn__comment-reply-area").hide();
+                alert(response.message);
 
-     $.ajaxSetup({
-    headers: {
-        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                loadReviews(productId);
+
+            },
+            error: function (xhr) {
+                console.log(xhr);
+                alert(xhr.responseJSON?.message || "Lỗi gửi đánh giá!");
+            }
+        });
+    });
+
+    function loadReviews(productId) {
+        $.ajax({
+            url: "/review/" + productId,
+            type: "GET",
+            success: function (response) {
+                $(".ltn__comment-inner").html(response);
+            }
+        });
     }
-});
-
-
-       $.ajax({
-    url: "/review",
-    type: "POST",
-    headers: {
-        "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-    },
-    data: {
-        product_id: productId,
-        rating: rating,
-        comment: content,
-    },
-    success: function (response) {
-    //      $("#review-content").val("");
-    //    highlightStars(0);
-    //     selectedRating = 0;
-    //    $(".ltn__comment-reply-area").hide();
-        alert(response.message);
-
-        loadReviews(productId);
-
-    },
-    error: function (xhr) {
-        console.log(xhr);
-        alert(xhr.responseJSON?.message || "Lỗi gửi đánh giá!");
-    }
-  });
-});
-
-   function loadReviews(productId) {
-       $.ajax({
-    url: "/review/" + productId,
-    type: "GET",
-    success: function (response) {
-         $(".ltn__comment-inner").html(response);
-    }
-});
-   }
 
     // ****************************
-// HANDLE PAGE CONTACT
-// ****************************
-$("#contact-form").on("submit", function (e) {
-    let name = $('input[name="name"]').val();
-    let email = $('input[name="email"]').val();
-    let phone = $('input[name="phone"]').val();
-    let message = $('textarea[name="message"]').val();
-    let errorMessage = "";
+    // HANDLE PAGE CONTACT
+    // ****************************
+    $("#contact-form").on("submit", function (e) {
+        let name = $('input[name="name"]').val();
+        let email = $('input[name="email"]').val();
+        let phone = $('input[name="phone"]').val();
+        let message = $('textarea[name="message"]').val();
+        let errorMessage = "";
 
-    if (name.length < 3) {
-        errorMessage += "Họ và tên phải có ít nhất 3 ký tự.<br>";
-    }
+        if (name.length < 3) {
+            errorMessage += "Họ và tên phải có ít nhất 3 ký tự.<br>";
+        }
 
-    if (phone.length < 10 || phone.length > 11) {
-        errorMessage += "Số điện thoại phải từ 10-11 số.<br>";
-    }
+        if (phone.length < 10 || phone.length > 11) {
+            errorMessage += "Số điện thoại phải từ 10-11 số.<br>";
+        }
 
-    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        errorMessage += "Email không hợp lệ.<br>";
-    }
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            errorMessage += "Email không hợp lệ.<br>";
+        }
 
-    if (errorMessage !== "") {
-        toastr.error(errorMessage, "Lỗi");
+        if (errorMessage !== "") {
+            toastr.error(errorMessage, "Lỗi");
+            e.preventDefault();
+        }
+    });
+
+
+    // ==============================
+    // HANDLE WISHLIST
+    // ==============================
+    $(document).on("click", ".add-to-wishlist", function (e) {
         e.preventDefault();
-    }
-});
 
+        let productId = $(this).data("id");
 
-// ==============================
-// HANDLE WISHLIST
-// ==============================
-$(document).on("click", ".add-to-wishlist", function (e) {
-    e.preventDefault();
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+        });
 
-    let productId = $(this).data("id");
-
-    $.ajaxSetup({
-        headers: {
-            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-        },
+        $.ajax({
+            url: "/wishlist/add",
+            type: "POST",
+            data: {
+                product_id: productId,
+            },
+            success: function (response) {
+                if (response.status) {
+                    $("#liiton_wishlist_modal_" + productId).modal("show");
+                }
+            },
+            error: function (xhr) {
+                alert("Có lỗi xảy ra với ajax addToWishList.");
+            },
+        });
     });
 
-    $.ajax({
-        url: "/wishlist/add",
-        type: "POST",
-        data: {
-            product_id: productId,
-        },
-        success: function (response) {
-            if (response.status) {
-                $("#liiton_wishlist_modal_" + productId).modal("show");
+    // ======= XÓA KHỎI DANH SÁCH YÊU THÍCH =======
+    $(document).on("click", ".remove-from-wishlist", function (e) {
+        e.preventDefault();
+
+        let productId = $(this).data("id");
+
+        // 🔹 Hiển thị hộp thoại xác nhận trước khi xóa
+        if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?")) {
+            return; // nếu chọn "Hủy" thì dừng lại
+        }
+
+        $.ajaxSetup({
+            headers: {
+                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
+            },
+        });
+
+        $.ajax({
+            url: "/wishlist/remove",
+            type: "POST",
+            data: { product_id: productId },
+            success: function (response) {
+                if (response.success) {
+                    alert(response.success);
+                    location.reload(); // tải lại trang sau khi xóa
+                } else if (response.error) {
+                    alert(response.error);
+                }
+            },
+            error: function () {
+                alert("Có lỗi xảy ra khi xóa khỏi danh sách yêu thích.");
+            },
+        });
+    });
+
+
+    // Kiểm tra hỗ trợ Speech Recognition
+    if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+
+        var recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'vi-VN';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+
+        var isRecognizing = false;
+
+        $("#voice-search").on("click", function () {
+            if (isRecognizing) {
+                recognition.stop();
+                $(this).removeClass('fa-microphone').addClass('fa-microphone-slash');
+            } else {
+                recognition.start();
+                $(this).removeClass('fa-microphone-slash').addClass('fa-microphone');
             }
-        },
-        error: function (xhr) {
-            alert("Có lỗi xảy ra với ajax addToWishList.");
-        },
-    });
-});
+        });
 
-// ======= XÓA KHỎI DANH SÁCH YÊU THÍCH =======
-$(document).on("click", ".remove-from-wishlist", function (e) {
-    e.preventDefault();
+        recognition.onstart = function () {
+            isRecognizing = true;
+            $("#voice-search").removeClass('fa-microphone-slash').addClass('fa-microphone');
+        };
 
-    let productId = $(this).data("id");
+        recognition.onresult = function (event) {
+            var transcript = event.results[0][0].transcript;
 
-    // 🔹 Hiển thị hộp thoại xác nhận trước khi xóa
-    if (!confirm("Bạn có chắc chắn muốn xóa sản phẩm này khỏi danh sách yêu thích?")) {
-        return; // nếu chọn "Hủy" thì dừng lại
+            // ✅ Đổ text vào ô input name="query"
+            $('input[name="query"]').val(transcript);
+        };
+
+        recognition.onerror = function (event) {
+            toastr.error("Có lỗi xảy ra khi nhận diện giọng nói: " + event.error);
+        };
+
+        recognition.onend = function () {
+            $("#voice-search").removeClass('fa-microphone').addClass('fa-microphone-slash');
+            isRecognizing = false;
+        };
+
+    } else {
+        toastr.error("Trình duyệt của bạn không hỗ trợ nhận diện giọng nói.");
     }
-
-    $.ajaxSetup({
-        headers: {
-            "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-        },
-    });
-
-    $.ajax({
-        url: "/wishlist/remove",
-        type: "POST",
-        data: { product_id: productId },
-        success: function (response) {
-            if (response.success) {
-                alert(response.success);
-                location.reload(); // tải lại trang sau khi xóa
-            } else if (response.error) {
-                alert(response.error);
-            }
-        },
-        error: function () {
-            alert("Có lỗi xảy ra khi xóa khỏi danh sách yêu thích.");
-        },
-    });
-});
-
 
 
 

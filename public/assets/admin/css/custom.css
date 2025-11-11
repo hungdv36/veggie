@@ -26,3 +26,11 @@
     padding: 5px;
     border-radius: 5px;
 }
+
+  #avatar-preview {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;   /* giữ đúng tỉ lệ, cắt phần thừa */
+        border-radius: 50%;  /* bo tròn */
+        border: 2px solid #ddd;
+    }

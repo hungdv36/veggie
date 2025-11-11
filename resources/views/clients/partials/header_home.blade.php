@@ -89,6 +89,9 @@
                     </div>
                 </div>
                 <div class="ltn__header-options ltn__header-options-2 mb-sm-20">
+
+
+
                     <!-- header-search-1 -->
                     <div class="header-search-wrap">
                         <div class="header-search-1">
@@ -97,14 +100,20 @@
                                 <i class="icon-cancel for-search-close"></i>
                             </div>
                         </div>
+
                         <div class="header-search-1-form">
                             <form id="search-form" method="GET" action="{{ route('search.index') }}">
                                 <input type="text" name="query" value="{{ request('query') }}"
-                                    placeholder="Tìm kiếm sản phẩm..." />
+                                    placeholder="Tìm kiếm sản phẩm..." autocomplete="off" />
+                                    <i class="fa fa-microphone" aria-hidden="true" id="voice-search"></i>
+
                                 <button type="submit">
                                     <span><i class="icon-search"></i></span>
                                 </button>
                             </form>
+
+                            <!-- Gợi ý kết quả (hiển thị bằng JS sau này) -->
+                            <div id="search-suggestions" class="search-suggestions"></div>
                         </div>
                     </div>
 
@@ -117,24 +126,25 @@
                                 </a>
 
                                 <ul>
-                                   {{-- Nếu chưa đăng nhập --}}
-@guest
-    <li><a href="{{ route('login') }}">Đăng nhập</a></li>
-    <li><a href="{{ route('register') }}">Đăng ký</a></li>
-@endguest
+                                    {{-- Nếu chưa đăng nhập --}}
+                                    @guest
+                                        <li><a href="{{ route('login') }}">Đăng nhập</a></li>
+                                        <li><a href="{{ route('register') }}">Đăng ký</a></li>
+                                    @endguest
 
-{{-- Nếu đã đăng nhập --}}
-@auth
-<a href="{{ route('account') }}">Tài khoản</a>
-<li>
-    <form action="{{ route('logout') }}" method="POST" style="display:inline;">
-        @csrf
-        <button type="submit" style="background:none;border:none;padding:0;color:inherit;cursor:pointer;">
-            Đăng xuất
-        </button>
-    </form>
-</li>
- @endauth
+                                    {{-- Nếu đã đăng nhập --}}
+                                    @auth
+                                        <a href="{{ route('account') }}">Tài khoản</a>
+                                        <li>
+                                            <form action="{{ route('logout') }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                <button type="submit"
+                                                    style="background:none;border:none;padding:0;color:inherit;cursor:pointer;">
+                                                    Đăng xuất
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @endauth
                                     {{-- Nếu đã đăng nhập --}}
                                     @auth
                                         <li><a href="{{ route('account') }}">Tài khoản</a></li>
@@ -148,7 +158,7 @@
                                                 </button>
                                             </form>
                                         </li>
-                                         <li><a href="{{ route('wishlist') }}">Yêu Thích</a></li>
+                                        <li><a href="{{ route('wishlist') }}">Yêu Thích</a></li>
                                     @endauth
                                 </ul>
                             </li>
@@ -182,7 +192,8 @@
                                 <path d="M300,320 L540,320" id="middle"></path>
                                 <path
                                     d="M300,210 C300,210 520,210 540,210 C740,210 640,530 520,410 C440,330 300,190 300,190"
-                                    id="bottom" transform="translate(480, 320) scale(1, -1) translate(-480, -318) ">
+                                    id="bottom"
+                                    transform="translate(480, 320) scale(1, -1) translate(-480, -318) ">
                                 </path>
                             </svg>
                         </a>

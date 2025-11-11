@@ -16,6 +16,8 @@
                         <div class="tab-pane fade active show" id="liton_product_grid">
                             <div class="ltn__product-tab-content-inner ltn__product-grid-view">
                                 <h2 class="mb-4 text-center">
+
+
                                     @if (!empty($query))
                                         Kết quả tìm kiếm cho: <strong>"{{ $query }}"</strong>
                                     @else
@@ -28,48 +30,46 @@
                                     @if (!empty($query) && $products->count() > 0)
                                         <div class="row">
                                             @foreach ($products as $product)
-<div class="col-xl-3 col-lg-4 col-sm-6 col-6">
-    <div class="ltn__product-item ltn__product-item-3 text-center">
-        <div class="product-img">
-            <a href="{{ route('products.detail', $product->slug) }}">
-                <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}">
-            </a>
-            <div class="product-hover-action">
-                <ul>
-                    <li>
-                        <a href="{{ route('products.detail', $product->slug) }}" title="Xem chi tiết">
-                            <i class="far fa-eye"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" title="Thêm vào giỏ hàng">
-                            <i class="fas fa-shopping-cart"></i>
-                        </a>
-                    </li>
-                    <li>
-                        <a href="#" title="Yêu thích">
-                            <i class="far fa-heart"></i>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="product-info">
-            <h2 class="product-title">
-                <a href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
-            </h2>
-            <div class="product-price">
-                <span>{{ number_format($product->price, 0, ',', '.') }}₫</span>
-            </div>
-        </div>
-    </div>
-</div>
+                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-6 mb-4">
+                                                    <div
+                                                        class="ltn__product-item ltn__product-item-3 text-center border p-2 rounded">
+                                                        <div class="product-img position-relative">
+                                                            <a href="{{ route('products.detail', $product->slug) }}">
+                                                                <img src="{{ $product->image_url }}"
+                                                                    alt="{{ $product->name }}" class="img-fluid rounded">
+                                                            </a>
+                                                            <div
+                                                                class="product-hover-action position-absolute top-0 end-0 m-2">
+                                                                <a href="{{ route('products.detail', $product->slug) }}"
+                                                                    title="Xem chi tiết">
+                                                                    <i class="far fa-eye"></i>
+                                                                </a>
+                                                            </div>
+                                                        </div>
+                                                        <div class="product-info mt-2">
+                                                            <h6 class="product-title text-truncate">
+                                                                <a
+                                                                    href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
+                                                            </h6>
+                                                            <div class="product-price fw-bold text-danger">
+                                                                {{ number_format($product->price, 0, ',', '.') }}₫
+                                                            </div>
+                                                            <small class="text-muted">
+                                                                {{ $product->category->name ?? 'Không có danh mục' }}
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             @endforeach
+                                        </div>
+
+                                        <div class="mt-3 d-flex justify-content-center">
+                                            {{ $products->appends(['query' => $query])->links() }}
                                         </div>
                                     @elseif(!empty($query))
                                         <div class="text-center">
                                             <p>Không tìm thấy sản phẩm nào phù hợp với từ khóa
-                                                "<strong>{{ $query }}</strong>".</p>
+                                                <strong>"{{ $query }}"</strong>.</p>
                                         </div>
                                     @else
                                         <div class="text-center">
