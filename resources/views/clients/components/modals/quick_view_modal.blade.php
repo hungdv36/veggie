@@ -20,7 +20,7 @@
                                 <div class="col-lg-6 col-12">
                                     <div class="modal-product-info">
                                         <div class="product-ratting">
-                                             @include('clients.components.includes.rating', [
+                                            @include('clients.components.includes.rating', [
                                             'product' => $product,
                                            ])
                                         </div>

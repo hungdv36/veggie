@@ -60,14 +60,14 @@ class Product extends Model
     }
 
     public function getImageUrlAttribute()
-{
-    return $this->firstImage?->image ? asset('storage/' . $this->firstImage->image) : asset('storage/uploads/products/default-product.png');
-}
+    {
+        return $this->firstImage?->image ? asset('storage/' . $this->firstImage->image) : asset('storage/uploads/products/default-product.png');
+    }
 
 
     public function getAverageRatingAttribute()
     {
-       return $this->reviews->avg('rating') ?? 0;
+        return $this->reviews->avg('rating') ?? 0;
     }
 
     // Quan hệ với nhiều ảnh sản phẩm
@@ -87,7 +87,7 @@ class Product extends Model
     }
     public function variants()
     {
-        return $this->hasMany(ProductVariant::class);
+        return $this->hasMany(ProductVariant::class, 'product_id', 'id');
     }
     // app/Models/Product.php
     public function getTotalStockAttribute()
@@ -102,5 +102,4 @@ class Product extends Model
     {
         return $this->total_stock > 0 ? 'Còn hàng' : 'Hết hàng';
     }
-   
 }

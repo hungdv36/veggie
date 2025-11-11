@@ -258,72 +258,72 @@ $(document).ready(function () {
     /*************************
      * PAGE PRODUCTS
      *************************/
-    let currentPage = 1;
-    $(document).on("click", ".pagination-link", function (e) {
-        e.preventDefault();
-        let pageUrl = $(this).attr("href");
-        let page = pageUrl.split("page=")[1];
-        currentPage = page;
-        fetchProducts();
-    });
-    // Products load function (combining filter + pagination)
-    function fetchProducts() {
-        let category_id = $(".category-filter.active").data("id") || "";
-        let minPrice = $(".slider-range").slider("values", 0);
-        let maxPrice = $(".slider-range").slider("values", 1);
-        let sort_by = $("#sort-by").val();
+    // let currentPage = 1;
+    // $(document).on("click", ".pagination-link", function (e) {
+    //     e.preventDefault();
+    //     let pageUrl = $(this).attr("href");
+    //     let page = pageUrl.split("page=")[1];
+    //     currentPage = page;
+    //     fetchProducts();
+    // });
+    // // Products load function (combining filter + pagination)
+    // function fetchProducts() {
+    //     let category_id = $(".category-filter.active").data("id") || "";
+    //     let minPrice = $(".slider-range").slider("values", 0);
+    //     let maxPrice = $(".slider-range").slider("values", 1);
+    //     let sort_by = $("#sort-by").val();
 
-        $.ajax({
-            url: "/products/filter?page=" + currentPage,
-            type: "GET",
-            data: {
-                category_id: category_id,
-                min_price: minPrice,
-                max_price: maxPrice,
-                sort_by: sort_by,
-            },
-            beforeSend: function () {
-                $("#loading-spinner").show();
-                $("#liton_product_grid").hide();
-            },
-            success: function (response) {
-                $("#liton_product_grid").html(response.products);
-                $(".ltn__pagination").html(response.pagination);
-            },
+    //     $.ajax({
+    //         url: "/products/filter?page=" + currentPage,
+    //         type: "GET",
+    //         data: {
+    //             category_id: category_id,
+    //             min_price: minPrice,
+    //             max_price: maxPrice,
+    //             sort_by: sort_by,
+    //         },
+    //         beforeSend: function () {
+    //             $("#loading-spinner").show();
+    //             $("#liton_product_grid").hide();
+    //         },
+    //         success: function (response) {
+    //             $("#liton_product_grid").html(response.products);
+    //             $(".ltn__pagination").html(response.pagination);
+    //         },
 
-            complete: function () {
-                $("#loading-spinner").hide();
-                $("#liton_product_grid").show();
-            },
-            error: function (xhr) {
-                alert("Có lỗi xảy ra với ajax fetchProducts");
-            },
-        });
-    }
+    //         complete: function () {
+    //             $("#loading-spinner").hide();
+    //             $("#liton_product_grid").show();
+    //         },
+    //         error: function (xhr) {
+    //             alert("Có lỗi xảy ra với ajax fetchProducts");
+    //         },
+    //     });
+    // }
 
-    $(".category-filter").on("click", function () {
-        $(".category-filter").removeClass("active");
-        $(this).addClass("active");
-        currentPage = 1; // Reset to first page on filter change
-        fetchProducts();
-    });
-    $("#sort-by").change(function () {
-        currentPage = 1; // Reset to first page on sort change
-        fetchProducts();
-    });
+    // $(".category-filter").on("click", function () {
+    //     $(".category-filter").removeClass("active");
+    //     $(this).addClass("active");
+    //     currentPage = 1; // Reset to first page on filter change
+    //     fetchProducts();
+    // });
+    // $("#sort-by").change(function () {
+    //     currentPage = 1; // Reset to first page on sort change
+    //     fetchProducts();
+    // });
 
-    $(".slider-range").slider({
-        range: true,
-        min: 0,
-        max: 3000000,
-        values: [0, 3000000],
-        slide: function (event, ui) {
-            $(".amount").val(ui.values[0] + " - " + ui.values[1] + " VNĐ");
-        },
-        change: function (event, ui) {
-            fetchProducts();
-        },
-    });
+    // $(".slider-range").slider({
+    //     range: true,
+    //     min: 0,
+    //     max: 3000000,
+    //     values: [0, 3000000],
+    //     slide: function (event, ui) {
+    //         $(".amount").val(ui.values[0] + " - " + ui.values[1] + " VNĐ");
+    //     },
+    //     change: function (event, ui) {
+    //         fetchProducts();
+    //     },
+    // });
 
     $(".amount").val(
         $(".slider-range").slider("values", 0) +
@@ -619,6 +619,42 @@ $(document).ready(function () {
         });
     });
 
+   function loadReviews(productId) {
+       $.ajax({
+    url: "/review/" + productId,
+    type: "GET",
+    success: function (response) {
+         $(".ltn__comment-inner").html(response);
+    }
+});
+   }
+   // Handle add to wishlist
+           $("#btn-add-to-wishlist").click(function () {
+            var $input = $("#cart-qty-box");
+            var productId = $input.data("id");
+            var variantId = $input.data("variant-id") || 0;
+
+            $.ajax({
+                url: "/wishlist/add",
+                type: "POST",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                    product_id: productId,
+                    variant_id: variantId,
+                },
+                success: function (res) {
+                    if(response.status)
+                    {
+                        $("#liton_wishlist_modal-" + productId).modal('show');
+                    }
+                },
+                error: function (xhr) {
+                    toastr.error(
+                        xhr.responseJSON?.message || "Có lỗi xảy ra khi addToWishList."
+                    );
+                },
+            });
+        });
     function loadReviews(productId) {
         $.ajax({
             url: "/review/" + productId,

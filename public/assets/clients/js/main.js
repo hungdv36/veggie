@@ -1349,23 +1349,63 @@
                 },
                 success: function (response) {
                     $("#liton_product_grid").html(response.products);
+                    startCountdown(); // ✅ Chỉ gọi ở đây là đủ
                 },
-
                 complete: function () {
                     $("#loading-spinner").hide();
                     $("#liton_product_grid").show();
                 },
-                error: function (xhr) {
-                    alert("Có lỗi xảy ra với ajax fetchProducts");
+                error: function () {
+                    alert("❌ Có lỗi xảy ra với ajax fetchProducts");
                 },
             });
         }
 
-        $(".category-filter").on("click", function () {
+        let countdownTimers = []; // ✅ Lưu timer để có thể clear
+
+        function startCountdown() {
+            // Dọn timer cũ trước
+            countdownTimers.forEach(t => clearInterval(t));
+            countdownTimers = [];
+
+            document.querySelectorAll('.flash-countdown').forEach(el => {
+                const endTime = new Date(el.dataset.end).getTime();
+                const span = el.querySelector('.time-left');
+
+                const timer = setInterval(() => {
+                    const now = new Date().getTime();
+                    const distance = endTime - now;
+
+                    if (distance <= 0) {
+                        clearInterval(timer);
+                        span.innerHTML = "ĐÃ HẾT HẠN";
+                        el.classList.add("text-secondary");
+                        return;
+                    }
+
+                    const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
+                    const minutes = Math.floor((distance / (1000 * 60)) % 60);
+                    const seconds = Math.floor((distance / 1000) % 60);
+
+                    span.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+                }, 1000);
+
+                countdownTimers.push(timer);
+            });
+        }
+
+
+        $(document).on("click", ".category-filter", function () {
             $(".category-filter").removeClass("active");
             $(this).addClass("active");
+
+            // ✅ Reset lại slider giá khi chỉ chọn danh mục
+            $(".slider-range").slider("values", [0, 3000000]);
+            $(".amount").val("0 - 3,000,000 VNĐ");
+
             fetchProducts();
         });
+
         $("#sort-by").change(function () {
             fetchProducts();
         });
@@ -1373,20 +1413,24 @@
         $(".slider-range").slider({
             range: true,
             min: 0,
-            max: 300000,
-            values: [0, 300000],
+            max: 3000000, // Tối đa 3 triệu (tuỳ bạn)
+            step: 50000, // ✅ bước nhảy 50k
+            values: [0, 3000000],
             slide: function (event, ui) {
-                $(".amount").val(ui.values[0] + " - " + ui.values[1] + " VNĐ");
+                $(".amount").val(
+                    ui.values[0].toLocaleString() + " - " + ui.values[1].toLocaleString() + " VNĐ"
+                );
             },
             change: function (event, ui) {
                 fetchProducts();
             },
         });
 
+
         $(".amount").val(
-            $(".slider-range").slider("values", 0) +
+            $(".slider-range").slider("values", 0).toLocaleString() +
             " - " +
-            $(".slider-range").slider("values", 1) +
+            $(".slider-range").slider("values", 1).toLocaleString() +
             " VNĐ"
         );
 
@@ -1436,31 +1480,23 @@
 
             let $btn = $(this);
             let productId = $btn.data("id");
+            let price = $btn.data("price"); // ✅ lấy giá flash sale nếu có
             let quantity =
-                $btn
-                    .closest(".ltn__product-details-menu-2")
-                    .find(".cart-plus-minus-box")
-                    .val() || 1;
+                $btn.closest(".ltn__product-details-menu-2").find(".cart-plus-minus-box").val() || 1;
 
-            // Lấy giá trị biến thể
             let color = $(".variant-color").val();
             let size = $(".variant-size").val();
 
             if (!color || !size) {
-                alert(
-                    "Vui lòng chọn màu sắc và kích thước trước khi thêm vào giỏ hàng!"
-                );
+                alert("Vui lòng chọn màu sắc và kích thước trước khi thêm vào giỏ hàng!");
                 return;
             }
 
-            // 👉 Nếu chưa có variant ID thì tạm tạo ra
             let variantId = `${color}-${size}`;
 
             $.ajaxSetup({
                 headers: {
-                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
-                        "content"
-                    ),
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
                 },
             });
 
@@ -1471,10 +1507,11 @@
                     product_id: productId,
                     variant_id: variantId,
                     quantity: quantity,
+                    price: price, // ✅ gửi giá Flash Sale
                 },
                 success: function (response) {
                     console.log("Success:", response);
-                    alert("✅ Sản phẩm đã được thêm vào giỏ hàng!");
+                    alert("✅ Sản phẩm đã được thêm vào giỏ hàng với giá khuyến mãi!");
                 },
                 error: function (xhr) {
                     console.log("Status:", xhr.status);
@@ -1483,6 +1520,7 @@
                 },
             });
         });
+
         $('.mini-cart-icon').on('click', function (e) {
             $.ajax({
                 url: '/mini-cart',

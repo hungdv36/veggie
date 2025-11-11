@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Clients\AccountController;
 use App\Http\Controllers\Clients\AuthController;
@@ -12,10 +13,12 @@ use App\Http\Controllers\Clients\ResetPasswordController;
 use App\Http\Controllers\Clients\WishListController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
-
+use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\Clients\WishController;
 
 use App\Http\Controllers\Clients\ReviewController;
+use App\Http\Controllers\Clients\WishListController;
 
 use App\Http\Controllers\Clients\SearchController;
 use App\Http\Controllers\Clients\WishController;
@@ -56,8 +59,9 @@ Route::middleware(['auth.custom'])->group(function () {
     // Account
     Route::prefix('account')->group(function () {
         // Trang chính account
-  Route::get('/', [AccountController::class, 'index'])->name('account');
-   Route::put('/account/update', [AccountController::class, 'update'])->name('account.update');
+        Route::get('/', [AccountController::class, 'index'])->name('account');
+        Route::put('/update', [AccountController::class, 'update'])->name('account.update');
+        Route::post('/avatar', [AccountController::class, 'updateAvatar'])->name('account.updateAvatar');
 
 
         // Đổi mật khẩu
@@ -78,15 +82,22 @@ Route::middleware(['auth.custom'])->group(function () {
     });
     // Checkout
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
+    Route::post('/wishlist/add', [WishListController::class, 'addToWishList']);
+
     Route::get('/checkout/get-address', [CheckoutController::class, 'getAddress'])->name('checkout.getAddress');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+    Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
 
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
+    Route::patch('/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])
+        ->name('orders.confirmReceived');
 
-    
+
 
     Route::post('/review', [ReviewController::class, 'createReview']);
+    Route::get('/review/{product}', [ReviewController::class, 'index']);
       Route::get('/review/{product}', [ReviewController::class, 'index']);
 
     // WishList
@@ -118,7 +129,13 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
     Route::post('/checkout/cod', [CheckoutController::class, 'handleCOD'])->name('checkout.cod');
     Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
+    Route::post('/checkout/momo', [CheckoutController::class, 'handleMoMo'])->name('checkout.momo');
+    Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('momo.return');
 });
+Route::post('/chat/send', [ChatController::class, 'send'])->name('chat.send');
+Route::get('/chat/history', [ChatController::class, 'history'])->name('chat.history');
+
+Route::get('/flash-sale', [FlashSaleController::class, 'index'])->name('flash-sale.index');
 
 // Search
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');

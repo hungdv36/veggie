@@ -1,15 +1,13 @@
  <div class="col-md-3 left_col">
      <div class="left_col scroll-view">
          <div class="navbar nav_title" style="border: 0;">
-             <a href="index.html" class="site_title"><i class="fa fa-paw"></i> <span>Admin!</span></a>
+             <a href="{{ route('admin.dashboard') }}" class="site_title"><i class="fa fa-shopping-bag"></i> <span>ClotheStore!</span></a>
          </div>
-
-         <div class="clearfix"></div>
-
          <!-- menu profile quick info -->
          <div class="profile clearfix">
              <div class="profile_pic">
-                 <img src="images/img.jpg" alt="..." class="img-circle profile_img">
+                 <img src="{{ asset('assets/clients/img/avt.png') }}" alt=""
+                     class="img-circle img-fluid" style="object-fit: cover; width: 100px; height: 100px;">
              </div>
              <div class="profile_info">
                  <span>Welcome,</span>
@@ -25,7 +23,7 @@
              <div class="menu_section">
                  <h3>General</h3>
                  <ul class="nav side-menu">
-                     <li><a><i class="fa fa-home"></i> Home</a>
+                     <li><a href=""><i class="fa fa-home"></i> Home</a>
                      </li>
                      <li>
                          <a href="{{ route('admin.users.index') }}">
@@ -53,7 +51,7 @@
 
                              <li><a href="{{ route('admin.products.index') }}">Danh sách sản phẩm</a></li>
 
-                             <li><a href="#">Thùng rác</a></li>
+                             <li><a href="{{ route('admin.products.trash') }}">Thùng rác</a></li>
                          </ul>
                      </li>
                      <li>
@@ -88,6 +86,11 @@
                          </ul>
                      </li>
                      <li>
+                         <a href="{{ route('admin.orders.index') }}">
+                             <i class="fa fa-shopping-cart"></i> Quản lý đơn hàng
+                         </a>
+                     </li>
+                     <li>
                          <a>
                              <i class="fa fa-comments"></i> Quản lý bình luận
                              <span class="fa fa-chevron-down"></span>
@@ -97,6 +100,12 @@
                              <li><a href="{{ route('admin.reviews.logs') }}">Lịch sử xóa bình luận</a></li>
                          </ul>
                      </li>
+                     <li class="{{ request()->routeIs('admin.flash_sales.*') ? 'active' : '' }}">
+                         <a href="{{ route('admin.flash_sales.index') }}">
+                             <i class="fa fa-bolt"></i> Flash Sale
+                         </a>
+                     </li>
+
 
                       <li>
                          <a href="{{ route('admin.contacts.index') }}">

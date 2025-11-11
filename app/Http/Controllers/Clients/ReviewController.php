@@ -22,21 +22,34 @@ class ReviewController extends Controller
         'comment' => 'nullable|string',
     ]);
 
+    $userId = Auth::id();
+
+    // ✅ Kiểm tra xem user này đã đánh giá sản phẩm này chưa
+    $existingReview = Review::where('user_id', $userId)
+        ->where('product_id', $request->product_id)
+        ->first();
+
+    if ($existingReview) {
+        return response()->json([
+            'status' => false,
+            'message' => 'Bạn đã đánh giá sản phẩm này rồi!',
+        ], 400);
+    }
+
+    // ✅ Nếu chưa đánh giá -> tạo mới
     $review = new Review();
-    $review->user_id = Auth::id();
+    $review->user_id = $userId;
     $review->product_id = $request->product_id;
     $review->rating = $request->rating;
     $review->comment = $request->comment;
-
-    // 🟩 Thêm dòng này để tránh lỗi role_id không có giá trị:
-    $review->role_id = Auth::user()->role_id ?? 2; // hoặc giá trị mặc định 2 (user)
-
+    $review->role_id = Auth::user()->role_id ?? 2; // giữ lại role nếu có
     $review->save();
 
     return response()->json([
         'status' => true,
-        'message' => 'Đánh giá đã được gửi!'
+        'message' => 'Đánh giá đã được gửi!',
     ], 200);
 }
+
 
 }

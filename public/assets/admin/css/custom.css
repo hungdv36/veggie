@@ -14,7 +14,8 @@
     background-color: blueviolet;
 }
 
-#category-image, #product-images {
+#category-image,
+#product-images {
     display: none;
 }
 
@@ -26,6 +27,12 @@
     padding: 5px;
     border-radius: 5px;
 }
+.fs-7 {
+    font-size: 0.9rem !important; /* ≈14.4px, to hơn mặc định một chút */
+    font-weight: 500; /* đậm nhẹ cho rõ hơn */
+    padding: 6px 10px !important; /* tăng nhẹ khoảng cách trong badge */
+}
+
 
   #avatar-preview {
         width: 150px;

@@ -3,13 +3,13 @@
      <li>
                                                     <div class="ltn__comment-item clearfix">
                                                         <div class="ltn__commenter-img">
-                                                          <img src="{{ $review->user && $review->user->avatar 
-    ? asset('storage/uploads/users/' . $review->user->avatar) 
-    : asset('assets/clients/img/default-avatar.png') }}" 
-    alt="avatar">
+                                                           <img src="{{ asset('storage/uploads/users/' . ($review->user->avatar ?? 'default-avatar.png')) }}" 
+     alt="{{ $review->user->name ?? 'Người dùng ẩn danh' }}" 
+     style="width:60px; height:60px; border-radius:50%; object-fit:cover;">
+
                                                         </div>
                                                         <div class="ltn__commenter-comment">
-                                                            <h6>{{ $review->user->name }}</h6>
+                                                            <h6>{{ $review->user->name ?? 'Người dùng ẩn danh' }}</h6>
                                                             <div class="product-ratting">
                                                                 <ul>
                                                                     @for ($i = 1; $i <= 5; $i++)

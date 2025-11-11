@@ -16,75 +16,98 @@ class CartController extends Controller
      * Thêm sản phẩm vào giỏ hàng
      */
     public function addToCart(Request $request): JsonResponse
-    {
-        $request->merge(['quantity' => (int) $request->quantity]);
+{
+    $request->merge(['quantity' => (int) $request->quantity]);
 
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'variant_id' => 'required|exists:product_variants,id',
-            'quantity'   => 'required|integer|min:1',
-        ]);
+    $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'variant_id' => 'required|exists:product_variants,id',
+        'quantity'   => 'required|integer|min:1',
+    ]);
 
-        $product = Product::with('images')->findOrFail($request->product_id);
-        $variant = ProductVariant::with(['color', 'size'])->findOrFail($request->variant_id);
+    $product = Product::with('images')->findOrFail($request->product_id);
+    $variant = ProductVariant::with(['color', 'size'])->findOrFail($request->variant_id);
 
-        $price = $variant->sale_price ?? $variant->price ?? $product->sale_price ?? $product->price ?? 0;
+    // ✅ Mặc định lấy giá sale hoặc giá gốc
+    $price = $variant->sale_price ?? $variant->price ?? $product->sale_price ?? $product->price ?? 0;
 
-        if ($price <= 0) {
-            return response()->json(['message' => 'Giá sản phẩm không hợp lệ'], 400);
+    // ✅ Kiểm tra xem sản phẩm có nằm trong Flash Sale đang diễn ra không
+    $flashSale = \App\Models\FlashSale::with('items')
+        ->where('start_time', '<=', now())
+        ->where('end_time', '>=', now())
+        ->first();
+
+    if ($flashSale) {
+        $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+        if ($flashItem) {
+            $flashPrice = round($price * (1 - $flashItem->discount_price / 100), 0);
+            $price = $flashPrice; // ✅ dùng giá Flash Sale
         }
-
-        if ($request->quantity > $variant->quantity) {
-            return response()->json(['message' => 'Số lượng vượt quá tồn kho'], 400);
-        }
-
-        // Nếu người dùng đã đăng nhập
-        if (Auth::check()) {
-            $cartItem = CartItem::firstOrNew([
-                'user_id'    => Auth::id(),
-                'product_id' => $request->product_id,
-                'variant_id' => $request->variant_id,
-            ]);
-
-            $cartItem->quantity = ($cartItem->exists ? $cartItem->quantity : 0) + $request->quantity;
-            $cartItem->price = $price;
-            $cartItem->total_price = $cartItem->price * $cartItem->quantity;
-            $cartItem->save();
-
-            $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-        }
-        // Nếu chưa đăng nhập → lưu session
-        else {
-            $cart = session()->get('cart', []);
-            $key = $request->product_id . '_' . $request->variant_id;
-
-            if (isset($cart[$key])) {
-                $cart[$key]['quantity'] += $request->quantity;
-                $cart[$key]['price'] = $price;
-            } else {
-                $cart[$key] = [
-                    'product_id' => $product->id,
-                    'variant_id' => $variant->id,
-                    'name'       => $product->name,
-                    'price'      => $price,
-                    'quantity'   => $request->quantity,
-                    'stock'      => $variant->quantity,
-                    'color'      => $variant->color_id,
-                    'size'       => $variant->size_id,
-                    'image'      => $product->images->first()->image ?? 'uploads/products/default-product.png',
-                ];
-            }
-
-            session()->put('cart', $cart);
-            $cartCount = CartItem::where('user_id', Auth::id())->count();
-        }
-
-        return response()->json([
-            'success'    => true,
-            'message'    => 'Sản phẩm đã được thêm vào giỏ hàng!',
-            'cart_count' => $cartCount,
-        ]);
     }
+
+    // ✅ Ưu tiên nếu client gửi sẵn flash_price hoặc price
+    if ($request->filled('flash_price')) {
+        $price = (float) $request->flash_price;
+    } elseif ($request->filled('price')) {
+        $price = (float) $request->price;
+    }
+
+    if ($price <= 0) {
+        return response()->json(['message' => 'Giá sản phẩm không hợp lệ'], 400);
+    }
+
+    if ($request->quantity > $variant->quantity) {
+        return response()->json(['message' => 'Số lượng vượt quá tồn kho'], 400);
+    }
+
+    // ✅ Nếu người dùng đã đăng nhập
+    if (Auth::check()) {
+        $cartItem = CartItem::firstOrNew([
+            'user_id'    => Auth::id(),
+            'product_id' => $request->product_id,
+            'variant_id' => $request->variant_id,
+        ]);
+
+        $cartItem->quantity = ($cartItem->exists ? $cartItem->quantity : 0) + $request->quantity;
+        $cartItem->price = $price;
+        $cartItem->total_price = $cartItem->price * $cartItem->quantity;
+        $cartItem->save();
+
+        $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
+    }
+    // ✅ Nếu chưa đăng nhập → lưu session
+    else {
+        $cart = session()->get('cart', []);
+        $key = $request->product_id . '_' . $request->variant_id;
+
+        if (isset($cart[$key])) {
+            $cart[$key]['quantity'] += $request->quantity;
+            $cart[$key]['price'] = $price;
+        } else {
+            $cart[$key] = [
+                'product_id' => $product->id,
+                'variant_id' => $variant->id,
+                'name'       => $product->name,
+                'price'      => $price,
+                'quantity'   => $request->quantity,
+                'stock'      => $variant->quantity,
+                'color'      => $variant->color_id,
+                'size'       => $variant->size_id,
+                'image'      => $product->images->first()->image ?? 'uploads/products/default-product.png',
+            ];
+        }
+
+        session()->put('cart', $cart);
+        $cartCount = count($cart);
+    }
+
+    return response()->json([
+        'success'    => true,
+        'message'    => 'Sản phẩm đã được thêm vào giỏ hàng!',
+        'cart_count' => $cartCount,
+    ]);
+}
+
 
     /**
      * Load mini cart
@@ -195,12 +218,12 @@ class CartController extends Controller
 
                     return [
                         'product_id' => $product->id,
-                        'variant_id' => $variant->id ?? null,
+                     'variant_id' => $variant->id ?? null,
                         'name'       => $product->name,
                         'price'      => $item->price,
                         'quantity'   => $item->quantity,
                         'stock'      => $product->stock ?? 0,
-                        'image'      => 'assets/img/product/' . ($product->image ?? 'default-product.png'),
+                        'image'      => 'assets/admin/img/product/' . ($product->image ?? 'default-product.png'),
                         'color_name' => $variant->color->name ?? null,
                         'size_name'  => $variant->size->name ?? null,
                     ];
@@ -208,7 +231,7 @@ class CartController extends Controller
         } else {
             $cartItems = session()->get('cart', []);
             foreach ($cartItems as &$item) {
-                $item['image'] = 'assets/img/product/' . ($item['image'] ?? 'default-product.png');
+                $item['image'] = 'assets/admin/img/product/' . ($item['image'] ?? 'default-product.png');
                 $item['color_name'] = isset($item['color']) ? \App\Models\Color::find($item['color'])->name ?? null : null;
                 $item['size_name']  = isset($item['size']) ? \App\Models\Size::find($item['size'])->name ?? null : null;
             }
@@ -216,6 +239,7 @@ class CartController extends Controller
 
         return view('clients.pages.cart', compact('cartItems'));
     }
+
 
     public function removeCartItem(Request $request)
     {

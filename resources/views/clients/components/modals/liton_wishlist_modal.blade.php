@@ -23,7 +23,7 @@
                                         <p class="added-cart"><i class="fa fa-check-circle"></i>Đã thêm thành công vào
                                             danh sách yêu thích</p>
                                         <div class="btn-wrapper">
-                                            <a href="wishlist.html" class="theme-btn-1 btn btn-effect-1">Xem</a>
+                                            <a href="{{ route('wishlist') }}" class="theme-btn-1 btn btn-effect-1">Xem</a>
                                         </div>
                                     </div>
 

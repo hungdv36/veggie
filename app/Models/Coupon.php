@@ -46,4 +46,10 @@ class Coupon extends Model
             ? round($orderTotal * $this->value / 100, 0)
             : min($this->value, $orderTotal);
     }
+    public function orders()
+    {
+        return $this->belongsToMany(Order::class, 'order_coupons')
+            ->withPivot('discount_amount')
+            ->withTimestamps();
+    }
 }

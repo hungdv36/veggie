@@ -31,7 +31,7 @@
             <div class="mini-cart-item clearfix">
                 <div class="mini-cart-img">
                     <a href="javascript:void(0)">
-                        <img src="{{ $product->image ? asset('assets/img/product/' . $product->image) : asset('assets/img/product/default.png') }}"
+                        <img src="{{ $product->image ? asset('assets/admin/img/product/' . $product->image) : asset('assets/img/product/default.png') }}"
                             alt="{{ $product->name }}" style="height:100px;width:100px; object-fit:cover;">
                     </a>
                     <span class="mini-cart-item-delete" data-id="{{ $product->id }}">

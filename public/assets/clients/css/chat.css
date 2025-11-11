@@ -1,0 +1,108 @@
+#chat-box {
+    position: fixed;
+    bottom: 90px;
+    right: 25px;
+    width: 380px;
+    height: 480px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 9998;
+}
+
+/* Header */
+#chat-header {
+    background: #007bff;
+    color: #fff;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Tin nhắn */
+#chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+/* Ô nhập tin nhắn */
+#chat-input {
+    display: flex;
+    align-items: center; /* 👈 căn giữa theo chiều dọc */
+    border-top: 1px solid #ddd;
+    padding: 8px;
+    background: #f9f9f9;
+    height: 50px; /* 👈 chiều cao cố định */
+}
+
+#chat-input .chat-input-container {
+    display: flex;
+    align-items: center;
+    width: 100%; /* 👈 chiếm toàn bộ chiều ngang */
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    overflow: hidden;
+    background: #fff;
+    height: 42px;
+}
+#chat-input input {
+    flex: 1;
+    height: 100%;
+    border: none; /* ❌ bỏ border để không bị gấp đôi viền */
+    padding: 0 15px;
+    font-size: 14px;
+    outline: none;
+}
+/* Nút gửi */
+#chat-input button {
+    height: 100%;
+    padding: 0 18px;
+    font-size: 14px;
+    border: none;
+    border-radius: 0 25px 25px 0; /* 👈 bo góc phải khớp input */
+    background: #007bff;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#chat-input button:hover {
+    background: #0056b3;
+}
+
+/* Tin nhắn user & bot */
+.user-message {
+    align-self: flex-end;
+    background: #d1e7ff;
+    color: #000;
+    padding: 8px 12px;
+    border-radius: 12px 12px 0 12px;
+    max-width: 75%;
+}
+
+.bot-message {
+    align-self: flex-start;
+    background: #e6ffe6;
+    color: #000;
+    padding: 8px 12px;
+    border-radius: 12px 12px 12px 0;
+    max-width: 75%;
+}
+#chat-input input::placeholder {
+    color: #888; /* 👈 placeholder nhẹ hơn */
+}
+#chat-messages div {
+    line-height: 1.4;
+}
+#chat-messages {
+    scroll-behavior: smooth;
+}

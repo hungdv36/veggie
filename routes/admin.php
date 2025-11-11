@@ -6,11 +6,14 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\ColorController;
 use App\Http\Controllers\Admin\ContactController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\SizeController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\FlashSaleController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -82,6 +85,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/coupons/update', [CouponController::class, 'updateCoupon'])->name('coupons.update');
         Route::post('/coupons/delete', [CouponController::class, 'deleteCoupon'])->name('coupons.delete');
     });
+    Route::middleware(['permission:manage_orders'])->group(function () {
+        Route::get('orders/', [OrderController::class, 'index'])->name('orders.index');
+        Route::post('orders/confirm', [OrderController::class, 'confirmOrder'])->name('orders.confirm');
+        Route::post('orders/update-status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
+        Route::get('orders/detail/{id}', [OrderController::class, 'showOrderDetail'])->name('orders.detail');
+        Route::post('/orders/send-invoice', [OrderController::class, 'sendMailInvoice'])->name('orders.send-invoice');
+        Route::post('/orders/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('orders.cancel');
+    });
 
     // Contacts (cần permission: manage_contacts)
     Route::middleware(['permission:manage_contacts'])->group(function () {
@@ -104,5 +115,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/profile', [AccountController::class, 'index'])->name('profile');
         Route::post('/profile/update', [AccountController::class, 'updateProfile'])->name('profile.update');
         Route::post('/profile/change-password', [AccountController::class, 'changePassword'])->name('profile.change-password');
+    });
+
+    Route::middleware(['permission:manage_products'])->group(function () {
+        Route::get('/flash-sales', [FlashSaleController::class, 'index'])->name('flash_sales.index');
+        Route::get('/flash-sales/create', [FlashSaleController::class, 'create'])->name('flash_sales.create');
+        Route::post('/flash-sales', [FlashSaleController::class, 'store'])->name('flash_sales.store');
+        Route::get('/flash-sales/{id}/edit', [FlashSaleController::class, 'edit'])->name('flash_sales.edit');
+        Route::post('/flash-sales/{id}', [FlashSaleController::class, 'update'])->name('flash_sales.update');
+        Route::delete('/flash-sales/{id}', [FlashSaleController::class, 'destroy'])->name('flash_sales.destroy');
     });
 });

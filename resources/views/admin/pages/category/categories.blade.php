@@ -84,6 +84,7 @@
                                                     <div class="modal-body">
                                                         <form id="update-category" method="POST"
                                                             enctype="multipart/form-data">
+                                                            <input type="hidden" name="category_id" value="{{ $category->id }}">
                                                             @csrf
 
                                                             <div class="mb-3">
@@ -150,3 +151,63 @@
         </div>
     </div>
 @endsection
+@push('scripts')
+<script>
+$(document).ready(function() {
+
+    // 🛠 Cập nhật danh mục
+    $('.btn-update-submit-category').click(function() {
+        let id = $(this).data('id');
+        let form = $(this).closest('.modal').find('form')[0];
+        let formData = new FormData(form);
+
+        $.ajax({
+            url: "{{ route('admin.categories.update') }}",
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                if (res.status) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert(res.message);
+                }
+            },
+            // error: function(err) {
+            //     alert('Lỗi khi cập nhật danh mục!');
+            // }
+        });
+    });
+
+    // 🗑 Xóa danh mục
+    $('.btn-delete-category').click(function() {
+        if (!confirm('Bạn có chắc chắn muốn xóa danh mục này?')) return;
+
+        let id = $(this).data('id');
+
+        $.ajax({
+            url: "{{ route('admin.categories.delete') }}",
+            type: "POST",
+            data: {
+                _token: "{{ csrf_token() }}",
+                category_id: id
+            },
+            success: function(res) {
+                if (res.status) {
+                    alert(res.message);
+                    location.reload();
+                } else {
+                    alert(res.message);
+                }
+            },
+            // error: function(err) {
+            //     alert('Lỗi khi xóa danh mục!');
+            // }
+        });
+    });
+
+});
+</script>
+@endpush

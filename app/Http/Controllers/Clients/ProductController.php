@@ -5,52 +5,81 @@ namespace App\Http\Controllers\Clients;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Category;
-use App\Models\OrderItem;
 use App\Models\Product;
-use Illuminate\Support\Facades\DB;
-use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
+use App\Models\OrderItem;
+use App\Models\Review;
 
 class ProductController extends Controller
 {
-public function index()
-{
-    $categories = Category::with('products')->get();
+    public function index()
+    {
+        $categories = Category::with('products')->get();
 
-    // Tạm thời bỏ điều kiện where để chắc chắn có dữ liệu
-    $products = Product::with(['firstImage', 'variants'])->paginate(9);
+        // ✅ Lấy toàn bộ sản phẩm (có ảnh và biến thể)
+        $products = Product::with(['firstImage', 'variants'])->paginate(9);
 
-    // 🔥 Lấy sản phẩm đánh giá cao nhất
-    $topRatedProducts = Product::select('products.*', DB::raw('AVG(reviews.rating) as avg_rating'))
-        ->join('reviews', 'products.id', '=', 'reviews.product_id')
-        ->groupBy('products.id')
-        ->orderByDesc('avg_rating')
-        ->take(5)
-        ->with('firstImage')
-        ->get();
+        // ✅ Lấy sản phẩm được đánh giá cao
+        $topRatedProducts = Product::with(['firstImage', 'reviews'])
+            ->withAvg('reviews', 'rating')
+            ->orderByDesc('reviews_avg_rating')
+            ->where('status', 'in_stock')
+            ->take(3)
+            ->get();
 
-    return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts'));
-}
+        foreach ($topRatedProducts as $item) {
+            $item->image_url = $item->firstImage
+                ? asset('assets/admin/img/product/' . $item->firstImage->image)
+                : asset('assets/admin/img/product/default.png');
+        }
 
+        // ✅ Lấy Flash Sale đang hoạt động
+        $flashSale = \App\Models\FlashSale::with('items')
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->first();
 
-
+        // ✅ Nếu có Flash Sale, xử lý giá giảm
+        if ($flashSale) {
+            foreach ($products as $product) {
+                $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+                if ($flashItem) {
+                    $product->is_flash_sale = true;
+                    $product->discount_price = $flashItem->discount_price;
+                    $product->sale_price = round($product->price * (1 - $flashItem->discount_price / 100), 0);
+                    $product->flash_end_time = $flashSale->end_time;
+                } else {
+                    $product->is_flash_sale = false;
+                    $product->sale_price = $product->price;
+                }
+            }
+        }
+        // ✅ Trả dữ liệu về view
+        return view('clients.pages.products', compact('categories', 'products', 'topRatedProducts', 'flashSale'));
+    }
 
     public function filter(Request $request)
     {
-        $query = Product::query();
+        $query = Product::with('firstImage');
 
-        // Filter Category if exist
-        if ($request->has('category_id') && $request->category_id != '') {
+        // ✅ Lọc danh mục nếu có
+        if ($request->filled('category_id')) {
             $query->where('category_id', $request->category_id);
         }
 
-        // Filter Price if exist
-        if ($request->has('min_price') && $request->has('max_price')) {
-            $query->whereBetween('price', [$request->min_price, $request->max_price]);
+        // ✅ Lọc theo khoảng giá (nếu người dùng chỉnh thanh trượt)
+        if ($request->filled('min_price') && $request->filled('max_price')) {
+            $min = (float) $request->min_price;
+            $max = (float) $request->max_price;
+
+            // Nếu min/max trùng giá trị ban đầu (0–300000) thì bỏ lọc
+            if (!($min == 0 && $max == 300000)) {
+                $query->whereBetween('price', [$min, $max]);
+            }
         }
 
-        // Filter SortBy if exist
-        if ($request->has('sort_by')) {
+        // ✅ Lọc sắp xếp
+        if ($request->filled('sort_by')) {
             switch ($request->sort_by) {
                 case 'price_asc':
                     $query->orderBy('price', 'asc');
@@ -67,28 +96,18 @@ public function index()
             }
         }
 
-        // Trả về kết quả (tuỳ mục đích có thể là JSON hoặc view)
         $products = $query->paginate(9);
 
-        // foreach ($products as $product) {
-        //     foreach ($products as $product) {
-        //         $product->image_url = $product->firstImage?->image
-        //             ? asset('storage/uploads/' . $product->firstImage->image)
-        //             : asset('storage/uploads/products/no-image.png');
-        //     }
-        // }
-        return response()->json(
-            [
-                'products' => view('clients.components.products_grid', compact('products'))->render(),
-                'pagination' => $products->links('clients.components.pagination.pagination_custom')
-            ]
-        );
+        return response()->json([
+            'products' => view('clients.components.products_grid', compact('products'))->render(),
+            'pagination' => $products->links('clients.components.pagination.pagination_custom')
+        ]);
     }
+
 
     public function detail($slug)
     {
-        // load product with relations
-        $product = Product::with(['category', 'images', 'variants' , 'reviews.user'])
+        $product = Product::with(['category', 'images', 'variants', 'reviews.user'])
             ->where('slug', $slug)
             ->firstOrFail();
 
@@ -96,31 +115,45 @@ public function index()
             ->where('id', '!=', $product->id)
             ->limit(6)
             ->get();
-       
-        //Tính điểm đánh giá trung bình, đảm bảo không có giá trị null    
-        $averageRating = round($product->reviews()->avg('rating') ?? 0, 1);  
-       
-        
+
+        $averageRating = round($product->reviews()->avg('rating') ?? 0, 1);
+
         $hasPurchased = false;
         $hasReviewed = false;
 
-if (Auth::check()) {
-    $user = Auth::user();
+        if (Auth::check()) {
+            $user = Auth::user();
 
-    $hasPurchased = OrderItem::whereHas('order', function ($query) use ($user) {
-        $query->where('user_id', $user->id)
-              ->where('status', 'completed');
-    })
-    ->where('product_id', $product->id)
-    ->exists();
+            $hasPurchased = OrderItem::whereHas('order', function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->where('status', 'completed');
+            })->where('product_id', $product->id)
+                ->exists();
 
-    $hasReviewed = Review::where('user_id', $user->id)
-        ->where('product_id', $product->id)
-        ->exists();
-}
-  
+            $hasReviewed = Review::where('user_id', $user->id)
+                ->where('product_id', $product->id)
+                ->exists();
+        }
 
-        // prepare JS-safe variants array (no closure in blade)
+        // ✅ Kiểm tra xem sản phẩm có trong Flash Sale đang diễn ra không
+        $flashSale = \App\Models\FlashSale::with(['items' => function ($q) use ($product) {
+            $q->where('product_id', $product->id);
+        }])
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->first();
+
+        $flashItem = null;
+        if ($flashSale && $flashSale->items->count() > 0) {
+            $flashItem = $flashSale->items->first();
+            $product->is_flash_sale = true;
+            $product->discount_price = $flashItem->discount_price; // % giảm
+            $product->flash_sale_price = round($product->price * (1 - $flashItem->discount_price / 100), 0);
+            $product->flash_end_time = $flashSale->end_time;
+        } else {
+            $product->is_flash_sale = false;
+        }
+
         $jsVariants = $product->variants->map(function ($v) {
             return [
                 'id'         => $v->id,
@@ -133,6 +166,14 @@ if (Auth::check()) {
             ];
         })->toArray();
 
-        return view('clients.pages.product-detail', compact('product', 'relatedProducts', 'jsVariants', 'hasPurchased', 'hasReviewed', 'averageRating' ));
+        return view('clients.pages.product-detail', compact(
+            'product',
+            'relatedProducts',
+            'jsVariants',
+            'hasPurchased',
+            'hasReviewed',
+            'averageRating',
+            'flashItem'
+        ));
     }
 }

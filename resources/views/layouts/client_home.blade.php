@@ -9,6 +9,8 @@
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{ asset('assets/clients/css/chat.css') }}">
+    <!-- Place favicon.png in the root directory -->
 
     <!-- Favicon -->
     <link rel="shortcut icon" href="{{ asset('assets/clients/img/favicon.png') }}" type="image/x-icon" />
@@ -26,7 +28,7 @@
     {{-- Import custom CSS --}}
     <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
 
-    
+
     <script src="{{ asset('assets/clients/js/jquery.min.js') }}"></script>
     <!-- ✅ Toastr CSS -->
     <script src="{{ asset('assets/clients/js/toastr.min.js') }}"></script>
@@ -98,6 +100,30 @@
         background-color: #ffe0b2;
         box-shadow: 0 0 4px rgba(255, 87, 34, 0.5);
     }
+
+    #chatbot-icon {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        font-size: 22px;
+        /* 👈 giảm kích thước chữ */
+        width: 50px;
+        /* 👈 giảm kích thước khung */
+        height: 50px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+        z-index: 9999;
+    }
+
+    #chatbot-icon:hover {
+        background-color: #0056b3;
+    }
 </style>
 
 <body>
@@ -147,5 +173,22 @@
             });
         });
     </script>
+
+    <!-- ✅ Script đổi mật khẩu -->
+    <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
+    <!-- preloader area end -->
+    <!-- Chatbot Icon -->
+    <!-- Icon Chat -->
+    <div id="chatbot-icon">💬</div>
+    @include('clients.partials.chat_ai')
+    <script>
+        window.chatConfig = {
+            sendUrl: "{{ route('chat.send') }}",
+            historyUrl: "{{ route('chat.history') }}",
+            csrfToken: "{{ csrf_token() }}"
+        };
+    </script>
+    <script src="{{ asset('assets/clients/js/chat.js') }}"></script>
+
 </body>
 </html>
