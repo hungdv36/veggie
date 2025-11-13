@@ -73,7 +73,9 @@
                                     <li class="menu-icon"><a href="/products">Cửa hàng</a>
                                     </li>
                                     <li><a href="/about">Liên hệ</a></li>
-                                    <li class="special-link"><a href="/about">GET A QUOTE</a></li>
+                                    <li class="special-link">
+                                        <a href="{{ route('contact.index') }}">NHẬN BÁO GIÁ</a>
+                                    </li>
                                 </ul>
                             </div>
                         </nav>
@@ -173,8 +175,6 @@
 <!-- Utilize Cart Menu Start -->
 <div id="ltn__utilize-cart-menu" class="ltn__utilize ltn__utilize-cart-menu">
     <div class="ltn__utilize-menu-inner ltn__scrollbar">
-
-
     </div>
 </div>
 <!-- Utilize Cart Menu End -->
