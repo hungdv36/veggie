@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
 use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ChatbotController;
 // use App\Http\Controllers\Clients\WishController;
 
 use App\Http\Controllers\Clients\ReviewController;
@@ -142,4 +143,14 @@ Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 // Liên hệ
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'sendContact'])->name('contact');
+
+Route::get('/chatbot', function () {
+    return view('chatbot');
+});
+// AI
+Route::post('/chat', [ChatbotController::class, 'chat']);
+Route::get('/history', [ChatbotController::class, 'history']);
+Route::get('/download-history', [ChatbotController::class, 'downloadHistory']);
+Route::delete('/delete-history', [ChatbotController::class, 'deleteHistory']);
+Route::post('/chat/send', [ChatbotController::class, 'chat'])->name('chat.send');
 require __DIR__ . '/admin.php';
