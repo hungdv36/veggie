@@ -15,7 +15,7 @@
                             <img src="{{ asset('assets/clients/img/icons/11.jpg') }}" alt="Icon Image">
                         </div>
                         <h3>Địa chỉ Email</h3>
-                        <p>nginhien.dev@gmail.com</p>
+                        <p>clothestore@gmail.com</p>
                     </div>
                 </div>
 

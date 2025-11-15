@@ -52,8 +52,8 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'status' => 'pending',
-            'role_id' => 1,
+            'status' => 'active',
+            'role_id' => 3,
             'activation_token' => $token,
         ]);
 

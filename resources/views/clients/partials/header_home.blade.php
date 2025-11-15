@@ -76,8 +76,6 @@
                                     </li>
                                     <li class="menu-icon"><a href="/products">Cửa hàng</a>
                                     </li>
-                                    
-                                    <li class="special-link"><a href="/about">GET A QUOTE</a></li>
                                     <li>
                                         <a href="{{ route('contact.index') }}">Liên hệ</a>
                                     </li>
@@ -134,8 +132,8 @@
                                         <li><a href="{{ route('register') }}">Đăng ký</a></li>
                                     @endguest
 
-                                   
-                                    
+
+
                                     {{-- Nếu đã đăng nhập --}}
                                     @auth
                                         <li><a href="{{ route('account') }}">Tài khoản</a></li>
@@ -183,8 +181,7 @@
                                 <path d="M300,320 L540,320" id="middle"></path>
                                 <path
                                     d="M300,210 C300,210 520,210 540,210 C740,210 640,530 520,410 C440,330 300,190 300,190"
-                                    id="bottom"
-                                    transform="translate(480, 320) scale(1, -1) translate(-480, -318) ">
+                                    id="bottom" transform="translate(480, 320) scale(1, -1) translate(-480, -318) ">
                                 </path>
                             </svg>
                         </a>
