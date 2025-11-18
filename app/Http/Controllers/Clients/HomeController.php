@@ -8,6 +8,8 @@ use App\Models\Product;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\FlashSale;
+use App\Models\Banner;
+
 
 use function Laravel\Prompts\select;
 
@@ -50,6 +52,16 @@ class HomeController extends Controller
         ->where('start_time', '<=', now())
         ->where('end_time', '>=', now())
         ->first();
-        return view('clients.pages.home', compact('categories', 'bestSellingProducts', 'flashSale'));
-    }
+
+    // Banner
+    $banners = Banner::where('status', 1)->get();
+
+    // Return 1 lần thôi!
+    return view('clients.pages.home', compact(
+        'categories',
+        'bestSellingProducts',
+        'flashSale',
+        'banners'
+    ));
+}
 }
