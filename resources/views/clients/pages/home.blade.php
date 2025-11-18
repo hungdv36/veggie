@@ -79,18 +79,32 @@
         }
     </style>
 
-    <div class="fashion-slider">
-        <!-- Slide 1 -->
-        <div class="fashion-slide active" style="background-image: url('{{ asset('assets/clients/img/slider/1.png') }}')">
-        </div>
-        <!-- Slide 2 -->
-        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/2.png') }}')"></div>
-        <!-- Slide 3 -->
-        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/3.png') }}')"></div>
+  <div id="homeBanner" class="carousel slide" data-bs-ride="carousel">
+    
+    <div class="carousel-inner">
 
-        <!-- Dots -->
-        <div class="fashion-dots"></div>
+        @foreach ($banners as $key => $banner)
+            <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                <img src="{{ asset('uploads/banners/' . $banner->image) }}" 
+                     class="d-block w-100" 
+                     style="height: 600px; object-fit: cover;">
+            </div>
+        @endforeach
+
     </div>
+
+    <!-- Nút trước -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#homeBanner" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+
+    <!-- Nút sau -->
+    <button class="carousel-control-next" type="button" data-bs-target="#homeBanner" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+
+</div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {

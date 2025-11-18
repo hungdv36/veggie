@@ -112,6 +112,11 @@
                              <i class="fa fa-users"></i> Quản lý Liên hệ
                          </a>
                      </li>
+                   <li>
+                         <a href="{{ route('admin.banners.index') }}">
+                              <i class="fa fa-image"></i> Quản lý banner
+                           </a>
+                   </li>
 
 
                  </ul>
