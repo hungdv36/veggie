@@ -80,15 +80,62 @@
                                                             @endif
                                                         </td>
                                                         <td>
-                                                            @if ($order->payment->status == 'pending')
-                                                                <span class="badge bg-danger fs-7 px-3 py-2">Chưa thanh
-                                                                    toán</span>
-                                                            @elseif ($order->payment->status == 'completed')
+                                                            @if ($order->status == 'canceled' && $order->payment?->status == 'completed')
                                                                 <span class="badge bg-success fs-7 px-3 py-2">Đã thanh
                                                                     toán</span>
-                                                            @elseif ($order->payment->status == 'failed')
-                                                                <span class="badge bg-secondary fs-7 px-3 py-2">Thanh toán
-                                                                    thất bại</span>
+                                                                @if ($order->refund)
+                                                                    @php $refundStatus = $order->refund->status; @endphp
+                                                                    <span
+                                                                        class="badge 
+                {{ $refundStatus == 'waiting_info'
+                    ? 'bg-warning'
+                    : ($refundStatus == 'submitted'
+                        ? 'bg-primary'
+                        : ($refundStatus == 'in_process'
+                            ? 'bg-info'
+                            : ($refundStatus == 'refunded'
+                                ? 'bg-success'
+                                : ($refundStatus == 'failed'
+                                    ? 'bg-danger'
+                                    : '')))) }}"
+                                                                        fs-7 px-3 py-2>
+                                                                        @switch($refundStatus)
+                                                                            @case('waiting_info')
+                                                                                Chờ nhập thông tin ngân hàng
+                                                                            @break
+
+                                                                            @case('submitted')
+                                                                                Đã gửi thông tin ngân hàng
+                                                                            @break
+
+                                                                            @case('in_process')
+                                                                                Đang xử lý hoàn tiền
+                                                                            @break
+
+                                                                            @case('refunded')
+                                                                                Hoàn tiền thành công
+                                                                            @break
+
+                                                                            @case('failed')
+                                                                                Hoàn tiền thất bại
+                                                                            @break
+                                                                        @endswitch
+                                                                    </span>
+                                                                @else
+                                                                    <span class="badge bg-warning fs-7 px-3 py-2">Chờ nhập
+                                                                        thông tin ngân hàng</span>
+                                                                @endif
+                                                            @else
+                                                                @if ($order->payment?->status == 'pending')
+                                                                    <span class="badge bg-danger fs-7 px-3 py-2">Chưa thanh
+                                                                        toán</span>
+                                                                @elseif($order->payment?->status == 'completed')
+                                                                    <span class="badge bg-success fs-7 px-3 py-2">Đã thanh
+                                                                        toán</span>
+                                                                @elseif($order->payment?->status == 'failed')
+                                                                    <span class="badge bg-secondary fs-7 px-3 py-2">Thanh
+                                                                        toán thất bại</span>
+                                                                @endif
                                                             @endif
                                                         </td>
 

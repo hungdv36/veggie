@@ -50,4 +50,12 @@ class Order extends Model
     {
         return $this->hasMany(OrderCoupon::class, 'order_id');
     }
+    public function refund()
+    {
+        return $this->hasOne(Refund::class, 'order_id');
+    }
+    public function items()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

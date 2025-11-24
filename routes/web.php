@@ -9,6 +9,7 @@ use App\Http\Controllers\Clients\ContactController;
 use App\Http\Controllers\Clients\ForgotPasswordController;
 use App\Http\Controllers\Clients\HomeController;
 use App\Http\Controllers\Clients\OrderController;
+use App\Http\Controllers\Clients\RefundController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use App\Http\Controllers\Clients\WishListController;
 use Illuminate\Support\Facades\Route;
@@ -94,12 +95,16 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
     Route::patch('/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])
         ->name('orders.confirmReceived');
+    Route::get('/refund/bank-info/{order}', [RefundController::class, 'bankInfo'])
+        ->name('refund.bank-info');
 
+    Route::post('/refund/bank-info/{order}', [RefundController::class, 'updateBankInfo'])
+        ->name('refund.bank-info.update');
 
 
     Route::post('/review', [ReviewController::class, 'createReview']);
     Route::get('/review/{product}', [ReviewController::class, 'index']);
-      Route::get('/review/{product}', [ReviewController::class, 'index']);
+    Route::get('/review/{product}', [ReviewController::class, 'index']);
 
     // WishList
     Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
