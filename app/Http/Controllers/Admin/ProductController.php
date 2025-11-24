@@ -16,17 +16,28 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\ProductVariant;
 
-
 class ProductController extends Controller
 {
     // 1. Hiển thị form
-    public function index()
-    {
-        // Lấy danh sách sản phẩm kèm category
-        $products = Product::with('category')->orderBy('id', 'DESC')->paginate(10);
-        $categories = Category::all();
-        return view('admin.pages.product.products', compact('products', 'categories'));
+   public function index(Request $request)
+{
+    // Tạo query ban đầu
+    $query = Product::query();
+
+    // Nếu có từ khóa tìm kiếm
+    if ($request->search) {
+        $query->where('name', 'like', '%' . $request->search . '%');
     }
+
+    // Lấy danh sách + category + phân trang
+    $products = $query->with('category')->orderBy('id', 'DESC')->paginate(10);
+
+    // Lấy danh mục để lọc / form add
+    $categories = Category::all();
+
+    return view('admin.pages.product.products', compact('products', 'categories'));
+}
+
 
     public function showFormAddProduct()
     {

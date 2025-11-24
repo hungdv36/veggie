@@ -30,6 +30,13 @@
                     <div class="x_panel">
                         <div class="x_title">
                             <h2>Quản lý hình ảnh và thông tin</h2>
+                            <div class="mb-3 d-flex justify-content-end">
+   <form method="GET" action="{{ route('admin.products.index') }}" class="mb-3 d-flex" style="width: 300px;">
+    <input type="text" name="search" class="form-control" placeholder="Tìm kiếm..." value="{{ request('search') }}">
+    <button class="btn btn-primary ms-2">Tìm</button>
+</form>
+</div>
+
                             <ul class="nav navbar-right panel_toolbox">
                                 <li><a class="collapse-link"><i class="fa fa-chevron-up"></i></a></li>
                                 <li><a class="close-link"><i class="fa fa-close"></i></a></li>
