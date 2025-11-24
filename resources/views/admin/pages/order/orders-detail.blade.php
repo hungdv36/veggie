@@ -105,7 +105,16 @@
                             @foreach ($order->orderItems as $index => $item)
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
-                                    <td>{{ $item->product->name ?? 'N/A' }}</td>
+                                    <td>
+                                        <strong>{{ $item->product->name ?? 'N/A' }}</strong><br>
+
+                                        @if ($item->variant)
+                                            <small>
+                                                {{ $item->variant->size->name ?? 'N/A' }},
+                                                {{ $item->variant->color->name ?? 'N/A' }}
+                                            </small>
+                                        @endif
+                                    </td>
                                     <td>{{ $item->quantity }}</td>
                                     <td>{{ number_format($item->price, 0, ',', '.') }}₫</td>
                                     <td>{{ number_format($item->price * $item->quantity, 0, ',', '.') }}₫</td>

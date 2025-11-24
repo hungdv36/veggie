@@ -80,8 +80,8 @@
 
                                 <div class="col-md-3">
                                     <label class="form-label">Đã dùng</label>
-                                    <input type="number" name="used" class="form-control" min="0"
-                                        value="{{ old('used', $coupon->used ?? 0) }}">
+                                    <input type="number" name="used" class="form-control not-allowed" min="0"
+                                        value="{{ old('used', $coupon->used ?? 0) }}" readonly>
                                     @error('used')
                                         <small class="text-danger">{{ $message }}</small>
                                     @enderror

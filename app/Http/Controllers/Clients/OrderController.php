@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Clients;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Refund;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Models\OrderStatusHistory;
@@ -52,10 +53,10 @@ class OrderController extends Controller
     }
     public function cancelOrder(Request $request, $id): RedirectResponse
     {
-        $order = Order::with(['orderItems.product', 'orderCoupons.coupon'])
+        $order = Order::with(['orderItems.product', 'orderCoupons.coupon', 'payment'])
             ->where('id', $id)
             ->where('user_id', auth()->id())
-            ->where('status', 'pending','processing')
+            ->whereIn('status', ['pending', 'processing'])
             ->firstOrFail();
 
         $request->validate([
@@ -75,13 +76,27 @@ class OrderController extends Controller
                     $coupon->decrement('used');
                 }
             }
+
             $order->update([
                 'status' => 'canceled',
                 'cancel_reason' => $request->cancel_reason,
             ]);
 
+            // Nếu thanh toán online mới tạo Refund
+            if ($order->payment && $order->payment->payment_method === 'momo') {
+                Refund::create([
+                    'order_id' => $order->id,
+                    'status' => 'waiting_info',
+                ]);
+
+                DB::commit();
+                return redirect()->route('refund.bank-info', $order->id)
+                    ->with('success', 'Đơn hàng đã hủy. Vui lòng nhập thông tin ngân hàng để được hoàn tiền.');
+            }
+
+            // COD hoặc phương thức khác: commit và thông báo thành công
             DB::commit();
-            return redirect()->back()->with('success', 'Đơn hàng đã được hủy, sản phẩm được hoàn kho và mã giảm giá đã được trả lại.');
+            return redirect()->back()->with('success', 'Đơn hàng đã hủy thành công.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại.');
