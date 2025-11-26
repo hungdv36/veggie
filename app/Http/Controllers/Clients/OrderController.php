@@ -13,14 +13,23 @@ use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
-    public function showOrder($id)
-    {
-        $order = Order::with(['orderItems.product', 'user', 'shippingAddress', 'payment'])
-            ->where('user_id', auth()->id()) // ✅ chỉ xem được đơn của mình
-            ->findOrFail($id);
 
-        return view('clients.pages.order-detail', compact('order'));
-    }
+public function showOrder($id)
+{
+    $order = Order::with([
+        'orderItems.product',
+        'orderItems.variant.color',
+        'orderItems.variant.size',
+        'user',
+        'shippingAddress',
+        'payment'
+    ])
+    ->where('user_id', auth()->id())
+    ->findOrFail($id);
+
+    return view('clients.pages.order-detail', compact('order'));
+}
+
     public function confirmReceived(Order $order)
     {
         // Chỉ chủ đơn hàng mới được xác nhận
