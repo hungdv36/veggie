@@ -47,9 +47,22 @@
                     @else
                         <span class="badge bg-danger">Chưa xác định</span>
                     @endif
-                </p>
-                <p class="fw-bold fs-5 mt-3 text-success">Tổng tiền: {{ number_format($order->total_amount, 0, ',', '.') }}₫</p>
-            </div>
+                    <p class="mb-1">
+                        <strong>Phương thức thanh toán:</strong>
+                        @if ($order->payment && $order->payment->payment_method == 'cash')
+                            <span class="badge bg-secondary">Thanh toán khi nhận hàng</span>
+                        @elseif ($order->payment && $order->payment->payment_method == 'paypal')
+                            <span class="badge bg-primary">Thanh toán bằng PayPal</span>
+                        @elseif ($order->payment && $order->payment->payment_method == 'momo')
+                            <span class="badge bg-warning text-dark">Thanh toán bằng MoMo</span>
+                        @else
+                            <span class="badge bg-danger">Chưa xác định</span>
+                        @endif
+                    </p>
+                    <p class="fw-bold fs-5 mt-3 text-success">
+                        Tổng tiền: {{ number_format($order->total_amount, 0, ',', '.') }}₫
+                    </p>
+                </div>
 
             <!-- Danh sách sản phẩm -->
             <h5 class="fw-bold mb-3"><i class="fas fa-box-open me-2"></i>Sản phẩm trong đơn hàng</h5>

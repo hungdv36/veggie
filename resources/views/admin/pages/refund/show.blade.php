@@ -100,6 +100,50 @@
             </div>
         </div>
 
+        {{-- Lịch sử hoàn tiền --}}
+        <div class="card mb-4">
+            <div class="card-header fw-bold bg-light">Lịch sử hoàn tiền</div>
+            <div class="card-body p-0" style="overflow-x:auto;">
+                @if ($refund->histories && $refund->histories->count())
+                    <table class="table table-bordered text-center align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>STT</th>
+                                <th>Người thực hiện</th>
+                                <th>Trạng thái</th>
+                                <th>Biên lai</th>
+                                <th>Ghi chú</th>
+                                <th>Thời gian</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($refund->histories as $index => $history)
+                                <tr>
+                                    <td>{{ $index + 1 }}</td>
+                                    <td>{{ $history->admin->name ?? 'N/A' }}</td>
+                                    <td>{{ $refundStatus[$history->status] ?? $history->status }}</td>
+                                    <td>
+                                        @if ($history->receipt)
+                                            <a href="{{ asset($history->receipt) }}" target="_blank"><i
+                                                    class="bi bi-eye"></i></a> |
+                                            <a href="{{ asset($history->receipt) }}" download><i
+                                                    class="bi bi-download"></i></a>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                    <td>{{ $history->note ?? '-' }}</td>
+                                    <td>{{ $history->created_at->format('d/m/Y H:i') }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                @else
+                    <p class="p-3 mb-0 text-center">Chưa có lịch sử hoàn tiền.</p>
+                @endif
+            </div>
+        </div>
+
         {{-- Thông tin hoàn tiền --}}
         <div class="card mb-3">
             <div class="card-header fw-bold bg-light">Hoàn tiền</div>
@@ -123,7 +167,8 @@
                 </div>
                 @if ($refund->receipt)
                     <p><strong>Biên lai:</strong>
-                        <a href="{{ asset($refund->receipt) }}" target="_blank" class="fs-5">Xem</a>
+                        <a href="{{ asset($refund->receipt) }}" target="_blank" class="fs-5"><i
+                                class="bi bi-eye"></i></a>
                     </p>
                 @endif
             </div>
@@ -153,6 +198,10 @@
                     <form action="{{ route('admin.refunds.complete', $refund->id) }}" method="POST"
                         enctype="multipart/form-data">
                         @csrf
+                        <div class="mb-2">
+                            <label class="form-label">Upload biên lai chuyển khoản</label>
+                            <input type="file" name="receipt_image" accept="image/*" class="form-control" required>
+                        </div>
                         <button type="submit" class="btn btn-success btn-sm">Xác nhận hoàn tiền</button>
                     </form>
                 </div>
