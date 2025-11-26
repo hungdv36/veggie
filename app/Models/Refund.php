@@ -19,4 +19,8 @@ class Refund extends Model
     {
         return $this->belongsTo(Order::class);
     }
+    public function histories()
+    {
+        return $this->hasMany(RefundHistory::class);
+    }
 }

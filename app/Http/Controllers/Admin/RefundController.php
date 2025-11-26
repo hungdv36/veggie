@@ -6,8 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Refund;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Mail;
+use App\Models\RefundHistory;
+use Illuminate\Support\Facades\Auth;
 
 class RefundController extends Controller
 {
@@ -23,12 +24,13 @@ class RefundController extends Controller
     }
     public function show($id)
     {
-        $refund = Refund::with('order.user', 'order.items.product')->findOrFail($id);
+        $refund = Refund::with('order.user', 'order.items.product', 'histories.admin')->findOrFail($id);
         return view('admin.pages.refund.show', compact('refund'));
     }
     public function updateStatus(Request $request, $id)
     {
         $refund = Refund::findOrFail($id);
+
         $request->validate([
             'status' => 'required|in:submitted,in_process',
         ]);
@@ -36,53 +38,56 @@ class RefundController extends Controller
         $refund->status = $request->status;
         $refund->save();
 
-        return redirect()->back()->with('success', 'Cập nhật trạng thái thành công.');
+        // Tạo lịch sử hoàn tiền
+        RefundHistory::create([
+            'refund_id' => $refund->id,
+            'admin_id'  => Auth::guard('admin')->id(),
+            'status'    => $request->status,
+            'receipt'   => null,
+            'note'      => 'Cập nhật trạng thái hoàn tiền',
+        ]);
+
+        return redirect()->back()->with('success', 'Cập nhật trạng thái thành công và lưu lịch sử!');
     }
+
     public function completeRefund(Request $request, $id)
     {
-        $refund = Refund::with(
-            'order.items.variant.size',
-            'order.items.variant.color',
-            'order.user',
-            'order.shippingAddress'
-        )->findOrFail($id);
+        $refund = Refund::with('order.user')->findOrFail($id);
 
-        // 1. Tạo PDF biên lai
-        $pdf = Pdf::loadView('admin.pages.refund.receipt', compact('refund'))
-            ->setPaper('A4')
-            ->setOptions([
-                'defaultFont' => 'DejaVu Sans', // dùng font có tiếng Việt
-            ]);
+        $request->validate([
+            'receipt_image' => 'required|image|max:2048',
+        ]);
 
-        $filename = 'refund_' . $refund->id . '.pdf';
+        $file = $request->file('receipt_image');
+        $filename = 'refund_' . $refund->id . '_' . time() . '.' . $file->getClientOriginalExtension();
         $directory = public_path('assets/refund_receipts/');
+        if (!file_exists($directory)) mkdir($directory, 0777, true);
+        $file->move($directory, $filename);
+        $filePath = 'assets/refund_receipts/' . $filename;
 
-        if (!file_exists($directory)) {
-            mkdir($directory, 0777, true);
-        }
-
-        $path = $directory . $filename;
-
-        // Lưu file PDF
-        $pdf->save($path);
-
-        // 2. Cập nhật vào DB
         $refund->update([
-            'receipt' => 'assets/refund_receipts/' . $filename,
+            'receipt' => $filePath,
             'status'  => 'refunded',
         ]);
 
-        // 3. Gửi email kèm PDF
+        RefundHistory::create([
+            'refund_id' => $refund->id,
+            'admin_id'  => Auth::guard('admin')->id(),
+            'status'    => $refund->status,
+            'receipt'   => $filePath,
+            'note'      => 'Hoàn tiền thủ công upload bill',
+        ]);
+
         try {
-            Mail::send('admin.emails.refund_receipt', compact('refund'), function ($message) use ($refund, $path) {
+            Mail::send('admin.emails.refund_receipt', compact('refund'), function ($message) use ($refund, $filePath) {
                 $message->to($refund->order->user->email)
                     ->subject('Biên lai hoàn tiền - Đơn hàng #' . $refund->order->order_code)
-                    ->attach($path);
+                    ->attach(public_path($filePath));
             });
         } catch (\Throwable $th) {
             return back()->with('error', 'Hoàn tiền thành công nhưng KHÔNG gửi được email: ' . $th->getMessage());
         }
 
-        return back()->with('success', 'Hoàn tiền thành công, biên lai đã tạo và gửi cho khách hàng!');
+        return back()->with('success', 'Hoàn tiền thành công, biên lai đã upload và gửi email cho khách hàng!');
     }
 }

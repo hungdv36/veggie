@@ -76,11 +76,14 @@
                             <span class="text-danger">{{ $order->cancel_reason }}</span>
                         </p>
                     @endif
-                    <p class="mb-1"><strong>Phương thức thanh toán:</strong>
+                    <p class="mb-1">
+                        <strong>Phương thức thanh toán:</strong>
                         @if ($order->payment && $order->payment->payment_method == 'cash')
                             <span class="badge bg-secondary">Thanh toán khi nhận hàng</span>
                         @elseif ($order->payment && $order->payment->payment_method == 'paypal')
                             <span class="badge bg-primary">Thanh toán bằng PayPal</span>
+                        @elseif ($order->payment && $order->payment->payment_method == 'momo')
+                            <span class="badge bg-warning text-dark">Thanh toán bằng MoMo</span>
                         @else
                             <span class="badge bg-danger">Chưa xác định</span>
                         @endif
