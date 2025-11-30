@@ -9,19 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up()
+{
+    if (!Schema::hasTable('refunds')) {
         Schema::create('refunds', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('order_id')->constrained()->onDelete('cascade');
-            $table->enum('status', ['waiting_info', 'submitted', 'in_process', 'refunded', 'failed'])->default('waiting_info');
+            $table->unsignedBigInteger('order_id');
+            $table->enum('status', ['waiting_info','submitted','in_process','refunded','failed'])->default('waiting_info');
             $table->string('bank_name')->nullable();
             $table->string('account_number')->nullable();
             $table->string('account_holder')->nullable();
-            $table->string('receipt')->nullable(); 
+            $table->string('receipt')->nullable();
             $table->timestamps();
         });
     }
+}
+
 
     /**
      * Reverse the migrations.
