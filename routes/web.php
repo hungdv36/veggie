@@ -9,12 +9,14 @@ use App\Http\Controllers\Clients\ContactController;
 use App\Http\Controllers\Clients\ForgotPasswordController;
 use App\Http\Controllers\Clients\HomeController;
 use App\Http\Controllers\Clients\OrderController;
+use App\Http\Controllers\Clients\RefundController;
 use App\Http\Controllers\Clients\ResetPasswordController;
 use App\Http\Controllers\Clients\WishListController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Clients\ProductController;
 use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ChatbotController;
 // use App\Http\Controllers\Clients\WishController;
 
 use App\Http\Controllers\Clients\ReviewController;
@@ -94,12 +96,16 @@ Route::middleware(['auth.custom'])->group(function () {
     Route::post('/order/{id}/cancel', [OrderController::class, 'cancelOrder'])->name('order.cancel');
     Route::patch('/orders/{order}/confirm-received', [OrderController::class, 'confirmReceived'])
         ->name('orders.confirmReceived');
+    Route::get('/refund/bank-info/{order}', [RefundController::class, 'bankInfo'])
+        ->name('refund.bank-info');
 
+    Route::post('/refund/bank-info/{order}', [RefundController::class, 'updateBankInfo'])
+        ->name('refund.bank-info.update');
 
 
     Route::post('/review', [ReviewController::class, 'createReview']);
     Route::get('/review/{product}', [ReviewController::class, 'index']);
-      Route::get('/review/{product}', [ReviewController::class, 'index']);
+    Route::get('/review/{product}', [ReviewController::class, 'index']);
 
     // WishList
     Route::get('/wishlist', [WishListController::class, 'index'])->name('wishlist');
@@ -143,4 +149,14 @@ Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 // Liên hệ
 Route::get('/contact', [ContactController::class, 'index'])->name('contact.index');
 Route::post('/contact', [ContactController::class, 'sendContact'])->name('contact');
+
+Route::get('/chatbot', function () {
+    return view('chatbot');
+});
+// AI
+Route::post('/chat', [ChatbotController::class, 'chat']);
+Route::get('/history', [ChatbotController::class, 'history']);
+Route::get('/download-history', [ChatbotController::class, 'downloadHistory']);
+Route::delete('/delete-history', [ChatbotController::class, 'deleteHistory']);
+Route::post('/chat/send', [ChatbotController::class, 'chat'])->name('chat.send');
 require __DIR__ . '/admin.php';

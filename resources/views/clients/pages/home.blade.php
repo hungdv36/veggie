@@ -79,18 +79,32 @@
         }
     </style>
 
-    <div class="fashion-slider">
-        <!-- Slide 1 -->
-        <div class="fashion-slide active" style="background-image: url('{{ asset('assets/clients/img/slider/1.png') }}')">
-        </div>
-        <!-- Slide 2 -->
-        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/2.png') }}')"></div>
-        <!-- Slide 3 -->
-        <div class="fashion-slide" style="background-image: url('{{ asset('assets/clients/img/slider/3.png') }}')"></div>
+  <div id="homeBanner" class="carousel slide" data-bs-ride="carousel">
+    
+    <div class="carousel-inner">
 
-        <!-- Dots -->
-        <div class="fashion-dots"></div>
+        @foreach ($banners as $key => $banner)
+            <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                <img src="{{ asset('uploads/banners/' . $banner->image) }}" 
+                     class="d-block w-100" 
+                     style="height: 600px; object-fit: cover;">
+            </div>
+        @endforeach
+
     </div>
+
+    <!-- Nút trước -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#homeBanner" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon"></span>
+    </button>
+
+    <!-- Nút sau -->
+    <button class="carousel-control-next" type="button" data-bs-target="#homeBanner" data-bs-slide="next">
+        <span class="carousel-control-next-icon"></span>
+    </button>
+
+</div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -445,7 +459,7 @@
                     @foreach ($categories as $category)
                         <div class="swiper-slide">
                             <div class="category-item">
-                                <a href="#">
+                                <a href="">
                                     @if (isset($category) && $category->image)
                                         <img src="{{ asset('assets/admin/img/category/' . $category->image) }}"
                                             alt="{{ $category->name }}">
@@ -461,11 +475,6 @@
                         </div>
                     @endforeach
                 </div>
-
-                <!-- Navigation arrows -->
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-
                 <!-- Pagination dots -->
                 <div class="swiper-pagination"></div>
             </div>
@@ -513,163 +522,207 @@
 
     <!-- CATEGORY AREA END -->
 
-    <!-- PRODUCT TAB AREA START (product-item-3) -->
-    <div class="ltn__product-tab-area ltn__product-gutter pt-115 pb-70">
+    <!-- PRODUCT SECTION START -->
+    <section class="py-100 bg-light">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="section-title-area ltn__section-title-2 text-center">
-                        <h1 class="section-title">Sản phẩm</h1>
-                    </div>
-                    <!-- Danh sách danh mục -->
-                    <div class="ltn__tab-menu ltn__tab-menu-2 text-uppercase text-center">
-                        <div class="nav category-filter">
-                            @foreach ($categories as $index => $category)
-                                <a href="javascript:void(0);" class="category-link {{ $index == 0 ? 'active' : '' }}"
-                                    data-category="tab_{{ $category->id }}">
-                                    {{ $category->name }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="tab-content">
-                        @foreach ($categories as $index => $category)
-                            <div class="tab-pane fade {{ $index == 0 ? 'show active' : '' }}"
-                                id="tab_{{ $category->id }}">
-                                <div class="ltn__product-tab-content-inner">
-                                    <div class="row ltn__tab-product-slider-one-active slick-arrow-1">
-                                        @foreach ($category->products as $product)
-                                            @php
-                                                // ✅ Kiểm tra xem sản phẩm có đang trong flash sale không
-                                                $flashItem = null;
-                                                if (isset($flashSale) && $flashSale->end_time > now()) {
-                                                    $flashItem = $flashSale->items->firstWhere(
-                                                        'product_id',
-                                                        $product->id,
-                                                    );
-                                                }
-                                            @endphp
+            <!-- Tiêu đề -->
+            <div class="text-center mb-5">
+                <h2 class="fw-bold mb-2">Sản phẩm nổi bật</h2>
+                <p class="text-muted mb-0">Khám phá các sản phẩm mới nhất và được yêu thích nhất</p>
+            </div>
 
-                                            <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
-                                                <div class="ltn__product-item ltn__product-item-3 text-center">
-                                                    <div class="product-img">
-                                                        <a href="{{ route('products.detail', $product->slug) }}">
-                                                            @if ($product->image)
-                                                                <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
-                                                                    alt="{{ $product->name }}"
-                                                                    style="height:200px;width:200px;object-fit:cover;border-radius:8px;">
-                                                            @else
-                                                                <img src="{{ asset('assets/admin/img/product/default.png') }}"
-                                                                    alt="Default" width="80">
-                                                            @endif
-                                                        </a>
-
-                                                        {{-- ✅ Hiển thị badge giảm giá nếu có --}}
-                                                        @if ($flashItem)
-                                                            <div class="product-badge">
-                                                                <ul>
-                                                                    <li class="sale-badge bg-success text-white">
-                                                                        -{{ $flashItem->discount_price }}%</li>
-                                                                </ul>
-                                                            </div>
-                                                        @endif
-
-                                                        <div class="product-hover-action">
-                                                            <ul>
-                                                                <li>
-                                                                    <a href="javascript:void(0)" title="Xem nhanh"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#quick_view_modal-{{ $product->id }}">
-                                                                        <i class="far fa-eye"></i>
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="javascript:void(0)" title="Thêm vào giỏ hàng"
-                                                                        data-bs-toggle="modal"
-                                                                        data-bs-target="#add_to_cart_modal-{{ $product->id }}">
-                                                                        <i class="fas fa-shopping-cart"></i>
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a href="javascript:void(0)" title="Yêu thích"
-                                                                        class="add-to-wishlist"
-                                                                        data-id="{{ $product->id }}">
-                                                                        <i class="far fa-heart"></i>
-                                                                    </a>
-                                                                </li>
-
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="product-info">
-                                                        <div class="product-ratting">
-                                                            @include('clients.components.includes.rating', [
-                                                                'product' => $product,
-                                                            ])
-                                                        </div>
-                                                        <h2 class="product-title">
-                                                            <a
-                                                                href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
-                                                        </h2>
-
-                                                        {{-- ✅ Hiển thị giá động theo Flash Sale --}}
-                                                        <div class="product-price">
-                                                            @if ($flashItem)
-                                                                @php
-                                                                    $salePrice =
-                                                                        $product->price *
-                                                                        (1 - $flashItem->discount_price / 100);
-                                                                @endphp
-                                                                <span
-                                                                    class="text-success fw-bold">{{ number_format($salePrice, 0, ',', '.') }}
-                                                                    VNĐ</span> <br>
-                                                                <del class="text-muted small">{{ number_format($product->price, 0, ',', '.') }}
-                                                                    VNĐ</del>
-                                                            @else
-                                                                <span>{{ number_format($product->price, 0, ',', '.') }}
-                                                                    VNĐ</span>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-
-                                    {{-- Include modals --}}
-                                    @foreach ($category->products as $product)
-                                        @include('clients.components.includes.include-modals')
-                                    @endforeach
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+            <!-- Tabs danh mục -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex flex-wrap justify-content-center gap-2">
+                    @foreach ($categories as $index => $category)
+                        <button class="btn category-btn {{ $index == 0 ? 'active' : '' }}"
+                            data-category="tab_{{ $category->id }}">
+                            {{ $category->name }}
+                        </button>
+                    @endforeach
                 </div>
             </div>
+
+            <!-- Danh sách sản phẩm -->
+            <div class="tab-content">
+                @foreach ($categories as $index => $category)
+                    <div class="tab-pane fade {{ $index == 0 ? 'show active' : '' }}" id="tab_{{ $category->id }}">
+                        <div class="row g-4 justify-content-center">
+                            @foreach ($category->products as $product)
+                                @php
+                                    $flashItem = null;
+                                    if (isset($flashSale) && $flashSale->end_time > now()) {
+                                        $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+                                    }
+                                @endphp
+
+                                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6">
+                                    <div
+                                        class="card product-card tabs border-0 shadow-sm h-100 position-relative overflow-hidden">
+                                        <!-- Ảnh -->
+                                        <div class="product-image position-relative">
+                                            <a href="{{ route('products.detail', $product->slug) }}">
+                                                <img src="{{ $product->image ? asset('assets/admin/img/product/' . $product->image) : asset('assets/admin/img/product/default.png') }}"
+                                                    class="w-100" style="height: 250px; object-fit: cover;"
+                                                    alt="{{ $product->name }}">
+                                            </a>
+
+                                            @if ($flashItem)
+                                                <span class="badge bg-danger position-absolute top-0 start-0 m-2">
+                                                    -{{ $flashItem->discount_price }}%
+                                                </span>
+                                            @endif
+                                        </div>
+
+                                        <!-- Thông tin sản phẩm -->
+                                        <div class="card-body text-center p-3">
+                                            <!-- Đánh giá sao -->
+                                            <div class="product-rating mb-2">
+                                                @include('clients.components.includes.rating', [
+                                                    'product' => $product,
+                                                ])
+                                            </div>
+
+                                            <!-- Tên sản phẩm -->
+                                            <h6 class="fw-semibold text-truncate mb-2">
+                                                <a href="{{ route('products.detail', $product->slug) }}"
+                                                    class="text-dark text-decoration-none">
+                                                    {{ $product->name }}
+                                                </a>
+                                            </h6>
+
+                                            <!-- Giá -->
+                                            <div class="product-price mb-3">
+                                                @if ($flashItem)
+                                                    @php
+                                                        $salePrice =
+                                                            $product->price * (1 - $flashItem->discount_price / 100);
+                                                    @endphp
+                                                    <span
+                                                        class="fw-bold text-success">{{ number_format($salePrice, 0, ',', '.') }}
+                                                        VNĐ</span>
+                                                    <del class="text-muted small d-block">{{ number_format($product->price, 0, ',', '.') }}
+                                                        VNĐ</del>
+                                                @else
+                                                    <span
+                                                        class="fw-bold text-dark">{{ number_format($product->price, 0, ',', '.') }}
+                                                        VNĐ</span>
+                                                @endif
+                                            </div>
+
+                                            <!-- Icon chức năng -->
+                                            <div class="product-actions d-flex justify-content-center gap-3">
+                                                <button class="action-btn" title="Xem nhanh" data-bs-toggle="modal"
+                                                    data-bs-target="#quick_view_modal-{{ $product->id }}">
+                                                    <i class="far fa-eye"></i>
+                                                </button>
+                                                <button class="action-btn" title="Thêm giỏ hàng" data-bs-toggle="modal"
+                                                    data-bs-target="#add_to_cart_modal-{{ $product->id }}">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                </button>
+                                                <button class="action-btn add-to-wishlist" title="Yêu thích"
+                                                    data-id="{{ $product->id }}">
+                                                    <i class="far fa-heart"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        @foreach ($category->products as $product)
+                            @include('clients.components.includes.include-modals')
+                        @endforeach
+                    </div>
+                @endforeach
+            </div>
         </div>
-    </div>
+    </section>
+
+    <!-- CSS -->
+    <style>
+        /* === PRODUCT CARD - Tabs === */
+        .product-card.tabs {
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: #fff;
+            overflow: hidden;
+        }
+
+        .product-card.tabs:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        /* IMAGE */
+        .product-card.tabs .product-image {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .product-card.tabs .product-image img {
+            width: 100%;
+            transition: transform 0.4s ease;
+        }
+
+        .product-card.tabs:hover .product-image img {
+            transform: scale(1.05);
+            /* chỉ ảnh scale */
+        }
+
+        /* BODY */
+        .product-card.tabs .card-body {
+            position: relative;
+            z-index: 2;
+            /* đảm bảo click được */
+        }
+
+        /* ACTION ICONS */
+        .product-card.tabs .product-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .product-card.tabs .action-btn {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #f8f9fa;
+            color: #198754;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .product-card.tabs .action-btn:hover {
+            background: #198754;
+            color: #fff;
+            transform: translateY(-3px);
+        }
+    </style>
+
+    <!-- JS giữ nguyên -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const categoryLinks = document.querySelectorAll('.category-link');
-            const tabPanes = document.querySelectorAll('.tab-pane');
+            const buttons = document.querySelectorAll('.category-btn');
+            const tabs = document.querySelectorAll('.tab-pane');
 
-            categoryLinks.forEach(link => {
-                link.addEventListener('click', function() {
-                    // Xóa trạng thái active cũ
-                    categoryLinks.forEach(l => l.classList.remove('active'));
-                    tabPanes.forEach(tab => tab.classList.remove('show', 'active'));
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    buttons.forEach(b => b.classList.remove('active'));
+                    tabs.forEach(t => t.classList.remove('show', 'active'));
 
-                    // Thêm active cho danh mục được chọn
                     this.classList.add('active');
-                    const categoryId = this.getAttribute('data-category');
-                    const activeTab = document.getElementById(categoryId);
-                    activeTab.classList.add('show', 'active');
+                    const id = this.getAttribute('data-category');
+                    document.getElementById(id).classList.add('show', 'active');
                 });
             });
         });
     </script>
-    <!-- PRODUCT TAB AREA END -->
+
 
     <!-- COUNTER UP AREA START -->
     <!-- FASHION COUNTER AREA START -->
@@ -816,105 +869,238 @@
     <!-- COUNTER UP AREA END -->
 
     <!-- PRODUCT AREA START (product-item-3) -->
-    <div class="ltn__product-area ltn__product-gutter pt-115 pb-70">
+    <div class="ltn__product-area pt-100 pb-80 bg-light">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-12 text-center">
-                    <div class="section-title-area ltn__section-title-2">
-                        <h1 class="section-title">Sản phẩm bán chạy</h1>
-                    </div>
-                </div>
+            <!-- Tiêu đề -->
+            <div class="text-center mb-5">
+                <h1 class="fw-bold text-uppercase" style="letter-spacing:1px; color:#111;">Sản phẩm bán chạy</h1>
+                <p class="text-muted fs-5">Khám phá những sản phẩm được yêu thích nhất tại <strong>ClotheStore</strong></p>
             </div>
 
-            <div class="row ltn__tab-product-slider-one-active slick-arrow-1">
-                @foreach ($bestSellingProducts as $product)
-                    @php
-                        // ✅ Kiểm tra xem sản phẩm này có trong Flash Sale đang hoạt động không
-                        $flashItem = null;
-                        if (isset($flashSale) && $flashSale->end_time > now()) {
-                            $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
-                        }
-                    @endphp
+            <!-- Swiper -->
+            <div class="swiper bestSellingSwiper position-relative">
+                <div class="swiper-wrapper">
+                    @foreach ($bestSellingProducts as $product)
+                        @php
+                            $flashItem = null;
+                            if (isset($flashSale) && $flashSale->end_time > now()) {
+                                $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+                            }
+                        @endphp
 
-                    <div class="col-lg-3 col-md-4 col-sm-6 col-6 mb-4">
-                        <div class="ltn__product-item ltn__product-item-3 text-left">
-                            <div class="product-img position-relative">
-                                <a href="{{ route('products.detail', $product->slug) }}">
-                                    @if ($product->image)
-                                        <img src="{{ asset('assets/admin/img/product/' . $product->image) }}"
-                                            alt="{{ $product->name }}"
-                                            style="height:150px;width:150px;object-fit:cover;border-radius:8px;">
-                                    @else
-                                        <img src="{{ asset('assets/admin/img/product/default.png') }}" alt="Default"
-                                            width="80">
-                                    @endif
-                                </a>
-
-                                {{-- ✅ Hiển thị badge giảm giá nếu có --}}
-                                @if ($flashItem)
-                                    <div class="product-badge">
-                                        <ul>
-                                            <li class="sale-badge bg-success text-white">
-                                                -{{ $flashItem->discount_price }}%</li>
-                                        </ul>
-                                    </div>
-                                @endif
-
-                                {{-- Hành động hover --}}
-                                <div class="product-hover-action">
-                                    <ul>
-                                        <li>
-                                            <a href="#" title="Xem nhanh" data-bs-toggle="modal"
-                                                data-bs-target="#quick_view_modal-{{ $product->id }}">
-                                                <i class="far fa-eye"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" title="Thêm vào giỏ hàng" data-bs-toggle="modal"
-                                                data-bs-target="#add_to_cart_modal-{{ $product->id }}">
-                                                <i class="fas fa-shopping-cart"></i>
-                                            </a>
-                                        </li>
-                                        <li>
-                                    <a href="javascript:void(0)" title="Yêu thích" data-bs-toggle="modal"
-                                        class="add-to-wishlist"
-                                        data-id="{{ $product->id }}">
-                                        <i class="far fa-heart"></i>
+                        <div class="swiper-slide">
+                            <div class="product-card swiper border-0 shadow-sm bg-white overflow-hidden rounded-4">
+                                <div class="position-relative">
+                                    <a href="{{ route('products.detail', $product->slug) }}">
+                                        <img src="{{ $product->image ? asset('assets/admin/img/product/' . $product->image) : asset('assets/admin/img/product/default.png') }}"
+                                            alt="{{ $product->name }}" class="product-img w-100">
                                     </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
 
-                            <div class="product-info">
-                                <div class="product-ratting">
-                                    @include('clients.components.includes.rating', ['product' => $product])
-                                </div>
-                                <h2 class="product-title">
-                                    <a href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
-                                </h2>
-
-                                {{-- ✅ Hiển thị giá động theo Flash Sale --}}
-                                <div class="product-price">
+                                    <!-- Badge giảm giá -->
                                     @if ($flashItem)
-                                        @php
-                                            $salePrice = $product->price * (1 - $flashItem->discount_price / 100);
-                                        @endphp
-                                        <span class="text-success fw-bold">{{ number_format($salePrice, 0, ',', '.') }}
-                                            VNĐ</span> <br>
-                                        <del class="text-muted small">{{ number_format($product->price, 0, ',', '.') }}
-                                            VNĐ</del>
-                                    @else
-                                        <span>{{ number_format($product->price, 0, ',', '.') }} VNĐ</span>
+                                        <div class="sale-badge">-{{ $flashItem->discount_price }}%</div>
                                     @endif
+
+                                    <!-- Overlay action hover chỉ trên ảnh -->
+                                    <div class="product-actions d-flex justify-content-center align-items-center gap-3">
+                                        <a href="#" data-bs-toggle="modal"
+                                            data-bs-target="#quick_view_modal-{{ $product->id }}" class="action-btn"><i
+                                                class="far fa-eye"></i></a>
+                                        <a href="#" data-bs-toggle="modal"
+                                            data-bs-target="#add_to_cart_modal-{{ $product->id }}" class="action-btn"><i
+                                                class="fas fa-shopping-cart"></i></a>
+                                        <a href="javascript:void(0)" class="action-btn add-to-wishlist"
+                                            data-id="{{ $product->id }}"><i class="far fa-heart"></i></a>
+                                    </div>
+                                </div>
+
+                                <div class="p-3 text-center">
+                                    <div class="product-rating mb-2">
+                                        @include('clients.components.includes.rating', [
+                                            'product' => $product,
+                                        ])
+                                    </div>
+                                    <h6 class="fw-semibold text-dark text-truncate mb-2">
+                                        <a href="{{ route('products.detail', $product->slug) }}"
+                                            class="text-decoration-none text-dark">{{ $product->name }}</a>
+                                    </h6>
+                                    <div class="product-price">
+                                        @if ($flashItem)
+                                            @php
+                                                $salePrice = $product->price * (1 - $flashItem->discount_price / 100);
+                                            @endphp
+                                            <span class="text-danger fw-bold">{{ number_format($salePrice, 0, ',', '.') }}
+                                                VNĐ</span><br>
+                                            <del class="text-muted small">{{ number_format($product->price, 0, ',', '.') }}
+                                                VNĐ</del>
+                                        @else
+                                            <span
+                                                class="fw-bold text-dark">{{ number_format($product->price, 0, ',', '.') }}
+                                                VNĐ</span>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </div>
     </div>
+
+
+    <!-- Swiper -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <script>
+        new Swiper(".bestSellingSwiper", {
+            slidesPerView: 4,
+            spaceBetween: 25,
+            loop: true,
+            autoplay: {
+                delay: 2800,
+                disableOnInteraction: false,
+            },
+            navigation: {
+                nextEl: ".swiper-button-next",
+                prevEl: ".swiper-button-prev",
+            },
+            breakpoints: {
+                1200: {
+                    slidesPerView: 4
+                },
+                992: {
+                    slidesPerView: 3
+                },
+                768: {
+                    slidesPerView: 2
+                },
+                576: {
+                    slidesPerView: 1
+                },
+            },
+        });
+    </script>
+
+    <style>
+        /* === PRODUCT CARD SWIPER === */
+        .product-card.swiper {
+            border-radius: 18px;
+            position: relative;
+            transition: all 0.35s ease;
+            overflow: hidden;
+        }
+
+        /* IMAGE */
+        .product-card.swiper .product-img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+            transition: transform 0.4s ease;
+        }
+
+        .product-card.swiper:hover .product-img {
+            transform: scale(1.05);
+        }
+
+        /* Overlay hover chỉ trên ảnh */
+        .product-card.swiper .product-actions {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0;
+            transition: opacity 0.35s ease;
+            background: rgba(0, 0, 0, 0.35);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            pointer-events: auto;
+        }
+
+        .product-card.swiper:hover .product-actions {
+            opacity: 1;
+        }
+
+        /* Action button */
+        .product-card.swiper .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #fff;
+            color: #111;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .product-card.swiper .action-btn:hover {
+            background: #111;
+            color: #fff;
+        }
+
+        /* Badge giảm giá */
+        .sale-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #ff3b3b;
+            color: #fff;
+            font-weight: bold;
+            font-size: 13px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            z-index: 2;
+        }
+
+        /* Navigation Swiper */
+        .custom-swiper-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            z-index: 10;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        .custom-nav-btn {
+            width: 42px;
+            height: 42px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #111;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.35s ease;
+            pointer-events: all;
+        }
+
+        .custom-nav-btn:hover {
+            background: #111;
+            color: #fff;
+            transform: scale(1.1);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+        }
+
+        @media (max-width: 768px) {
+            .custom-nav-btn {
+                transform: scale(1);
+            }
+        }
+    </style>
+
 
     <!-- PRODUCT AREA END -->
 

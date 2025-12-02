@@ -13,13 +13,24 @@ use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\FlashSaleController;
-
+use App\Http\Controllers\Admin\BannerController;
+use App\Http\Controllers\Admin\RefundController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->group(function () {
 
+    Route::prefix('banners')->name('banners.')->group(function () {
+        Route::get('/', [BannerController::class, 'index'])->name('index');
+        Route::get('/create', [BannerController::class, 'create'])->name('create');
+        Route::post('/store', [BannerController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [BannerController::class, 'edit'])->name('edit');
+        Route::post('/update/{id}', [BannerController::class, 'update'])->name('update');
+        Route::get('/delete/{id}', [BannerController::class, 'destroy'])->name('delete');
+    });
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    //Banners
+    Route::resource('banners', App\Http\Controllers\Admin\BannerController::class);
 
     // Login
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');
@@ -111,7 +122,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
 
-      Route::middleware(['auth:admin'])->group(function () {
+    Route::middleware(['auth:admin'])->group(function () {
         Route::get('/profile', [AccountController::class, 'index'])->name('profile');
         Route::post('/profile/update', [AccountController::class, 'updateProfile'])->name('profile.update');
         Route::post('/profile/change-password', [AccountController::class, 'changePassword'])->name('profile.change-password');
@@ -124,5 +135,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/flash-sales/{id}/edit', [FlashSaleController::class, 'edit'])->name('flash_sales.edit');
         Route::post('/flash-sales/{id}', [FlashSaleController::class, 'update'])->name('flash_sales.update');
         Route::delete('/flash-sales/{id}', [FlashSaleController::class, 'destroy'])->name('flash_sales.destroy');
+    });
+
+    Route::middleware(['permission:manage_refunds'])->group(function () {
+        Route::get('/refunds', [RefundController::class, 'index'])->name('refunds.index');
+        Route::get('/refunds/{id}', [RefundController::class, 'show'])->name('refunds.show');
+        Route::put('/refunds/{id}/status', [RefundController::class, 'updateStatus'])->name('refunds.updateStatus');
+        Route::post('/refunds/{id}/complete', [RefundController::class, 'completeRefund'])->name('refunds.complete');
     });
 });

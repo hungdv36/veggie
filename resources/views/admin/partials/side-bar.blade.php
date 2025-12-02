@@ -1,13 +1,14 @@
  <div class="col-md-3 left_col">
      <div class="left_col scroll-view">
          <div class="navbar nav_title" style="border: 0;">
-             <a href="{{ route('admin.dashboard') }}" class="site_title"><i class="fa fa-shopping-bag"></i> <span>ClotheStore!</span></a>
+             <a href="{{ route('admin.dashboard') }}" class="site_title"><i class="fa fa-shopping-bag"></i>
+                 <span>ClotheStore!</span></a>
          </div>
          <!-- menu profile quick info -->
          <div class="profile clearfix">
              <div class="profile_pic">
-                 <img src="{{ asset('assets/clients/img/avt.png') }}" alt=""
-                     class="img-circle img-fluid" style="object-fit: cover; width: 100px; height: 100px;">
+                 <img src="{{ asset('assets/clients/img/avt.png') }}" alt="" class="img-circle img-fluid"
+                     style="object-fit: cover; width: 100px; height: 100px;">
              </div>
              <div class="profile_info">
                  <span>Welcome,</span>
@@ -23,7 +24,7 @@
              <div class="menu_section">
                  <h3>General</h3>
                  <ul class="nav side-menu">
-                     <li><a href=""><i class="fa fa-home"></i> Home</a>
+                     <li><a href="{{ route('admin.dashboard') }}"><i class="fa fa-home"></i> Home</a>
                      </li>
                      <li>
                          <a href="{{ route('admin.users.index') }}">
@@ -91,6 +92,11 @@
                          </a>
                      </li>
                      <li>
+                         <a href="{{ route('admin.refunds.index') }}">
+                             <i class="fa fa-money"></i> Hoàn tiền đơn hàng
+                         </a>
+                     </li>
+                     <li>
                          <a>
                              <i class="fa fa-comments"></i> Quản lý bình luận
                              <span class="fa fa-chevron-down"></span>
@@ -107,9 +113,14 @@
                      </li>
 
 
-                      <li>
+                     <li>
                          <a href="{{ route('admin.contacts.index') }}">
                              <i class="fa fa-users"></i> Quản lý Liên hệ
+                         </a>
+                     </li>
+                     <li>
+                         <a href="{{ route('admin.banners.index') }}">
+                             <i class="fa fa-image"></i> Quản lý banner
                          </a>
                      </li>
 

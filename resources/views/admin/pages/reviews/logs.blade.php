@@ -2,26 +2,96 @@
 @section('title', 'Lịch sử xóa bình luận')
 
 @section('content')
-<div class="container-fluid py-4">
+<style>
+    /* ==== GIAO DIỆN CHUNG ==== */
+    body {
+        background-color: #f8f9fb;
+        overflow-x: hidden;
+    }
+
+    .admin-content-wrapper {
+        margin-left: 260px; /* Khớp với chiều rộng sidebar */
+        padding: 30px;
+        transition: margin-left 0.3s ease;
+    }
+
+    @media (max-width: 992px) {
+        .admin-content-wrapper {
+            margin-left: 0;
+            padding: 20px;
+        }
+    }
+
+    /* ==== CARD & BẢNG ==== */
+    .card {
+        border-radius: 14px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+    }
+
+    .table th {
+        background-color: #f1f3f9;
+        text-transform: uppercase;
+        font-size: 13px;
+        color: #555;
+        letter-spacing: 0.5px;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f9fbff;
+        transition: 0.2s;
+    }
+
+    /* ==== NÚT & BADGE ==== */
+    .btn-action {
+        border-radius: 8px;
+        padding: 6px 14px;
+        transition: 0.2s;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.05);
+    }
+
+    .badge.bg-primary {
+        background: linear-gradient(90deg, #007bff, #0056b3);
+        box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);
+    }
+
+    /* ==== ALERT ==== */
+    .alert-info {
+        background: #eef6ff;
+        color: #0c63e4;
+        border: 1px solid #b6d4fe;
+    }
+</style>
+
+<div class="admin-content-wrapper">
+    <!-- HEADER -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold text-primary">
+        <h2 class="fw-bold text-primary mb-0">
             📜 Lịch sử xóa bình luận
         </h2>
-        <a href="{{ route('admin.reviews.index') }}" class="btn btn-secondary">
-            ⬅️ Quay lại danh sách bình luận
+        <a href="{{ route('admin.reviews.index') }}" class="btn btn-secondary btn-action">
+            <i class="bi bi-arrow-left-circle"></i> Quay lại danh sách
         </a>
     </div>
 
+    <!-- NỘI DUNG CHÍNH -->
     @if ($logs->isEmpty())
         <div class="alert alert-info text-center py-4 rounded shadow-sm">
             <i class="bi bi-info-circle"></i> Chưa có log xóa nào.
         </div>
     @else
-        <div class="card shadow-sm border-0">
+        <div class="card">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
+                    <table class="table align-middle table-hover mb-0">
+                        <thead>
                             <tr class="text-center">
                                 <th>ID</th>
                                 <th>Sản phẩm</th>
@@ -35,11 +105,11 @@
                         <tbody>
                             @foreach ($logs as $log)
                                 <tr>
-                                    <td class="text-center fw-semibold">{{ $log->id }}</td>
+                                    <td class="text-center fw-semibold text-secondary">{{ $log->id }}</td>
                                     <td>{{ $log->review->product->name ?? 'N/A' }}</td>
                                     <td>
                                         @if ($log->review && $log->review->comment)
-                                            {{ $log->review->comment }}
+                                            <span class="text-muted">{{ Str::limit($log->review->comment, 100) }}</span>
                                         @else
                                             <span class="text-muted fst-italic">[Đã xóa]</span>
                                         @endif
@@ -57,9 +127,9 @@
                                         @if ($log->review && $log->review->trashed())
                                             <form action="{{ route('admin.reviews.restore', $log->id) }}" method="POST" class="d-inline">
                                                 @csrf
-                                                <button type="submit" class="btn btn-success btn-sm px-3"
+                                                <button type="submit" class="btn btn-success btn-sm btn-action"
                                                     onclick="return confirm('Bạn có chắc muốn khôi phục bình luận này không?')">
-                                                    🔄 Khôi phục
+                                                    <i class="bi bi-arrow-counterclockwise"></i> Khôi phục
                                                 </button>
                                             </form>
                                         @else

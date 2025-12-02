@@ -1,46 +1,80 @@
 @extends('layouts.client')
 
 @section('title', 'Chi tiết đơn hàng')
-
 @section('breadcrumb', 'Chi tiết đơn hàng')
 
 @section('content')
-    <style>
-        .btn-success.btn-sm {
-            padding: 4px 10px;
-            font-size: 14px;
-        }
-    </style>
     <div class="container my-5">
         <div class="card shadow-lg border-0 rounded-4">
             <div class="card-body p-4">
+                <a href="{{ route('account') }}" class="text-secondary me-2" style="font-size: 20px;">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
                 <h3 class="fw-bold mb-3 text-primary">
                     <i class="fas fa-receipt me-2"></i>Chi tiết đơn hàng #{{ $order->id }}
                 </h3>
+
                 <div class="border-bottom mb-3 pb-2">
                     <p class="mb-1"><strong>Ngày đặt hàng:</strong> {{ $order->created_at->format('d/m/Y') }}</p>
                     <p class="mb-1"><strong>Trạng thái:</strong>
-                        @if ($order->status == 'pending')
-                            <span class="badge bg-warning text-dark">Chờ xác nhận</span>
-                        @elseif ($order->status == 'processing')
-                            <span class="badge bg-info">Đang xử lý</span>
-                        @elseif ($order->status == 'completed')
-                            <span class="badge bg-success">Hoàn thành</span>
-                        @elseif ($order->status == 'canceled')
-                            <span class="badge bg-danger">Đã hủy</span>
-                        @endif
+                        @php
+                            if ($order->payment?->payment_method === 'momo' && $order->status === 'canceled') {
+                                $status = $order->refund?->status ?? 'waiting_info';
+                            } else {
+                                $status = $order->status;
+                            }
+                        @endphp
+                        @switch($status)
+                            @case('pending')
+                                <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                            @break
+
+                            @case('processing')
+                                <span class="badge bg-info">Đang xử lý</span>
+                            @break
+
+                            @case('completed')
+                                <span class="badge bg-success">Hoàn thành</span>
+                            @break
+
+                            @case('canceled')
+                                <span class="badge bg-danger">Đã hủy</span>
+                            @break
+
+                            @case('waiting_info')
+                                <span class="badge bg-warning">Chờ nhập thông tin ngân hàng</span>
+                            @break
+
+                            @case('submitted')
+                                <span class="badge bg-primary">Đã gửi yêu cầu hoàn tiền</span>
+                            @break
+
+                            @case('in_process')
+                                <span class="badge bg-info">Đang xử lý hoàn tiền</span>
+                            @break
+
+                            @case('refunded')
+                                <span class="badge bg-success">Hoàn tiền thành công</span>
+                            @break
+
+                            @case('failed')
+                                <span class="badge bg-danger">Hoàn tiền thất bại</span>
+                            @break
+                        @endswitch
                     </p>
                     @if ($order->status == 'canceled' && $order->cancel_reason)
-                        <p class="mb-1">
-                            <strong>Lý do hủy đơn hàng:</strong>
-                            <span class="text-danger">{{ $order->cancel_reason }}</span>
-                        </p>
+                        <p class="mb-1"><strong>Lý do hủy đơn hàng:</strong> <span
+                                class="text-danger">{{ $order->cancel_reason }}</span></p>
                     @endif
-                    <p class="mb-1"><strong>Phương thức thanh toán:</strong>
+                    <p class="mb-1">
+                    <p class="mb-1">
+                        <strong>Phương thức thanh toán:</strong>
                         @if ($order->payment && $order->payment->payment_method == 'cash')
                             <span class="badge bg-secondary">Thanh toán khi nhận hàng</span>
                         @elseif ($order->payment && $order->payment->payment_method == 'paypal')
                             <span class="badge bg-primary">Thanh toán bằng PayPal</span>
+                        @elseif ($order->payment && $order->payment->payment_method == 'momo')
+                            <span class="badge bg-warning text-dark">Thanh toán bằng MoMo</span>
                         @else
                             <span class="badge bg-danger">Chưa xác định</span>
                         @endif
@@ -58,6 +92,8 @@
                             <tr>
                                 <th>Ảnh</th>
                                 <th>Sản phẩm</th>
+                                <th>Màu sắc</th>
+                                <th>Kích thước</th>
                                 <th>Giá</th>
                                 <th>Số lượng</th>
                                 <th>Thành tiền</th>
@@ -71,14 +107,14 @@
                                             alt="{{ $item->product->name }}" width="80">
                                     </td>
                                     <td class="fw-medium">{{ $item->product->name }}</td>
+                                    <td>{{ $item->variant->color->name ?? 'N/A' }}</td>
+                                    <td>{{ $item->variant->size->name ?? 'N/A' }}</td>
                                     <td>{{ number_format($item->price, 0, ',', '.') }}₫</td>
                                     <td>{{ $item->quantity }}</td>
                                     <td class="text-success fw-bold">
-                                        {{ number_format($item->price * $item->quantity, 0, ',', '.') }}₫
-                                    </td>
+                                        {{ number_format($item->price * $item->quantity, 0, ',', '.') }}₫</td>
                                 </tr>
                             @endforeach
-
                         </tbody>
                     </table>
                 </div>
@@ -93,7 +129,6 @@
                         <p class="mb-0"><strong>Số điện thoại:</strong> {{ $order->shippingAddress->phone }}</p>
                     </div>
                 </div>
-
                 <!-- Hành động -->
                 @if ($order->status == 'pending')
                     <form action="{{ route('order.cancel', $order->id) }}" method="POST" class="mt-4"
@@ -143,7 +178,7 @@
                                             <td>{{ $item->product->name }}</td>
                                             <td>
                                                 <a href="{{ route('products.detail', $item->product->slug) }}"
-                                                   class="btn btn-success btn-sm">
+                                                    class="btn btn-success btn-sm">
                                                     <i class="fas fa-pen me-1"></i>Đánh giá
                                                 </a>
                                             </td>

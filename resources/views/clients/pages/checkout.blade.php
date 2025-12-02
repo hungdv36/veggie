@@ -99,15 +99,6 @@
                                 </div>
                                 <div class="card">
                                     <h5 class="collapsed ltn__card-title">
-                                        <input type="radio" name="payment_method" value="paypal" id="payment_paypal">
-                                        <label for="payment_paypal">
-                                            PayPal
-                                            <img src="{{ asset('assets/clients/img/icons/payment.jfif') }}" alt="#">
-                                        </label>
-                                    </h5>
-                                </div>
-                                <div class="card">
-                                    <h5 class="collapsed ltn__card-title">
                                         <input type="radio" name="payment_method" value="momo" id="payment_momo">
                                         <label for="payment_momo">
                                             Thanh toán qua MoMo

@@ -27,8 +27,9 @@
     <!-- Import CSS for Toastr -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
 
-    <!-- Import Custom CSS -->
+    <!-- Import Toastr CSS/JS -->
     <link rel="stylesheet" href="{{ asset('assets/clients/css/custom.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <link rel="stylesheet" href="{{ asset('assets/clients/css/chat.css') }}">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
@@ -96,26 +97,25 @@
     <!-- preloader area end -->
 
     <!-- All JS Plugins -->
-   <script src="https://cdn.jsdelivr.net/npm/@flasher/flasher-notyf@1.3.1/dist/flasher-notyf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@flasher/flasher-notyf@1.3.1/dist/flasher-notyf.min.js"></script>
 
-<!-- Hiển thị thông báo nếu có -->
-@if (session('success'))
-    <script>
-        notyf.success("{{ session('success') }}");
-    </script>
-@endif
+    <!-- Hiển thị thông báo nếu có -->
+    @if (session('success'))
+        <script>
+            notyf.success("{{ session('success') }}");
+        </script>
+    @endif
 
-@if (session('error'))
-    <script>
-        notyf.error("{{ session('error') }}");
-    </script>
-@endif
+    @if (session('error'))
+        <script>
+            notyf.error("{{ session('error') }}");
+        </script>
+    @endif
 
     <script src="{{ asset('assets/clients/js/plugins.js') }}"></script>
     <!-- Main JS -->
     <script src="{{ asset('assets/clients/js/main.js') }}"></script>
     <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
-@stack('scripts')
 
 </body>
 

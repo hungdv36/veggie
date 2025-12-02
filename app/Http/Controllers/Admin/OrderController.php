@@ -73,7 +73,7 @@ class OrderController extends Controller
      */
     public function showOrderDetail(string $id)
     {
-        $order = Order::with('orderItems.product', 'shippingAddress', 'user', 'payment', 'status_logs.role')->find($id);
+        $order = Order::with('orderItems.product','orderItems.variant.size','orderItems.variant.color', 'shippingAddress', 'user', 'payment', 'status_logs.role')->find($id);
         return view('admin.pages.order.orders-detail', compact('order'));
     }
 
