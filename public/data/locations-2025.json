@@ -1,0 +1,353 @@
+{
+  "provinces": [
+    {
+      "id": "HN",
+      "name": "Thành phố Hà Nội",
+      "type": "Thành phố trực thuộc Trung ương",
+      "districts": [
+        {"id": "HN01", "name": "Quận Hoàn Kiếm", "type": "Quận"},
+        {"id": "HN02", "name": "Quận Ba Đình", "type": "Quận"},
+        {"id": "HN03", "name": "Quận Nam Từ Liêm", "type": "Quận"},
+        {"id": "HN04", "name": "Huyện Đông Anh", "type": "Huyện"},
+        {"id": "HN05", "name": "Thị xã Sơn Tây", "type": "Thị xã"}
+      ]
+    },
+    {
+      "id": "HCM",
+      "name": "Thành phố Hồ Chí Minh",
+      "type": "Thành phố trực thuộc Trung ương",
+      "districts": [
+        {"id": "HCM01", "name": "Quận 1", "type": "Quận"},
+        {"id": "HCM02", "name": "Quận Bình Thạnh", "type": "Quận"},
+        {"id": "HCM03", "name": "Thành phố Thủ Đức", "type": "Thành phố"},
+        {"id": "HCM04", "name": "Huyện Củ Chi", "type": "Huyện"},
+        {"id": "HCM05", "name": "Huyện Nhà Bè", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "HP",
+      "name": "Thành phố Hải Phòng",
+      "type": "Thành phố trực thuộc Trung ương",
+      "districts": [
+        {"id": "HP01", "name": "Quận Hồng Bàng", "type": "Quận"},
+        {"id": "HP02", "name": "Quận Ngô Quyền", "type": "Quận"},
+        {"id": "HP03", "name": "Huyện Thủy Nguyên", "type": "Huyện"},
+        {"id": "HP04", "name": "Quận Đồ Sơn", "type": "Quận"}
+      ]
+    },
+    {
+      "id": "DN",
+      "name": "Thành phố Đà Nẵng",
+      "type": "Thành phố trực thuộc Trung ương",
+      "districts": [
+        {"id": "DN01", "name": "Quận Hải Châu", "type": "Quận"},
+        {"id": "DN02", "name": "Quận Thanh Khê", "type": "Quận"},
+        {"id": "DN03", "name": "Quận Sơn Trà", "type": "Quận"},
+        {"id": "DN04", "name": "Huyện Hòa Vang", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "CT",
+      "name": "Thành phố Cần Thơ",
+      "type": "Thành phố trực thuộc Trung ương",
+      "districts": [
+        {"id": "CT01", "name": "Quận Ninh Kiều", "type": "Quận"},
+        {"id": "CT02", "name": "Quận Cái Răng", "type": "Quận"},
+        {"id": "CT03", "name": "Quận Ô Môn", "type": "Quận"},
+        {"id": "CT04", "name": "Huyện Phong Điền", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "QN",
+      "name": "Tỉnh Quảng Ninh",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "QN01", "name": "Thành phố Hạ Long", "type": "Thành phố"},
+        {"id": "QN02", "name": "Thành phố Móng Cái", "type": "Thành phố"},
+        {"id": "QN03", "name": "Thành phố Uông Bí", "type": "Thành phố"},
+        {"id": "QN04", "name": "Huyện Vân Đồn", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "BN",
+      "name": "Tỉnh Bắc Ninh",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "BN01", "name": "Thành phố Bắc Ninh", "type": "Thành phố"},
+        {"id": "BN02", "name": "Thành phố Từ Sơn", "type": "Thành phố"},
+        {"id": "BN03", "name": "Huyện Tiên Du", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "HD",
+      "name": "Tỉnh Hải Dương",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "HD01", "name": "Thành phố Hải Dương", "type": "Thành phố"},
+        {"id": "HD02", "name": "Thị xã Kinh Môn", "type": "Thị xã"},
+        {"id": "HD03", "name": "Huyện Nam Sách", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "ND",
+      "name": "Tỉnh Nam Định",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "ND01", "name": "Thành phố Nam Định", "type": "Thành phố"},
+        {"id": "ND02", "name": "Huyện Hải Hậu", "type": "Huyện"},
+        {"id": "ND03", "name": "Huyện Trực Ninh", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "TB",
+      "name": "Tỉnh Thái Bình",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "TB01", "name": "Thành phố Thái Bình", "type": "Thành phố"},
+        {"id": "TB02", "name": "Huyện Tiền Hải", "type": "Huyện"},
+        {"id": "TB03", "name": "Huyện Quỳnh Phụ", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "NB",
+      "name": "Tỉnh Ninh Bình",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "NB01", "name": "Thành phố Ninh Bình", "type": "Thành phố"},
+        {"id": "NB02", "name": "Thành phố Tam Điệp", "type": "Thành phố"},
+        {"id": "NB03", "name": "Huyện Hoa Lư", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "LS",
+      "name": "Tỉnh Lạng Sơn",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "LS01", "name": "Thành phố Lạng Sơn", "type": "Thành phố"},
+        {"id": "LS02", "name": "Huyện Cao Lộc", "type": "Huyện"},
+        {"id": "LS03", "name": "Huyện Chi Lăng", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "CB",
+      "name": "Tỉnh Cao Bằng",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "CB01", "name": "Thành phố Cao Bằng", "type": "Thành phố"},
+        {"id": "CB02", "name": "Huyện Trùng Khánh", "type": "Huyện"},
+        {"id": "CB03", "name": "Huyện Bảo Lạc", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "LC",
+      "name": "Tỉnh Lào Cai",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "LC01", "name": "Thành phố Lào Cai", "type": "Thành phố"},
+        {"id": "LC02", "name": "Thị xã Sa Pa", "type": "Thị xã"},
+        {"id": "LC03", "name": "Huyện Bắc Hà", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "TQ",
+      "name": "Tỉnh Tuyên Quang",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "TQ01", "name": "Thành phố Tuyên Quang", "type": "Thành phố"},
+        {"id": "TQ02", "name": "Huyện Yên Sơn", "type": "Huyện"},
+        {"id": "TQ03", "name": "Huyện Chiêm Hóa", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "PT",
+      "name": "Tỉnh Phú Thọ",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "PT01", "name": "Thành phố Việt Trì", "type": "Thành phố"},
+        {"id": "PT02", "name": "Thị xã Phú Thọ", "type": "Thị xã"},
+        {"id": "PT03", "name": "Huyện Lâm Thao", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "SL",
+      "name": "Tỉnh Sơn La",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "SL01", "name": "Thành phố Sơn La", "type": "Thành phố"},
+        {"id": "SL02", "name": "Huyện Mộc Châu", "type": "Huyện"},
+        {"id": "SL03", "name": "Huyện Thuận Châu", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "YB",
+      "name": "Tỉnh Yên Bái",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "YB01", "name": "Thành phố Yên Bái", "type": "Thành phố"},
+        {"id": "YB02", "name": "Thị xã Nghĩa Lộ", "type": "Thị xã"},
+        {"id": "YB03", "name": "Huyện Văn Chấn", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "HB",
+      "name": "Tỉnh Hòa Bình",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "HB01", "name": "Thành phố Hòa Bình", "type": "Thành phố"},
+        {"id": "HB02", "name": "Huyện Lương Sơn", "type": "Huyện"},
+        {"id": "HB03", "name": "Huyện Mai Châu", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "HY",
+      "name": "Tỉnh Hưng Yên",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "HY01", "name": "Thành phố Hưng Yên", "type": "Thành phố"},
+        {"id": "HY02", "name": "Thị xã Mỹ Hào", "type": "Thị xã"},
+        {"id": "HY03", "name": "Huyện Văn Giang", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "VP",
+      "name": "Tỉnh Vĩnh Phúc",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "VP01", "name": "Thành phố Vĩnh Yên", "type": "Thành phố"},
+        {"id": "VP02", "name": "Thành phố Phúc Yên", "type": "Thành phố"},
+        {"id": "VP03", "name": "Huyện Bình Xuyên", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "TH",
+      "name": "Tỉnh Thanh Hóa",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "TH01", "name": "Thành phố Thanh Hóa", "type": "Thành phố"},
+        {"id": "TH02", "name": "Thành phố Sầm Sơn", "type": "Thành phố"},
+        {"id": "TH03", "name": "Thị xã Bỉm Sơn", "type": "Thị xã"},
+        {"id": "TH04", "name": "Huyện Tĩnh Gia", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "NA",
+      "name": "Tỉnh Nghệ An",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "NA01", "name": "Thành phố Vinh", "type": "Thành phố"},
+        {"id": "NA02", "name": "Thị xã Cửa Lò", "type": "Thị xã"},
+        {"id": "NA03", "name": "Huyện Diễn Châu", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "HT",
+      "name": "Tỉnh Hà Tĩnh",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "HT01", "name": "Thành phố Hà Tĩnh", "type": "Thành phố"},
+        {"id": "HT02", "name": "Thị xã Hồng Lĩnh", "type": "Thị xã"},
+        {"id": "HT03", "name": "Huyện Nghi Xuân", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "QB",
+      "name": "Tỉnh Quảng Bình",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "QB01", "name": "Thành phố Đồng Hới", "type": "Thành phố"},
+        {"id": "QB02", "name": "Thị xã Ba Đồn", "type": "Thị xã"},
+        {"id": "QB03", "name": "Huyện Bố Trạch", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "QT",
+      "name": "Tỉnh Quảng Trị",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "QT01", "name": "Thành phố Đông Hà", "type": "Thành phố"},
+        {"id": "QT02", "name": "Thị xã Quảng Trị", "type": "Thị xã"},
+        {"id": "QT03", "name": "Huyện Vĩnh Linh", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "TTH",
+      "name": "Tỉnh Thừa Thiên Huế",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "TTH01", "name": "Thành phố Huế", "type": "Thành phố"},
+        {"id": "TTH02", "name": "Thị xã Hương Thủy", "type": "Thị xã"},
+        {"id": "TTH03", "name": "Huyện Phong Điền", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "QNA",
+      "name": "Tỉnh Quảng Nam",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "QNA01", "name": "Thành phố Hội An", "type": "Thành phố"},
+        {"id": "QNA02", "name": "Thành phố Tam Kỳ", "type": "Thành phố"},
+        {"id": "QNA03", "name": "Thị xã Điện Bàn", "type": "Thị xã"}
+      ]
+    },
+    {
+      "id": "QNG",
+      "name": "Tỉnh Quảng Ngãi",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "QNG01", "name": "Thành phố Quảng Ngãi", "type": "Thành phố"},
+        {"id": "QNG02", "name": "Thị xã Đức Phổ", "type": "Thị xã"},
+        {"id": "QNG03", "name": "Huyện Lý Sơn", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "BD",
+      "name": "Tỉnh Bình Định",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "BD01", "name": "Thành phố Quy Nhơn", "type": "Thành phố"},
+        {"id": "BD02", "name": "Thị xã An Nhơn", "type": "Thị xã"},
+        {"id": "BD03", "name": "Huyện Hoài Nhơn", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "KH",
+      "name": "Tỉnh Khánh Hòa",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "KH01", "name": "Thành phố Nha Trang", "type": "Thành phố"},
+        {"id": "KH02", "name": "Thành phố Cam Ranh", "type": "Thành phố"},
+        {"id": "KH03", "name": "Thị xã Ninh Hòa", "type": "Thị xã"}
+      ]
+    },
+    {
+      "id": "LD",
+      "name": "Tỉnh Lâm Đồng",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "LD01", "name": "Thành phố Đà Lạt", "type": "Thành phố"},
+        {"id": "LD02", "name": "Thành phố Bảo Lộc", "type": "Thành phố"},
+        {"id": "LD03", "name": "Huyện Đức Trọng", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "DN",
+      "name": "Tỉnh Đồng Nai",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "DN01", "name": "Thành phố Biên Hòa", "type": "Thành phố"},
+        {"id": "DN02", "name": "Thành phố Long Khánh", "type": "Thành phố"},
+        {"id": "DN03", "name": "Huyện Nhơn Trạch", "type": "Huyện"}
+      ]
+    },
+    {
+      "id": "BDU",
+      "name": "Tỉnh Bình Dương",
+      "type": "Tỉnh",
+      "districts": [
+        {"id": "BDU01", "name": "Thành phố Thủ Dầu Một", "type": "Thành phố"},
+        {"id": "BDU02", "name": "Thành phố Thuận An", "type": "Thành phố"},
+        {"id": "BDU03", "name": "Thành phố Dĩ An", "type": "Thành phố"}
+      ]
+    }
+  ]
+}

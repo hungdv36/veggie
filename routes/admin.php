@@ -16,8 +16,15 @@ use App\Http\Controllers\Admin\FlashSaleController;
 use App\Http\Controllers\Admin\BannerController;
 use App\Http\Controllers\Admin\RefundController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Middleware\LogUserVisit;
 
-Route::prefix('admin')->name('admin.')->group(function () {
+
+Route::prefix('admin')
+    ->name('admin.')
+    ->middleware([LogUserVisit::class]) // <= thêm dòng này
+    ->group(function () {
+
+    
 
     Route::prefix('banners')->name('banners.')->group(function () {
         Route::get('/', [BannerController::class, 'index'])->name('index');
@@ -31,6 +38,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     //Banners
     Route::resource('banners', App\Http\Controllers\Admin\BannerController::class);
+ 
+    Route::middleware(['auth.custom'])
+    ->prefix('admin')
+    ->group(function () {
+        Route::get('/visits', [App\Http\Controllers\Admin\UserVisitController::class, 'index'])
+            ->name('admin.visits');
+    });
+
 
     // Login
     Route::get('/login', [AdminAuthController::class, 'showLoginForm'])->name('login');

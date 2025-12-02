@@ -69,7 +69,8 @@ Route::middleware(['auth.custom'])->group(function () {
         // Đổi mật khẩu
         Route::post('/change-password', [AccountController::class, 'changePassword'])
             ->name('account.change-password');
-
+ Route::get('/addresses', [AccountController::class, 'showAddresses'])
+        ->name('account.addresses.index');
         // Thêm địa chỉ
         Route::post('/addresses', [AccountController::class, 'addAddress'])
             ->name('account.addresses.add');
