@@ -51,23 +51,17 @@ class DashboardController extends Controller
         ];
 
         /* ========== TỔNG NGƯỜI DÙNG (THEO LỌC) ========== */
-        $totalUsers = DB::table('users')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->count();
+        $totalUsers = DB::table('users')->count();
 
         /* ========== TỔNG SẢN PHẨM ========== */
-        $totalProducts = DB::table('products')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->count();
+        $totalProducts = DB::table('products')->count();
 
         /* ========== TỔNG ĐƠN HÀNG ========== */
-        $totalOrders = DB::table('orders')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->count();
+        $totalOrders = DB::table('orders')->count();
 
         /* ========== DOANH THU ========== */
         $totalRevenue = DB::table('orders')
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'received'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->sum('total_amount');
 
@@ -83,7 +77,7 @@ class DashboardController extends Controller
             ->join('order_items', 'products.id', '=', 'order_items.product_id')
             ->join('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereBetween('orders.created_at', [$startDate, $endDate])
-            ->where('orders.status', 'completed')
+            ->whereIn('orders.status', ['completed', 'received'])
             ->select('products.name', DB::raw('SUM(order_items.quantity) as sold'))
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('sold')
@@ -96,7 +90,7 @@ class DashboardController extends Controller
                 DB::raw('DATE(created_at) as date'),
                 DB::raw('SUM(total_amount) as total')
             )
-            ->where('status', 'completed')
+            ->whereIn('status', ['completed', 'received'])
             ->whereBetween('created_at', [$startDate, $endDate])
             ->groupBy('date')
             ->orderBy('date')
@@ -108,38 +102,38 @@ class DashboardController extends Controller
             ->leftJoin('order_items', 'products.id', '=', 'order_items.product_id')
             ->leftJoin('orders', 'order_items.order_id', '=', 'orders.id')
             ->whereBetween('orders.created_at', [$startDate, $endDate])
-            ->where('orders.status', 'completed')
+            ->whereIn('orders.status', ['completed', 'received'])
             ->select('categories.name', DB::raw('COUNT(products.id) as total'))
             ->groupBy('categories.name')
             ->get();
 
-/* =============== THỐNG KÊ TRUY CẬP (UserVisit) =============== */
 
-$totalVisits = UserVisit::whereBetween('visited_at', [$startDate, $endDate])->count();
+        /* =============== THỐNG KÊ TRUY CẬP (UserVisit) =============== */
 
-$deviceStats = UserVisit::whereBetween('visited_at', [$startDate, $endDate])
-    ->get()
-    ->groupBy(fn($item) => $item->device)
-    ->map(fn($group) => $group->count());
+        $totalVisits = UserVisit::whereBetween('visited_at', [$startDate, $endDate])->count();
+
+        $deviceStats = UserVisit::whereBetween('visited_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(fn($item) => $item->device)
+            ->map(fn($group) => $group->count());
 
 
         /* RETURN VIEW */
         return view('admin.pages.dashboard', compact(
-     'todo',
-    'range',
-    'startDate',
-    'endDate',
-    'deviceStats',
-    'orderStats',
-    'topProducts',
-    'productByCategory',
-    'revenueChart',
-    'totalUsers',
-    'totalProducts',
-    'totalOrders',
-    'totalRevenue',
-    'totalVisits'
+            'todo',
+            'range',
+            'startDate',
+            'endDate',
+            'deviceStats',
+            'orderStats',
+            'topProducts',
+            'productByCategory',
+            'revenueChart',
+            'totalUsers',
+            'totalProducts',
+            'totalOrders',
+            'totalRevenue',
+            'totalVisits'
         ));
     }
 }
-
