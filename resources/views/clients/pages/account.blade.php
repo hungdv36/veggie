@@ -317,47 +317,53 @@
                                                     <tr>
                                                         <th>Tên</th>
                                                         <th>Địa chỉ</th>
-                                                        <th>Thành phố</th>
                                                         <th>Điện thoại</th>
                                                         <th>Mặc định</th>
-                                                        <th></th>
+                                                        <th>Chức năng</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     @forelse ($addresses as $address)
                                                         <tr>
                                                             <td>{{ $address->full_name }}</td>
-                                                            <td>{{ $address->address }}</td>
-                                                            <td>{{ $address->city }}</td>
+                                                            <td>
+                                                                {{ $address->address }}, {{ $address->ward }},
+                                                                {{ $address->district }}, {{ $address->province }}
+                                                            </td>
                                                             <td>{{ $address->phone }}</td>
                                                             <td>
                                                                 @if ($address->default)
                                                                     <span class="badge bg-success">Mặc định</span>
-                                                                @else
-                                                                    <form
-                                                                        action="{{ route('account.addresses.update', $address->id) }}"
-                                                                        method="POST">
-                                                                        @csrf @method('PUT')
-                                                                        <button
-                                                                            class="btn btn-sm btn-outline-warning">Chọn</button>
-                                                                    </form>
                                                                 @endif
                                                             </td>
                                                             <td>
-                                                                <form
-                                                                    action="{{ route('account.addresses.delete', $address->id) }}"
-                                                                    method="POST">
-                                                                    @csrf @method('DELETE')
-                                                                    <button type="submit"
-                                                                        class="btn btn-sm btn-outline-danger"
-                                                                        onclick="return confirm('Xóa địa chỉ này?')"><i
-                                                                            class="fas fa-trash-alt"></i></button>
-                                                                </form>
+                                                                <div class="d-flex gap-2">
+                                                                    @if (!$address->default)
+                                                                        <form
+                                                                            action="{{ route('account.addresses.update', $address->id) }}"
+                                                                            method="POST">
+                                                                            @csrf @method('PUT')
+                                                                            <button
+                                                                                class="btn btn-sm btn-outline-warning">Chọn</button>
+                                                                        </form>
+                                                                    @endif
+
+                                                                    <form
+                                                                        action="{{ route('account.addresses.delete', $address->id) }}"
+                                                                        method="POST">
+                                                                        @csrf @method('DELETE')
+                                                                        <button type="submit"
+                                                                            class="btn btn-sm btn-outline-danger"
+                                                                            onclick="return confirm('Xóa địa chỉ này?')">
+                                                                            <i class="fas fa-trash-alt"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     @empty
                                                         <tr>
-                                                            <td colspan="6" class="text-center text-muted">Chưa có địa chỉ
+                                                            <td colspan="5" class="text-center text-muted">Chưa có địa chỉ
                                                                 nào.</td>
                                                         </tr>
                                                     @endforelse
@@ -381,30 +387,59 @@
                                             <h5 class="modal-title fw-bold">Thêm địa chỉ mới</h5>
                                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                         </div>
+
                                         <div class="modal-body">
                                             <form action="{{ route('account.addresses.add') }}" method="POST">
                                                 @csrf
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Tên người nhận</label>
                                                     <input type="text" name="full_name" class="form-control" required>
                                                 </div>
+
                                                 <div class="mb-3">
-                                                    <label class="form-label">Địa chỉ</label>
+                                                    <label class="form-label">Địa chỉ (Số nhà, tên đường)</label>
                                                     <input type="text" name="address" class="form-control" required>
                                                 </div>
+
+                                                {{-- TỈNH / THÀNH PHỐ --}}
                                                 <div class="mb-3">
-                                                    <label class="form-label">Thành phố</label>
-                                                    <input type="text" name="city" class="form-control" required>
+                                                    <label class="form-label">Tỉnh / Thành phố</label>
+                                                    <select name="province" id="provinceSelect" class="form-control"
+                                                        required>
+                                                        <option value="">-- Chọn tỉnh / thành phố --</option>
+                                                    </select>
                                                 </div>
+
+                                                {{-- QUẬN / HUYỆN --}}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Quận / Huyện</label>
+                                                    <select name="district" id="districtSelect" class="form-control" required
+                                                        disabled>
+                                                        <option value="">-- Chọn quận / huyện --</option>
+                                                    </select>
+                                                </div>
+
+                                                {{-- PHƯỜNG / XÃ --}}
+                                                <div class="mb-3">
+                                                    <label class="form-label">Phường / Xã</label>
+                                                    <select name="ward" id="wardSelect" class="form-control" required
+                                                        disabled>
+                                                        <option value="">-- Chọn phường / xã --</option>
+                                                    </select>
+                                                </div>
+
                                                 <div class="mb-3">
                                                     <label class="form-label">Số điện thoại</label>
                                                     <input type="text" name="phone" class="form-control" required>
                                                 </div>
+
                                                 <div class="form-check mb-3">
                                                     <input type="checkbox" name="default" class="form-check-input"
                                                         id="default">
                                                     <label for="default" class="form-check-label">Đặt làm mặc định</label>
                                                 </div>
+
                                                 <button type="submit" class="btn btn-primary w-100">Lưu địa chỉ</button>
                                             </form>
                                         </div>
@@ -490,3 +525,94 @@
         </div>
 
     @endsection
+    @push('scripts')
+        <script>
+    document.addEventListener("DOMContentLoaded", function() {
+
+        const provinceSelect = document.getElementById("provinceSelect");
+        const districtSelect = document.getElementById("districtSelect");
+        const wardSelect = document.getElementById("wardSelect");
+
+        const modal = document.getElementById('addAddressModal');
+        // Chỉ load tỉnh khi modal mở
+        modal.addEventListener('shown.bs.modal', loadProvinces);
+
+        // Load TỈNH/THÀNH PHỐ
+        function loadProvinces() {
+            if (provinceSelect.options.length > 1) return; // Load 1 lần
+
+            fetch("https://provinces.open-api.vn/api/p/")
+                .then(res => res.json())
+                .then(data => {
+                    data.forEach(p => {
+                        let option = document.createElement("option");
+                        // Gán TÊN vào value (dành cho Controller)
+                        option.value = p.name; 
+                        // Lưu MÃ (CODE) vào thuộc tính data-code (dành cho fetch)
+                        option.dataset.code = p.code; 
+                        option.textContent = p.name;
+                        provinceSelect.appendChild(option);
+                    });
+                });
+        }
+
+        // Khi chọn TỈNH → Load QUẬN/HUYỆN
+        provinceSelect.addEventListener("change", function() {
+            // Lấy MÃ (CODE) của tỉnh đã chọn từ thuộc tính data-code
+            const selectedOption = this.options[this.selectedIndex];
+            const provinceCode = selectedOption.dataset.code; 
+
+            districtSelect.innerHTML = '<option value="">-- Chọn quận / huyện --</option>';
+            wardSelect.innerHTML = '<option value="">-- Chọn phường / xã --</option>';
+
+            districtSelect.disabled = true;
+            wardSelect.disabled = true;
+
+            if (!provinceCode) return;
+
+            fetch(`https://provinces.open-api.vn/api/p/${provinceCode}?depth=2`)
+                .then(res => res.json())
+                .then(data => {
+                    data.districts.forEach(d => {
+                        let option = document.createElement("option");
+                        // Gán TÊN vào value
+                        option.value = d.name; 
+                        // Lưu MÃ (CODE) vào thuộc tính data-code
+                        option.dataset.code = d.code; 
+                        option.textContent = d.name;
+                        districtSelect.appendChild(option);
+                    });
+
+                    districtSelect.disabled = false;
+                });
+        });
+
+        // Khi chọn HUYỆN → Load XÃ/PHƯỜNG
+        districtSelect.addEventListener("change", function() {
+            // Lấy MÃ (CODE) của huyện đã chọn từ thuộc tính data-code
+            const selectedOption = this.options[this.selectedIndex];
+            const districtCode = selectedOption.dataset.code;
+
+            wardSelect.innerHTML = '<option value="">-- Chọn phường / xã --</option>';
+            wardSelect.disabled = true;
+
+            if (!districtCode) return;
+
+            fetch(`https://provinces.open-api.vn/api/d/${districtCode}?depth=2`)
+                .then(res => res.json())
+                .then(data => {
+                    data.wards.forEach(w => {
+                        let option = document.createElement("option");
+                        // Gán TÊN vào value (đã đúng)
+                        option.value = w.name; 
+                        option.textContent = w.name;
+                        wardSelect.appendChild(option);
+                    });
+
+                    wardSelect.disabled = false;
+                });
+        });
+
+    });
+</script>
+    @endpush

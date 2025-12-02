@@ -115,6 +115,7 @@
     <!-- Main JS -->
     <script src="{{ asset('assets/clients/js/main.js') }}"></script>
     <script src="{{ asset('assets/clients/js/custom.js') }}"></script>
+@stack('scripts')
 
 </body>
 
