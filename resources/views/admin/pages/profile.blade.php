@@ -137,7 +137,7 @@
                                                 <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" id="current_password" required
+                                                <input type="password" id="current_password" required
                                                     class="form-control">
                                             </div>
                                         </div>
@@ -150,7 +150,7 @@
                                                 <span class="required">*</span>
                                             </label>
                                             <div class="col-md-6 col-sm-6">
-                                                <input type="text" id="new_password" name="new_password" required
+                                                <input type="password" id="new_password" name="new_password" required
                                                     class="form-control">
                                             </div>
                                         </div>
@@ -211,6 +211,7 @@
 
 @push('scripts')
 <script>
+
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ==========================
@@ -255,6 +256,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Lỗi cập nhật thông tin!");
             }
         });
+    });
+    /* ==========================
+       ✅ Hiển thị form đổi mật khẩu
+    ===========================*/
+    $("#trigger-change-pass").off("click").on("click", function () {
+        $("#change-password-form-wrapper").slideDown();
+    });
+
+    /* ==========================
+       ✅ Ẩn form đổi mật khẩu
+    ===========================*/
+    $("#cancel-change-pass").off("click").on("click", function () {
+        $("#change-password-form-wrapper").slideUp();
     });
 
     /* ==========================
