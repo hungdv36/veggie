@@ -289,19 +289,33 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="x_panel">
-                <div class="x_title">
-                    <h2><i class="fa fa-mobile text-info me-1"></i> Thiết bị truy cập</h2>
-                </div>
-                <div class="x_content">
-                    <div class="chart-container" style="height: 300px;">
-                        <canvas id="deviceChart"></canvas>
-                    </div>
-                </div>
+        {{-- ==== THỐNG KÊ TRUY CẬP ==== --}}
+<div class="row mb-4">
+    <div class="col-md-6 col-sm-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #6f42c1, #4b2c91)">
+                <i class="fa fa-eye"></i>
+            </div>
+            <div class="stat-label">Tổng lượt truy cập</div>
+            <div class="stat-value text-purple">{{ $totalVisits }}</div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-sm-6 mb-3">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #20c997, #138f72)">
+                <i class="fa fa-mobile"></i>
+            </div>
+            <div class="stat-label">Truy cập theo thiết bị</div>
+            <div class="stat-value">
+               🌐 Windows: <b>{{ $deviceStats['Windows'] ?? 0 }}</b> |
+📱 Mobile: <b>{{ ($deviceStats['Android'] ?? 0) + ($deviceStats['iPhone'] ?? 0) + ($deviceStats['Mobile'] ?? 0) }}</b> |
+💻 MacOS: <b>{{ $deviceStats['MacOS'] ?? 0 }}</b>
+
             </div>
         </div>
-
+    </div>
+</div>
 
 
         {{-- ==== THỐNG KÊ ĐƠN HÀNG & TOP SẢN PHẨM ==== --}}
@@ -356,30 +370,32 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         /* ----------- Biểu đồ thiết bị truy cập ----------- */
-        const deviceCtx = document.getElementById('deviceChart').getContext('2d');
-        new Chart(deviceCtx, {
-            type: 'doughnut',
-            data: {
-                labels: {!! json_encode($deviceStats->keys()) !!},
-                datasets: [{
-                    data: {!! json_encode($deviceStats->values()) !!},
-                    backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                cutout: '65%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 14,
-                            padding: 15
-                        }
-                    }
+       /* ----------- Biểu đồ thiết bị truy cập ----------- */
+const deviceCtx = document.getElementById('deviceChart').getContext('2d');
+new Chart(deviceCtx, {
+    type: 'doughnut',
+    data: {
+       labels: {!! json_encode($deviceStats->keys()) !!},
+datasets: [{
+    data: {!! json_encode($deviceStats->values()) !!},
+            backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        cutout: '65%',
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    boxWidth: 14,
+                    padding: 15
                 }
             }
-        });
+        }
+    }
+});
+
 
         /* ----------- Doanh thu 7 ngày gần nhất ----------- */
         const revenueCtx = document.getElementById('revenueChart').getContext('2d');
