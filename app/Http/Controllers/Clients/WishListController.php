@@ -15,17 +15,9 @@ class WishListController extends Controller
 
         // Lấy các sản phẩm trong wishlist và thông tin sản phẩm tương ứng
         $wishlistItems = Wishlist::where('role_id', $role_id)
-            ->join('products', 'wishlists.product_id', '=', 'products.id')
-            ->select(
-                'products.id as product_id',
-                'products.name',
-                'products.image',
-                'products.price',
-                'products.brand',
-                'products.stock',
-                'products.status'
-            )
+            ->with('product.firstImage')
             ->get();
+            
 
         return view('clients.pages.wishlist', compact('wishlistItems'));
     }

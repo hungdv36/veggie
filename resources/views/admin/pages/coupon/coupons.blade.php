@@ -35,6 +35,7 @@
                                         <th>Đơn hàng tối thiểu</th>
                                         <th>Số lần dùng / Giới hạn</th>
                                         <th>Trạng thái</th>
+                                        <th>Ngày hết hạn</th>
                                         <th>Hành động</th>
                                     </tr>
                                 </thead>
@@ -49,12 +50,13 @@
                                             <td>{{ number_format($coupon->min_order, 0, ',', '.') }} VNĐ</td>
                                             <td>{{ $coupon->used }} / {{ $coupon->usage_limit ?? '∞' }}</td>
                                             <td>
-                                                @if ($coupon->status)
-                                                    <span class="badge bg-success">Hoạt động</span>
+                                                @if ($coupon->status && \Carbon\Carbon::parse($coupon->end_date)->isFuture())
+                                                    <span class="badge bg-success">Còn hiệu lực</span>
                                                 @else
-                                                    <span class="badge bg-secondary">Ngưng</span>
+                                                    <span class="badge bg-secondary">Hết hạn</span>
                                                 @endif
                                             </td>
+                                            <td>{{ \Carbon\Carbon::parse($coupon->end_date)->format('d/m/Y') }}</td>
                                             <td
                                                 style="display: flex; gap: 5px; justify-content: center; align-items: center;">
                                                 <button type="button" class="btn btn-sm btn-outline-primary"
@@ -140,14 +142,16 @@
                                                                         class="text-danger">*</span></label>
                                                                 <input type="date" name="start_date"
                                                                     class="form-control"
-                                                                    value="{{ $coupon->start_date }}" required>
+                                                                    value="{{ $coupon->start_date ? \Carbon\Carbon::parse($coupon->start_date)->format('Y-m-d') : '' }}"
+                                                                    required>
                                                             </div>
 
                                                             <div class="mb-3">
                                                                 <label class="form-label">Ngày kết thúc <span
                                                                         class="text-danger">*</span></label>
                                                                 <input type="date" name="end_date"
-                                                                    class="form-control" value="{{ $coupon->end_date }}"
+                                                                    class="form-control"
+                                                                    value="{{ $coupon->end_date ? \Carbon\Carbon::parse($coupon->end_date)->format('Y-m-d') : '' }}"
                                                                     required>
                                                             </div>
 

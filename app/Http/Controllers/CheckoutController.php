@@ -154,7 +154,15 @@ class CheckoutController extends Controller
         ]);
 
         $user = Auth::user();
-        $coupon = Coupon::where('code', $request->coupon_code)->first();
+
+        $coupon = Coupon::where('code', $request->coupon_code)
+            ->where('status', 1)
+            ->where('end_date', '>=', now())
+            ->first();
+
+        if (!$coupon) {
+            return response()->json(['error' => 'Mã giảm giá đã hết hiệu lực, vui lòng chọn mã giảm giá khác'], 400);
+        }
 
         if ($coupon->usage_limit <= $coupon->used_count) {
             return response()->json(['error' => 'Mã giảm giá đã hết lượt sử dụng'], 400);
@@ -198,93 +206,92 @@ class CheckoutController extends Controller
 
     // Gọi MoMo theo order_id thay vì session
     public function handleMoMo(Request $request)
-{
-    try {
-        $orderIdRaw = $request->order_id;
-        $amount = (string) intval($request->amount);
+    {
+        try {
+            $orderIdRaw = $request->order_id;
+            $amount = (string) intval($request->amount);
 
-        if (!$orderIdRaw || !$amount) {
-            return response()->json(['error' => 'Thiếu thông tin đơn hàng.'], 400);
+            if (!$orderIdRaw || !$amount) {
+                return response()->json(['error' => 'Thiếu thông tin đơn hàng.'], 400);
+            }
+
+            $order = Order::find($orderIdRaw);
+            if (!$order) {
+                return response()->json(['error' => 'Không tìm thấy đơn hàng.'], 400);
+            }
+
+            // ✅ orderId duy nhất
+            $orderId = 'ORDER-' . $orderIdRaw . '-' . time();
+
+            // ✅ Config MoMo Sandbox
+            $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
+            $partnerCode = "MOMO";
+            $accessKey = "F8BBA842ECF85";
+            $secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
+
+            $orderInfo = "Thanh toán đơn hàng #" . $orderIdRaw;
+            $redirectUrl = route('momo.return', ['order_id' => $order->id]);
+            $ipnUrl = route('momo.return', ['order_id' => $order->id]);
+            $requestId = (string) time();
+            $requestType = "payWithATM";
+            $extraData = base64_encode(json_encode(['order_id' => $orderId]));
+
+            // 🔒 Đúng thứ tự tham số theo tài liệu MoMo
+            $rawHash = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
+
+            $signature = hash_hmac("sha256", $rawHash, $secretKey);
+
+            $data = [
+                'partnerCode' => $partnerCode,
+                'partnerName' => "MoMo Test",
+                'storeId' => "MoMoStore",
+                'requestId' => $requestId,
+                'amount' => $amount,
+                'orderId' => $orderId,
+                'orderInfo' => $orderInfo,
+                'redirectUrl' => $redirectUrl,
+                'ipnUrl' => $ipnUrl,
+                'lang' => 'vi',
+                'extraData' => $extraData,
+                'requestType' => $requestType,
+                'signature' => $signature,
+            ];
+
+            Log::info('🟢 MoMo request', $data);
+
+            $ch = curl_init($endpoint);
+            curl_setopt_array($ch, [
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => json_encode($data),
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            ]);
+            $result = curl_exec($ch);
+            curl_close($ch);
+
+            $jsonResult = json_decode($result, true);
+            Log::info('🟣 MoMo response', $jsonResult ?? []);
+
+            if (isset($jsonResult['payUrl'])) {
+                return response()->json(['redirect_url' => $jsonResult['payUrl']]);
+            }
+
+            // ❌ Nếu thất bại
+            $errorMessage = $jsonResult['message'] ?? 'Không rõ nguyên nhân';
+            $errorCode = $jsonResult['resultCode'] ?? 'N/A';
+
+            Log::error("❌ MoMo lỗi: [$errorCode] $errorMessage", $jsonResult ?? []);
+
+            return response()->json([
+                'error' => true,
+                'code' => $errorCode,
+                'message' => "Không thể khởi tạo thanh toán MoMo ($errorMessage)",
+            ], 400);
+        } catch (\Exception $e) {
+            Log::error('🔥 MoMo exception: ' . $e->getMessage());
+            return response()->json(['error' => 'Lỗi hệ thống: ' . $e->getMessage()], 500);
         }
-
-        $order = Order::find($orderIdRaw);
-        if (!$order) {
-            return response()->json(['error' => 'Không tìm thấy đơn hàng.'], 400);
-        }
-
-        // ✅ orderId duy nhất
-        $orderId = 'ORDER-' . $orderIdRaw . '-' . time();
-
-        // ✅ Config MoMo Sandbox
-        $endpoint = "https://test-payment.momo.vn/v2/gateway/api/create";
-        $partnerCode = "MOMO";
-        $accessKey = "F8BBA842ECF85";
-        $secretKey = "K951B6PE1waDMi640xX08PD3vg6EkVlz";
-
-        $orderInfo = "Thanh toán đơn hàng #" . $orderIdRaw;
-        $redirectUrl = route('momo.return', ['order_id' => $order->id]);
-$ipnUrl = route('momo.return', ['order_id' => $order->id]);
-        $requestId = (string) time();
-        $requestType = "payWithATM";
-        $extraData = base64_encode(json_encode(['order_id' => $orderId]));
-
-        // 🔒 Đúng thứ tự tham số theo tài liệu MoMo
-        $rawHash = "accessKey=$accessKey&amount=$amount&extraData=$extraData&ipnUrl=$ipnUrl&orderId=$orderId&orderInfo=$orderInfo&partnerCode=$partnerCode&redirectUrl=$redirectUrl&requestId=$requestId&requestType=$requestType";
-
-        $signature = hash_hmac("sha256", $rawHash, $secretKey);
-
-        $data = [
-            'partnerCode' => $partnerCode,
-            'partnerName' => "MoMo Test",
-            'storeId' => "MoMoStore",
-            'requestId' => $requestId,
-            'amount' => $amount,
-            'orderId' => $orderId,
-            'orderInfo' => $orderInfo,
-            'redirectUrl' => $redirectUrl,
-            'ipnUrl' => $ipnUrl,
-            'lang' => 'vi',
-            'extraData' => $extraData,
-            'requestType' => $requestType,
-            'signature' => $signature,
-        ];
-
-        Log::info('🟢 MoMo request', $data);
-
-        $ch = curl_init($endpoint);
-        curl_setopt_array($ch, [
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => json_encode($data),
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        ]);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        $jsonResult = json_decode($result, true);
-        Log::info('🟣 MoMo response', $jsonResult ?? []);
-
-        if (isset($jsonResult['payUrl'])) {
-            return response()->json(['redirect_url' => $jsonResult['payUrl']]);
-        }
-
-        // ❌ Nếu thất bại
-        $errorMessage = $jsonResult['message'] ?? 'Không rõ nguyên nhân';
-        $errorCode = $jsonResult['resultCode'] ?? 'N/A';
-
-        Log::error("❌ MoMo lỗi: [$errorCode] $errorMessage", $jsonResult ?? []);
-
-        return response()->json([
-            'error' => true,
-            'code' => $errorCode,
-            'message' => "Không thể khởi tạo thanh toán MoMo ($errorMessage)",
-        ], 400);
-
-    } catch (\Exception $e) {
-        Log::error('🔥 MoMo exception: ' . $e->getMessage());
-        return response()->json(['error' => 'Lỗi hệ thống: ' . $e->getMessage()], 500);
     }
-}
 
 
 
@@ -292,66 +299,64 @@ $ipnUrl = route('momo.return', ['order_id' => $order->id]);
 
     // Kết quả trả về từ MoMo
     public function momoReturn(Request $request)
-{
-    $resultCode = $request->resultCode;
-    $message = $request->message ?? null;
-    $transId = $request->transId ?? null;
-    $extraData = $request->extraData ? json_decode(base64_decode($request->extraData), true) : [];
-    $orderIdRaw = $request->order_id ?? ($extraData['order_id'] ?? null);
+    {
+        $resultCode = $request->resultCode;
+        $message = $request->message ?? null;
+        $transId = $request->transId ?? null;
+        $extraData = $request->extraData ? json_decode(base64_decode($request->extraData), true) : [];
+        $orderIdRaw = $request->order_id ?? ($extraData['order_id'] ?? null);
 
-    // Giải mã order_id thực tế
-    if ($orderIdRaw && str_starts_with($orderIdRaw, 'ORDER-')) {
-        $orderId = (int) preg_replace('/[^0-9]/', '', $orderIdRaw);
-    } else {
-        $orderId = (int) $orderIdRaw;
-    }
-
-    if (!$orderId) {
-        toastr()->error('Không xác định được đơn hàng sau khi thanh toán MoMo.');
-        return redirect()->route('checkout');
-    }
-
-    $order = Order::find($orderId);
-    if (!$order) {
-        toastr()->error('Đơn hàng không tồn tại.');
-        return redirect()->route('checkout');
-    }
-
-    $payment = Payment::where('order_id', $orderId)->first();
-
-    if ($resultCode == 0) {
-        DB::transaction(function () use ($order, $payment, $transId) {
-            $order->update(['status' => 'pending']);
-            $payment->update([
-                'status' => 'completed',
-                'transaction_id' => $transId,
-                'paid_at' => now(),
-            ]);
-
-            CartItem::where('user_id', $order->user_id)->delete();
-        });
-
-        toastr()->success('Thanh toán MoMo thành công!');
-        return redirect()->route('account');
-    } else {
-        $order->update(['status' => 'cancelled']);
-        if ($payment) {
-            $payment->update([
-                'status' => 'failed',
-                'transaction_id' => $transId,
-            ]);
+        // Giải mã order_id thực tế
+        if ($orderIdRaw && str_starts_with($orderIdRaw, 'ORDER-')) {
+            $orderId = (int) preg_replace('/[^0-9]/', '', $orderIdRaw);
+        } else {
+            $orderId = (int) $orderIdRaw;
         }
 
-        // \Log::warning('MoMo thất bại', [
-        //     'order_id' => $orderId,
-        //     'resultCode' => $resultCode,
-        //     'message' => $message,
-        // ]);
+        if (!$orderId) {
+            toastr()->error('Không xác định được đơn hàng sau khi thanh toán MoMo.');
+            return redirect()->route('checkout');
+        }
 
-        toastr()->error('Thanh toán MoMo thất bại hoặc bị hủy!');
-        return redirect()->route('checkout');
+        $order = Order::find($orderId);
+        if (!$order) {
+            toastr()->error('Đơn hàng không tồn tại.');
+            return redirect()->route('checkout');
+        }
+
+        $payment = Payment::where('order_id', $orderId)->first();
+
+        if ($resultCode == 0) {
+            DB::transaction(function () use ($order, $payment, $transId) {
+                $order->update(['status' => 'pending']);
+                $payment->update([
+                    'status' => 'completed',
+                    'transaction_id' => $transId,
+                    'paid_at' => now(),
+                ]);
+
+                CartItem::where('user_id', $order->user_id)->delete();
+            });
+
+            toastr()->success('Thanh toán MoMo thành công!');
+            return redirect()->route('account');
+        } else {
+            $order->update(['status' => 'cancelled']);
+            if ($payment) {
+                $payment->update([
+                    'status' => 'failed',
+                    'transaction_id' => $transId,
+                ]);
+            }
+
+            // \Log::warning('MoMo thất bại', [
+            //     'order_id' => $orderId,
+            //     'resultCode' => $resultCode,
+            //     'message' => $message,
+            // ]);
+
+            toastr()->error('Thanh toán MoMo thất bại hoặc bị hủy!');
+            return redirect()->route('checkout');
+        }
     }
-}
-
-
 }

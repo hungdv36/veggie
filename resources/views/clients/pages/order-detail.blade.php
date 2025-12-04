@@ -30,7 +30,11 @@
                             @break
 
                             @case('processing')
-                                <span class="badge bg-info">Đang xử lý</span>
+                                <span class="badge bg-primary">Đã Xác Nhận</span>
+                            @break
+
+                            @case('shipped')
+                                <span class="badge bg-info">Đang giao hàng</span>
                             @break
 
                             @case('completed')
@@ -130,7 +134,7 @@
                     </div>
                 </div>
                 <!-- Hành động -->
-                @if ($order->status == 'pending')
+                @if ($order->status == 'pending' || $order->status == 'processing')
                     <form action="{{ route('order.cancel', $order->id) }}" method="POST" class="mt-4"
                         onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
                         @csrf
