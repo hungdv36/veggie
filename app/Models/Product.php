@@ -28,7 +28,7 @@ class Product extends Model
         'unit'
     ];
 
-    protected $appends =['image_url', 'average_rating'];
+    protected $appends = ['image_url', 'average_rating'];
 
     protected $casts = [
         'price' => 'float',
@@ -61,8 +61,18 @@ class Product extends Model
 
     public function getImageUrlAttribute()
     {
-        return $this->firstImage?->image ? asset('storage/' . $this->firstImage->image) : asset('storage/uploads/products/default-product.png');
+        if ($this->firstImage?->image_path) {
+            return asset($this->firstImage->image_path);
+        }
+
+        // fallback: lấy ảnh từ cột 'image' trong bảng products
+        if ($this->image) {
+            return asset('storage/uploads/products/' . $this->image);
+        }
+
+        return asset('storage/uploads/products/default-product.png');
     }
+
 
 
     public function getAverageRatingAttribute()
