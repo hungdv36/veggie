@@ -319,4 +319,440 @@ document.getElementById('send-message').addEventListener('click', async () => {
     chatBody.scrollTop = chatBody.scrollHeight;
 });
 
+// ==== Helpers ====
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const box  = document.getElementById('chat-messages') || document.querySelector('.chat-body');
+const grid = document.getElementById('chat-trending-grid');
+
+// Session id (giữ nguyên cách bạn đang tạo)
+const sessionId = localStorage.getItem('session_id') || (() => {
+  const id = Math.random().toString(36).slice(2);
+  localStorage.setItem('session_id', id);
+  return id;
+})();
+
+// ==== 🗑️ Xóa lịch sử ====
+document.getElementById('chat-clear')?.addEventListener('click', async () => {
+  if (!confirm('Xóa toàn bộ lịch sử chat?')) return;
+  try {
+    const res = await fetch('/delete-history?session_id='+encodeURIComponent(sessionId), {
+      method: 'DELETE',
+      headers: { 'X-CSRF-TOKEN': csrf }
+    });
+    const j = await res.json();
+    alert(j.message || 'Đã xóa lịch sử');
+    if (box) box.innerHTML = '';
+    if (grid) grid.innerHTML = '';
+  } catch (e) {
+    alert('Lỗi xóa lịch sử: '+e.message);
+  }
+});
+
+// ==== 📷 Upload ảnh (Vision) ====
+document.getElementById('chat-image')?.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!['image/jpeg','image/png','image/gif','image/webp'].includes(file.type)) {
+    alert('Chỉ chấp nhận ảnh JPEG/PNG/GIF/WEBP'); e.target.value = ''; return;
+  }
+
+  // preview nhỏ
+  const reader = new FileReader();
+  reader.onload = () => {
+    const div = document.createElement('div');
+    div.className = 'user-message';
+    div.innerHTML = `<div class="message-text">[Ảnh đã tải]</div>${reader.result}`;
+    box.appendChild(div); box.scrollTop = box.scrollHeight;
+  };
+  reader.readAsDataURL(file);
+
+  // gửi lên server vision
+  const fd = new FormData();
+  fd.append('image', file);
+  fd.append('session_id', sessionId);
+  fd.append('model', 'gpt'); // hoặc 'gemini'
+
+  try {
+    const res = await fetch('/chat/vision', { method:'POST', headers:{'X-CSRF-TOKEN':csrf}, body: fd });
+    const data = await res.json();
+
+    // Bot mô tả ảnh
+    const div = document.createElement('div');
+    div.className = 'bot-message';
+    div.innerHTML = `<div class="message-text">${data.reply || 'Không thể phân tích ảnh'}</div>`;
+    box.appendChild(div); box.scrollTop = box.scrollHeight;
+
+    // (tuỳ chọn) nếu muốn hiển thị sản phẩm gợi ý sau vision bạn có thể parse và gọi /chat/trending hoặc một API gợi ý khác.
+  } catch (err) {
+    alert('Lỗi vision: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
+});
+
+// ==== ⭐ Bán chạy ====
+document.getElementById('chat-trending')?.addEventListener('click', async () => {
+  if (!grid) return;
+  grid.innerHTML = '<div style="color:#fff;opacity:.7">Đang tải sản phẩm bán chạy...</div>';
+  try {
+    const res = await fetch('/chat/trending?days=7&limit=8'); // routes phía server
+    const j = await res.json();
+    const items = j.items || [];
+    if (!items.length) { grid.innerHTML = '<div style="color:#fff;opacity:.7">Chưa có dữ liệu bán chạy.</div>'; return; }
+
+    const dom = document.createElement('div');
+    dom.className = 'trending-grid';
+    items.forEach(p => {
+      const price = (p.price||0).toLocaleString('vi-VN')+' đ';
+      const card = document.createElement('div'); card.className='trending-card';
+      card.innerHTML = `
+        <div class="img">${p.image_url ? `${p.image_url}` : ''}</div>
+        <div class="info">
+          <div class="name">${p.name||'Sản phẩm'}</div>
+          <div class="price">${price}</div>
+          <div class="actions">
+            ${p.url ? `${p.url}Xem</a>` : ''}
+            <button data-id="${p.id}" class="btn add">Thêm vào giỏ</button>
+          </div>
+        </div>`;
+      dom.appendChild(card);
+    });
+    grid.innerHTML = '';
+    grid.appendChild(dom);
+
+    // Thêm vào giỏ (đổi route cho phù hợp site bạn)
+    grid.querySelectorAll('.btn.add').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          await fetch('/cart/add', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf},
+            body: JSON.stringify({product_id: btn.dataset.id, qty:1})
+          });
+          btn.textContent = 'Đã thêm'; btn.disabled = true;
+        } catch {}
+      });
+    });
+  } catch (e) {
+    grid.innerHTML = '<div style="color:#fff;opacity:.7">Lỗi tải bán chạy: '+e.message+'</div>';
+  }
+});
+
+// ====== Lấy CSRF & Session ======
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const box  = document.getElementById('chat-messages') || document.querySelector('.chat-body');
+const grid = document.getElementById('chat-trending-grid');
+
+const sessionId = localStorage.getItem('session_id') || (() => {
+  const id = Math.random().toString(36).slice(2);
+  localStorage.setItem('session_id', id);
+  return id;
+})();
+
+// ====== Upload Ảnh (Vision) – nút icon trigger input hidden ======
+document.getElementById('chat-image-btn')?.addEventListener('click', () => {
+  document.getElementById('chat-image')?.click();
+});
+
+document.getElementById('chat-image')?.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!['image/jpeg','image/png','image/gif','image/webp'].includes(file.type)) {
+    alert('Chỉ chấp nhận ảnh JPEG/PNG/GIF/WEBP'); e.target.value = ''; return;
+  }
+
+  // Preview nhỏ
+  const reader = new FileReader();
+  reader.onload = () => {
+    const div = document.createElement('div');
+    div.className = 'user-message';
+    div.innerHTML = `<div class="message-text">[Ảnh đã tải]</div>${reader.result}`;
+    box.appendChild(div); box.scrollTop = box.scrollHeight;
+  };
+  reader.readAsDataURL(file);
+
+  // Gửi lên server vision
+  const fd = new FormData();
+  fd.append('image', file);
+  fd.append('session_id', sessionId);
+  fd.append('model', 'gpt'); // hoặc 'gemini'
+
+  try {
+    const res = await fetch('/chat/vision', { method:'POST', headers:{'X-CSRF-TOKEN':csrf}, body: fd });
+    const data = await res.json();
+
+    // ⚠️ Không đẩy "DO NOT mention..." ra UI – chỉ render reply
+    const botDiv = document.createElement('div');
+    botDiv.className = 'bot-message';
+    botDiv.innerHTML = `<div class="message-text">${(data.reply || '').replace(/DO NOT mention.*$/i,'').trim()}</div>`;
+    box.appendChild(botDiv); box.scrollTop = box.scrollHeight;
+  } catch (err) {
+    alert('Lỗi vision: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
+});
+
+// ====== Xóa lịch sử (trash icon) ======
+document.getElementById('chat-clear')?.addEventListener('click', async () => {
+  if (!confirm('Xóa toàn bộ lịch sử chat?')) return;
+  try {
+    const res = await fetch('/delete-history?session_id='+encodeURIComponent(sessionId), {
+      method: 'DELETE',
+      headers: { 'X-CSRF-TOKEN': csrf }
+    });
+    const j = await res.json();
+    alert(j.message || 'Đã xóa lịch sử');
+    if (box) box.innerHTML = '';
+    if (grid) grid.innerHTML = '';
+  } catch (e) {
+    alert('Lỗi xóa lịch sử: '+e.message);
+  }
+});
+
+// ====== Hiển thị Bán chạy ======
+document.getElementById('chat-trending')?.addEventListener('click', async () => {
+  if (!grid) return;
+  grid.innerHTML = '<div style="color:#fff;opacity:.7">Đang tải sản phẩm bán chạy...</div>';
+  try {
+    const res = await fetch('/chat/trending?days=7&limit=8');
+    const j = await res.json();
+    const items = j.items || [];
+    if (!items.length) { grid.innerHTML = '<div style="color:#fff;opacity:.7">Chưa có dữ liệu bán chạy.</div>'; return; }
+
+    const dom = document.createElement('div');
+    dom.className = 'trending-grid';
+    items.forEach(p => {
+      const price = (p.price||0).toLocaleString('vi-VN')+' đ';
+      const card = document.createElement('div'); card.className='trending-card';
+      card.innerHTML = `
+        <div class="img">${p.image_url ? `<{p.image_url}` : ''}</div>
+        <div class="info">
+          <div class="name">${p.name||'Sản phẩm'}</div>
+          <div class="price">${price}</div>
+          <div class="actions">
+            ${p.url ? `${p.url}Xem</a>` : ''}
+            <button data-id="${p.id}" class="btn add">Thêm vào giỏ</button>
+          </div>
+        </div>`;
+      dom.appendChild(card);
+    });
+    grid.innerHTML = '';
+    grid.appendChild(dom);
+
+    // Thêm vào giỏ – đổi route cho đúng site của bạn nếu khác
+    grid.querySelectorAll('.btn.add').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          await fetch('/cart/add', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf},
+            body: JSON.stringify({product_id: btn.dataset.id, qty:1})
+          });
+          btn.textContent = 'Đã thêm'; btn.disabled = true;
+        } catch {}
+      });
+    });
+  } catch (e) {
+    grid.innerHTML = '<div style="color:#fff;opacity:.7">Lỗi tải bán chạy: '+e.message+'</div>';
+  }
+});
+
+// ====== TỰ ĐỘNG THÊM NÚT VÀO HEADER ======
+(function initChatHeaderActions(){
+  const header = document.getElementById('chat-header');
+  if (!header || header.dataset.enhanced === '1') return;
+
+  // Khối nút
+  const actions = document.createElement('div');
+  actions.className = 'chat-actions';
+  actions.style.cssText = 'display:flex;gap:8px;align-items:center';
+
+  // Button: Upload ảnh (camera)
+  const btnImage = document.createElement('button');
+  btnImage.id = 'chat-image-btn';
+  btnImage.className = 'icon-btn';
+  btnImage.title = 'Tải ảnh lên';
+  btnImage.innerHTML = `<svg viewBox="0 0 24 24" class="icon"><path d="M9.5 4h5l1.2 2H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h3.3L9.5 4zm2.5 12a4 4 0 100-8 4 4 0 000 8z"/></svg>`;
+
+  // Input file ẩn
+  const inputFile = document.createElement('input');
+  inputFile.type = 'file';
+  inputFile.id = 'chat-image';
+  inputFile.accept = 'image/*';
+  inputFile.style.display = 'none';
+
+  // Button: Xóa lịch sử (trash)
+  const btnClear = document.createElement('button');
+  btnClear.id = 'chat-clear';
+  btnClear.className = 'icon-btn danger';
+  btnClear.title = 'Xóa lịch sử';
+  btnClear.innerHTML = `<svg viewBox="0 0 24 24" class="icon"><path d="M9 3h6l1 2h4v2H4V5h4l1-2zm1 6h2v8H10V9zm4 0h2v8h-2V9z"/></svg>`;
+
+  // Button: Bán chạy (chart)
+  const btnTrending = document.createElement('button');
+  btnTrending.id = 'chat-trending';
+  btnTrending.className = 'icon-btn primary';
+  btnTrending.title = 'Sản phẩm bán chạy';
+  btnTrending.innerHTML = `<svg viewBox="0 0 24 24" class="icon"><path d="M3 13h3v8H3v-8zm5-6h3v14H8V7zm5 3h3v11h-3V10zm5-8h3v19h-3V2z"/></svg>`;
+
+  // Thêm vào header (ngay trước nút đóng)
+  const closeBtn = document.getElementById('chat-close');
+  header.insertBefore(actions, closeBtn);
+  actions.appendChild(btnImage);
+  actions.appendChild(inputFile);
+  actions.appendChild(btnClear);
+  actions.appendChild(btnTrending);
+
+  header.dataset.enhanced = '1';
+})();
+
+// ====== STYLE NHẸ CHO ICON ======
+(function injectChatCss(){
+  const css = `
+    .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;background:#1f2937;color:#fff}
+    .icon-btn:hover{background:#374151}
+    .icon-btn.primary{background:#2563eb}.icon-btn.primary:hover{background:#1d4ed8}
+    .icon-btn.danger{background:#ef4444}.icon-btn.danger:hover{background:#dc2626}
+    .icon{width:18px;height:18px}
+    #chat-trending-grid{margin-top:10px}
+    .trending-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .trending-card{background:#fff;color:#111;border:1px solid #eee;border-radius:10px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.06)}
+    .trending-card .img{width:100%;aspect-ratio:1/1;background:#f8f8f8;display:flex;align-items:center;justify-content:center}
+    .trending-card .info{padding:8px}
+    .trending-card .name{font-weight:600;font-size:.92rem}
+    .trending-card .price{color:#2563eb;margin-top:6px}
+    .trending-card .actions{display:flex;gap:8px;margin-top:8px}
+    .trending-card .btn{flex:1;padding:6px;border:none;border-radius:8px;cursor:pointer;font-size:.85rem}
+    .trending-card .btn.view{background:#7c3aed;color:#fff}
+    .trending-card .btn.add{background:#10b981;color:#fff}
+  `;
+  const style = document.createElement('style');
+  style.textContent = css;
+  document.head.appendChild(style);
+})();
+
+// ====== CSRF & Session ======
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+const box  = document.getElementById('chat-messages');
+const sessionId = localStorage.getItem('session_id') || (() => {
+  const id = Math.random().toString(36).slice(2);
+  localStorage.setItem('session_id', id);
+  return id;
+})();
+
+// ====== UPLOAD ẢNH (VISION) ======
+document.getElementById('chat-image-btn')?.addEventListener('click', () => {
+  document.getElementById('chat-image')?.click();
+});
+
+document.getElementById('chat-image')?.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const types = ['image/jpeg','image/png','image/gif','image/webp'];
+  if (!types.includes(file.type)) { alert('Chỉ chấp nhận ảnh JPEG/PNG/GIF/WEBP'); e.target.value = ''; return; }
+
+  // Preview nhỏ
+  const reader = new FileReader();
+  reader.onload = () => {
+    const div = document.createElement('div');
+    div.className = 'user-message';
+    div.innerHTML = `<div class="message-text">[Ảnh đã tải]</div>${reader.result}`;
+    box.appendChild(div); box.scrollTop = box.scrollHeight;
+  };
+  reader.readAsDataURL(file);
+
+  // Gửi lên server vision
+  const fd = new FormData();
+  fd.append('image', file);
+  fd.append('session_id', sessionId);
+  fd.append('model', 'gpt'); // hoặc 'gemini'
+  try {
+    const res = await fetch('/chat/vision', { method:'POST', headers:{'X-CSRF-TOKEN':csrf}, body: fd });
+    const data = await res.json();
+
+    // KHÔNG hiển thị rule nội bộ; chỉ render reply đã được lọc
+    const botDiv = document.createElement('div');
+    botDiv.className = 'bot-message';
+    botDiv.innerHTML = `<div class="message-text">${(data.reply || '').replace(/DO NOT mention.*$/i,'').trim()}</div>`;
+    box.appendChild(botDiv); box.scrollTop = box.scrollHeight;
+  } catch (err) {
+    alert('Lỗi vision: ' + err.message);
+  } finally {
+    e.target.value = '';
+  }
+});
+
+// ====== XÓA LỊCH SỬ ======
+document.getElementById('chat-clear')?.addEventListener('click', async () => {
+  if (!confirm('Xóa toàn bộ lịch sử chat?')) return;
+  try {
+    const res = await fetch('/delete-history?session_id='+encodeURIComponent(sessionId), {
+      method: 'DELETE',
+      headers: { 'X-CSRF-TOKEN': csrf }
+    });
+    const j = await res.json();
+    alert(j.message || 'Đã xóa lịch sử');
+    box.innerHTML = '';
+    const grid = document.getElementById('chat-trending-grid');
+    if (grid) grid.innerHTML = '';
+  } catch (e) {
+    alert('Lỗi xóa lịch sử: ' + e.message);
+  }
+});
+
+// ====== BÁN CHẠY ======
+document.getElementById('chat-trending')?.addEventListener('click', async () => {
+  let grid = document.getElementById('chat-trending-grid');
+  if (!grid) {
+    grid = document.createElement('div');
+    grid.id = 'chat-trending-grid';
+    const inputArea = document.getElementById('chat-input');
+    inputArea.appendChild(grid);
+  }
+  grid.innerHTML = '<div style="color:#fff;opacity:.7">Đang tải sản phẩm bán chạy...</div>';
+  try {
+    const res = await fetch('/chat/trending?days=7&limit=8');
+    const j = await res.json();
+    const items = j.items || [];
+    if (!items.length) { grid.innerHTML = '<div style="color:#fff;opacity:.7">Chưa có dữ liệu bán chạy.</div>'; return; }
+
+    const dom = document.createElement('div');
+    dom.className = 'trending-grid';
+    items.forEach(p => {
+      const price = (p.price||0).toLocaleString('vi-VN')+' đ';
+      const card = document.createElement('div'); card.className='trending-card';
+      card.innerHTML = `
+        <div class="img">${p.image_url ? `${p.image_url}` : ''}</div>
+        <div class="info">
+          <div class="name">${p.name||'Sản phẩm'}</div>
+          <div class="price">${price}</div>
+          <div class="actions">
+            ${p.url ? `${p.url}Xem</a>` : ''}
+            <button data-id="${p.id}" class="btn add">Thêm vào giỏ</button>
+          </div>
+        </div>`;
+      dom.appendChild(card);
+    });
+    grid.innerHTML = '';
+    grid.appendChild(dom);
+
+    // Thêm vào giỏ – tùy chỉnh route nếu site bạn khác
+    grid.querySelectorAll('.btn.add').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        try {
+          await fetch('/cart/add', {
+            method:'POST',
+            headers:{'Content-Type':'application/json','X-CSRF-TOKEN':csrf},
+            body: JSON.stringify({product_id: btn.dataset.id, qty:1})
+          });
+          btn.textContent = 'Đã thêm'; btn.disabled = true;
+        } catch {}
+      });
+    });
+  } catch (e) {
+    grid.innerHTML = '<div style="color:#fff;opacity:.7">Lỗi tải bán chạy: '+e.message+'</div>';
+  }
+});
+
 });
