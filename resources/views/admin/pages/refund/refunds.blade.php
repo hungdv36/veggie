@@ -45,28 +45,16 @@
                                             <td>
                                                 @php
                                                     $statusClass = '';
-                                                    switch ($order->status) {
-                                                        case 'pending':
-                                                            $statusClass = 'bg-warning text-dark';
-                                                            break;
-                                                        case 'processing':
-                                                            $statusClass = 'bg-primary';
-                                                            break;
-                                                        case 'shipped':
-                                                            $statusClass = 'bg-info text-dark';
-                                                            break;
-                                                        case 'completed':
-                                                            $statusClass = 'bg-success';
-                                                            break;
-                                                        case 'received':
-                                                            $statusClass = 'bg-info';
-                                                            break;
-                                                        case 'canceled':
-                                                            $statusClass = 'bg-danger';
-                                                            break;
+                                                    $statusText = '';
+
+                                                    if ($order->status === 'canceled') {
+                                                        $statusClass = 'bg-danger';
+                                                        $statusText = 'Đã hủy';
                                                     }
                                                 @endphp
-                                                <span class="badge {{ $statusClass }}">{{ ucfirst($order->status) }}</span>
+                                                @if ($order->status === 'canceled')
+                                                    <span class="badge bg-danger fs-7 px-3 py-2">Đã hủy</span>
+                                                @endif
                                             </td>
                                             <td>
                                                 @php
@@ -89,7 +77,9 @@
                                                     };
                                                 @endphp
 
-                                                <span class="badge {{ $statusClass }}">{{ $statusLabel }}</span>
+                                                <span class="badge {{ $statusClass }} fs-7 px-3 py-2">
+                                                    {{ $statusLabel }}
+                                                </span>
                                             </td>
                                             <td>{{ $order->refund?->created_at?->format('d/m/Y H:i') ?? '-' }}</td>
                                             <td>
