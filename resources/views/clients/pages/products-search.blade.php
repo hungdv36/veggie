@@ -1,446 +1,311 @@
 @extends('layouts.client')
 
 @section('title', 'Tìm kiếm sản phẩm')
-
 @section('breadcrumb', 'Tìm kiếm sản phẩm')
 
 @section('content')
 
-    <!-- PRODUCT DETAILS AREA START -->
+    <style>
+        .search-title {
+            font-size: 26px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .product-card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 12px;
+            transition: 0.25s;
+            height: 100%;
+            box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f1f1f1;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-card img {
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .product-card img:hover {
+            transform: scale(1.05);
+        }
+
+        .product-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            height: 40px;
+            overflow: hidden;
+        }
+
+        .product-price {
+            color: #e74c3c;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .product-category {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .btn-view {
+            background: #3498db;
+            border-radius: 10px;
+            color: #fff !important;
+            padding: 6px 10px;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.25s;
+        }
+
+        .btn-view:hover {
+            background: #2980b9;
+        }
+
+        .product-hover-action {
+            opacity: 0;
+            transition: 0.25s;
+        }
+
+        .product-card:hover .product-hover-action {
+            opacity: 1;
+        }
+    </style>
+
     <div class="ltn__product-area ltn__product-gutter mb-120">
         <div class="container">
+
+            <h2 class="mb-4 text-center search-title">
+                @if (!empty($query))
+                    Kết quả tìm kiếm cho: <strong>"{{ $query }}"</strong>
+                @else
+                    Tìm kiếm sản phẩm
+                @endif
+            </h2>
+
             <div class="row">
-                <div class="col-lg-12">
 
-                    <div class="tab-content">
-                        <div class="tab-pane fade active show" id="liton_product_grid">
-                            <div class="ltn__product-tab-content-inner ltn__product-grid-view">
-                                <h2 class="mb-4 text-center">
+                @if (!empty($query) && $products->count() > 0)
 
+                    @foreach ($products as $product)
+                        <div class="col-xl-3 col-lg-4 col-md-4 col-sm-6 mb-4">
+                            <div class="product-card">
 
-                                    @if (!empty($query))
-                                        Kết quả tìm kiếm cho: <strong>"{{ $query }}"</strong>
-                                    @else
-                                        Tìm kiếm sản phẩm
-                                    @endif
-                                </h2>
-                                <div class="row">
+                                <!-- IMAGE -->
+                                <div class="position-relative">
+                                    <a href="{{ route('products.detail', $product->slug) }}">
+                                        <img src="{{ $product->image_url }}" alt="{{ $product->name }}"
+                                            class="img-fluid w-100">
+                                    </a>
 
-                                    <!-- ltn__product-item -->
-                                    @if (!empty($query) && $products->count() > 0)
-                                        <div class="row">
-                                            @foreach ($products as $product)
-                                                <div class="col-xl-3 col-lg-4 col-sm-6 col-6 mb-4">
-                                                    <div
-                                                        class="ltn__product-item ltn__product-item-3 text-center border p-2 rounded">
-                                                        <div class="product-img position-relative">
-                                                            <a href="{{ route('products.detail', $product->slug) }}">
-                                                                <img src="{{ $product->image_url }}"
-                                                                    alt="{{ $product->name }}" class="img-fluid rounded">
-                                                            </a>
-                                                            <div
-                                                                class="product-hover-action position-absolute top-0 end-0 m-2">
-                                                                <a href="{{ route('products.detail', $product->slug) }}"
-                                                                    title="Xem chi tiết">
-                                                                    <i class="far fa-eye"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                        <div class="product-info mt-2">
-                                                            <h6 class="product-title text-truncate">
-                                                                <a
-                                                                    href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
-                                                            </h6>
-                                                            <div class="product-price fw-bold text-danger">
-                                                                {{ number_format($product->price, 0, ',', '.') }}₫
-                                                            </div>
-                                                            <small class="text-muted">
-                                                                {{ $product->category->name ?? 'Không có danh mục' }}
-                                                            </small>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        </div>
-
-                                        <div class="mt-3 d-flex justify-content-center">
-                                            {{ $products->appends(['query' => $query])->links() }}
-                                        </div>
-                                    @elseif(!empty($query))
-                                        <div class="text-center">
-                                            <p>Không tìm thấy sản phẩm nào phù hợp với từ khóa
-                                                <strong>"{{ $query }}"</strong>.</p>
-                                        </div>
-                                    @else
-                                        <div class="text-center">
-                                            <p>Vui lòng nhập từ khóa để tìm kiếm sản phẩm.</p>
-                                        </div>
-                                    @endif
+                                    <div class="product-hover-action position-absolute top-0 end-0 m-2">
+                                        <a href="{{ route('products.detail', $product->slug) }}" class="btn-view">
+                                            <i class="far fa-eye"></i> Xem
+                                        </a>
+                                    </div>
                                 </div>
-                                <!--  -->
+
+                                <!-- INFO -->
+                                <div class="mt-3">
+                                    <h6 class="product-title text-truncate">
+                                        <a href="{{ route('products.detail', $product->slug) }}">{{ $product->name }}</a>
+                                    </h6>
+
+                                    <div class="product-price">
+                                        {{ number_format($product->price, 0, ',', '.') }}₫
+                                    </div>
+
+                                    <div class="product-category">
+                                        {{ $product->category->name ?? 'Không có danh mục' }}
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
+                    @endforeach
+                @elseif(!empty($query))
+                    <div class="text-center mt-5">
+                        <p>Không tìm thấy sản phẩm nào phù hợp với từ khóa <strong>"{{ $query }}"</strong>.</p>
                     </div>
-                    <div class="tab-pane fade" id="liton_product_list">
-                        <div class="ltn__product-tab-content-inner ltn__product-list-view">
-                            <div class="row">
-                                <!-- ltn__product-item -->
-                                <div class="col-lg-12">
-                                    <div class="ltn__product-item ltn__product-item-3">
-                                        <div class="product-img">
-                                            <a href="product-details.html"><img src="img/product/1.png" alt="#"></a>
-                                            <div class="product-badge">
-                                                <ul>
-                                                    <li class="sale-badge">New</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="product-info">
-                                            <h2 class="product-title"><a href="product-details.html">Vegetables
-                                                    Juices</a></h2>
-                                            <div class="product-ratting">
-                                                <ul>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                    </li>
-                                                    <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="product-price">
-                                                <span>$165.00</span>
-                                                <del>$1720.00</del>
-                                            </div>
-                                            <div class="product-brief">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                    Recusandae asperiores sit odit nesciunt, aliquid, deleniti
-                                                    non et ut dolorem!</p>
-                                            </div>
-                                            <div class="product-hover-action">
-                                                <ul>
-                                                    <li>
-                                                        <a href="#" title="Quick View" data-bs-toggle="modal"
-                                                            data-bs-target="#quick_view_modal">
-                                                            <i class="far fa-eye"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Add to Cart" data-bs-toggle="modal"
-                                                            data-bs-target="#add_to_cart_modal">
-                                                            <i class="fas fa-shopping-cart"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Wishlist" data-bs-toggle="modal"
-                                                            data-bs-target="#liton_wishlist_modal">
-                                                            <i class="far fa-heart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- ltn__product-item -->
-                                <div class="col-lg-12">
-                                    <div class="ltn__product-item ltn__product-item-3">
-                                        <div class="product-img">
-                                            <a href="product-details.html"><img src="img/product/2.png" alt="#"></a>
-                                        </div>
-                                        <div class="product-info">
-                                            <h2 class="product-title"><a href="product-details.html">Poltry Farm
-                                                    Meat</a></h2>
-                                            <div class="product-ratting">
-                                                <ul>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                    </li>
-                                                    <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="product-price">
-                                                <span>$165.00</span>
-                                                <del>$1720.00</del>
-                                            </div>
-                                            <div class="product-brief">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                    Recusandae asperiores sit odit nesciunt, aliquid, deleniti
-                                                    non et ut dolorem!</p>
-                                            </div>
-                                            <div class="product-hover-action">
-                                                <ul>
-                                                    <li>
-                                                        <a href="#" title="Quick View" data-bs-toggle="modal"
-                                                            data-bs-target="#quick_view_modal">
-                                                            <i class="far fa-eye"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Add to Cart" data-bs-toggle="modal"
-                                                            data-bs-target="#add_to_cart_modal">
-                                                            <i class="fas fa-shopping-cart"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Wishlist" data-bs-toggle="modal"
-                                                            data-bs-target="#liton_wishlist_modal">
-                                                            <i class="far fa-heart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- ltn__product-item -->
-                                <div class="col-lg-12">
-                                    <div class="ltn__product-item ltn__product-item-3">
-                                        <div class="product-img">
-                                            <a href="product-details.html"><img src="img/product/3.png"
-                                                    alt="#"></a>
-                                            <div class="product-badge">
-                                                <ul>
-                                                    <li class="sale-badge">New</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="product-info">
-                                            <h2 class="product-title"><a href="product-details.html">Vegetables
-                                                    Juices</a></h2>
-                                            <div class="product-ratting">
-                                                <ul>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                    </li>
-                                                    <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="product-price">
-                                                <span>$165.00</span>
-                                                <del>$1720.00</del>
-                                            </div>
-                                            <div class="product-brief">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                    Recusandae asperiores sit odit nesciunt, aliquid, deleniti
-                                                    non et ut dolorem!</p>
-                                            </div>
-                                            <div class="product-hover-action">
-                                                <ul>
-                                                    <li>
-                                                        <a href="#" title="Quick View" data-bs-toggle="modal"
-                                                            data-bs-target="#quick_view_modal">
-                                                            <i class="far fa-eye"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Add to Cart" data-bs-toggle="modal"
-                                                            data-bs-target="#add_to_cart_modal">
-                                                            <i class="fas fa-shopping-cart"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Wishlist" data-bs-toggle="modal"
-                                                            data-bs-target="#liton_wishlist_modal">
-                                                            <i class="far fa-heart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- ltn__product-item -->
-                                <div class="col-lg-12">
-                                    <div class="ltn__product-item ltn__product-item-3">
-                                        <div class="product-img">
-                                            <a href="product-details.html"><img src="img/product/4.png"
-                                                    alt="#"></a>
-                                        </div>
-                                        <div class="product-info">
-                                            <h2 class="product-title"><a href="product-details.html">Red Hot
-                                                    Tomato</a></h2>
-                                            <div class="product-ratting">
-                                                <ul>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                    </li>
-                                                    <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="product-price">
-                                                <span>$165.00</span>
-                                                <del>$1720.00</del>
-                                            </div>
-                                            <div class="product-brief">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                    Recusandae asperiores sit odit nesciunt, aliquid, deleniti
-                                                    non et ut dolorem!</p>
-                                            </div>
-                                            <div class="product-hover-action">
-                                                <ul>
-                                                    <li>
-                                                        <a href="#" title="Quick View" data-bs-toggle="modal"
-                                                            data-bs-target="#quick_view_modal">
-                                                            <i class="far fa-eye"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Add to Cart" data-bs-toggle="modal"
-                                                            data-bs-target="#add_to_cart_modal">
-                                                            <i class="fas fa-shopping-cart"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Wishlist" data-bs-toggle="modal"
-                                                            data-bs-target="#liton_wishlist_modal">
-                                                            <i class="far fa-heart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- ltn__product-item -->
-                                <div class="col-lg-12">
-                                    <div class="ltn__product-item ltn__product-item-3">
-                                        <div class="product-img">
-                                            <a href="product-details.html"><img src="img/product/5.png"
-                                                    alt="#"></a>
-                                            <div class="product-badge">
-                                                <ul>
-                                                    <li class="sale-badge">Hot</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="product-info">
-                                            <h2 class="product-title"><a href="product-details.html">Orange
-                                                    Sliced Mix</a></h2>
-                                            <div class="product-ratting">
-                                                <ul>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                    </li>
-                                                    <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="product-price">
-                                                <span>$165.00</span>
-                                                <del>$1720.00</del>
-                                            </div>
-                                            <div class="product-brief">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                    Recusandae asperiores sit odit nesciunt, aliquid, deleniti
-                                                    non et ut dolorem!</p>
-                                            </div>
-                                            <div class="product-hover-action">
-                                                <ul>
-                                                    <li>
-                                                        <a href="#" title="Quick View" data-bs-toggle="modal"
-                                                            data-bs-target="#quick_view_modal">
-                                                            <i class="far fa-eye"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Add to Cart" data-bs-toggle="modal"
-                                                            data-bs-target="#add_to_cart_modal">
-                                                            <i class="fas fa-shopping-cart"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Wishlist" data-bs-toggle="modal"
-                                                            data-bs-target="#liton_wishlist_modal">
-                                                            <i class="far fa-heart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- ltn__product-item -->
-                                <div class="col-lg-12">
-                                    <div class="ltn__product-item ltn__product-item-3">
-                                        <div class="product-img">
-                                            <a href="product-details.html"><img src="img/product/6.png"
-                                                    alt="#"></a>
-                                            <div class="product-badge">
-                                                <ul>
-                                                    <li class="sale-badge">New</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        <div class="product-info">
-                                            <h2 class="product-title"><a href="product-details.html">Orange
-                                                    Sliced Mix</a></h2>
-                                            <div class="product-ratting">
-                                                <ul>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star"></i></a></li>
-                                                    <li><a href="#"><i class="fas fa-star-half-alt"></i></a>
-                                                    </li>
-                                                    <li><a href="#"><i class="far fa-star"></i></a></li>
-                                                </ul>
-                                            </div>
-                                            <div class="product-price">
-                                                <span>$165.00</span>
-                                                <del>$1720.00</del>
-                                            </div>
-                                            <div class="product-brief">
-                                                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                                    Recusandae asperiores sit odit nesciunt, aliquid, deleniti
-                                                    non et ut dolorem!</p>
-                                            </div>
-                                            <div class="product-hover-action">
-                                                <ul>
-                                                    <li>
-                                                        <a href="#" title="Quick View" data-bs-toggle="modal"
-                                                            data-bs-target="#quick_view_modal">
-                                                            <i class="far fa-eye"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Add to Cart" data-bs-toggle="modal"
-                                                            data-bs-target="#add_to_cart_modal">
-                                                            <i class="fas fa-shopping-cart"></i>
-                                                        </a>
-                                                    </li>
-                                                    <li>
-                                                        <a href="#" title="Wishlist" data-bs-toggle="modal"
-                                                            data-bs-target="#liton_wishlist_modal">
-                                                            <i class="far fa-heart"></i></a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!--  -->
-                            </div>
-                        </div>
+                @else
+                    <div class="text-center mt-5">
+                        <p>Vui lòng nhập từ khóa để tìm kiếm sản phẩm.</p>
                     </div>
-                </div>
-                <div class="ltn__pagination-area text-center">
-                    <div class="ltn__pagination">
-                        <ul>
-                            <li><a href="#"><i class="fas fa-angle-double-left"></i></a></li>
-                            <li><a href="#">1</a></li>
-                            <li class="active"><a href="#">2</a></li>
-                            <li><a href="#">3</a></li>
-                            <li><a href="#">...</a></li>
-                            <li><a href="#">10</a></li>
-                            <li><a href="#"><i class="fas fa-angle-double-right"></i></a></li>
-                        </ul>
-                    </div>
-                </div>
+                @endif
+
             </div>
+
         </div>
     </div>
+    <style>
+        /* Pagination container */
+        .custom-pagination {
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .pagination-info {
+            color: #6b6b6b;
+            font-size: 14px;
+        }
+
+        .pagination-list {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .pagination-list .page-item {
+            list-style: none;
+        }
+
+        .pagination-list .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 36px;
+            height: 36px;
+            padding: 0 10px;
+            border-radius: 10px;
+            border: 1px solid #eef0f3;
+            background: #fff;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            transition: all .15s;
+        }
+
+        .pagination-list .page-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+        }
+
+        .pagination-list .active .page-link {
+            background: #2d9cdb;
+            color: #fff;
+            border-color: #2d9cdb;
+        }
+
+        .pagination-list .disabled .page-link {
+            opacity: 0.55;
+            cursor: default;
+        }
+
+        .pagination-ellipsis {
+            min-width: 36px;
+            text-align: center;
+            color: #9aa0a6;
+        }
+
+        @media (max-width: 576px) {
+            .custom-pagination {
+                padding: 10px;
+                gap: 8px;
+            }
+
+            .pagination-info {
+                font-size: 13px;
+            }
+
+            .pagination-list .page-link {
+                min-width: 32px;
+                height: 32px;
+                font-size: 13px;
+            }
+        }
+    </style>
+
+    @php
+        $current = $products->currentPage();
+        $last = $products->lastPage();
+        // window of pages around current
+        $start = max(1, $current - 2);
+        $end = min($last, $current + 2);
+    @endphp
+
+    <div class="custom-pagination mt-3">
+        <!-- Info: Showing X to Y of Z results -->
+        <div class="pagination-info">
+            @if ($products->total() > 0)
+                Hiển thị <strong>{{ $products->firstItem() }}</strong> đến <strong>{{ $products->lastItem() }}</strong>
+                của
+                <strong>{{ $products->total() }}</strong> kết quả
+            @else
+                Không có kết quả
+            @endif
+        </div>
+
+        <!-- Pagination controls -->
+        <nav aria-label="Page navigation">
+            <ul class="pagination-list">
+
+                {{-- Previous --}}
+                @if ($products->onFirstPage())
+                    <li class="page-item disabled"><span class="page-link">&laquo; Prev</span></li>
+                @else
+                    <li class="page-item"><a class="page-link"
+                            href="{{ $products->previousPageUrl() }}&query={{ urlencode($query ?? '') }}">&laquo; Prev</a>
+                    </li>
+                @endif
+
+                {{-- First page + ellipsis if needed --}}
+                @if ($start > 1)
+                    <li class="page-item"><a class="page-link"
+                            href="{{ $products->url(1) }}&query={{ urlencode($query ?? '') }}">1</a></li>
+                    @if ($start > 2)
+                        <li class="page-item"><span class="page-link pagination-ellipsis">…</span></li>
+                    @endif
+                @endif
+
+                {{-- Page numbers window --}}
+                @for ($i = $start; $i <= $end; $i++)
+                    <li class="page-item {{ $i == $current ? 'active' : '' }}">
+                        @if ($i == $current)
+                            <span class="page-link">{{ $i }}</span>
+                        @else
+                            <a class="page-link"
+                                href="{{ $products->url($i) }}&query={{ urlencode($query ?? '') }}">{{ $i }}</a>
+                        @endif
+                    </li>
+                @endfor
+
+                {{-- Last page + ellipsis if needed --}}
+                @if ($end < $last)
+                    @if ($end < $last - 1)
+                        <li class="page-item"><span class="page-link pagination-ellipsis">…</span></li>
+                    @endif
+                    <li class="page-item"><a class="page-link"
+                            href="{{ $products->url($last) }}&query={{ urlencode($query ?? '') }}">{{ $last }}</a>
+                    </li>
+                @endif
+
+                {{-- Next --}}
+                @if ($current == $last || $last == 0)
+                    <li class="page-item disabled"><span class="page-link">Next &raquo;</span></li>
+                @else
+                    <li class="page-item"><a class="page-link"
+                            href="{{ $products->nextPageUrl() }}&query={{ urlencode($query ?? '') }}">Next &raquo;</a>
+                    </li>
+                @endif
+
+            </ul>
+        </nav>
     </div>
-    <!-- PRODUCT DETAILS AREA END -->
+
 @endsection

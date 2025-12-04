@@ -1,67 +1,147 @@
 @extends('layouts.client')
 
 @section('title', 'Yêu thích')
-
 @section('breadcrumb', 'Yêu thích')
 
 @section('content')
-    <div class="liton__shoping-cart-area mb-120">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="shoping-cart-inner">
-                        <div class="shoping-cart-table table-responsive">
-                            <table class="table">
-                                <tbody>
-                                    @foreach ($wishlistItems as $item)
-                                        <tr>
-                                            <td class="wishlist-product-remove">
-                                                <button class="remove-from-wishlist" data-id="{{ $item->id }}">x</button>
-                                            </td>
+<style>
+    .wishlist-container {
+        background: #fff;
+        border-radius: 14px;
+        padding: 30px;
+        box-shadow: 0 4px 18px rgba(0, 0, 0, 0.07);
+    }
 
-                                            <td class="wishlist-product-image">
-                                                <a href="#">
-                                                    <img src="{{ asset($item->product->image) }}"
-                                                        alt="{{ $item->product->name }}">
-                                                </a>
-                                            </td>
+    .wishlist-item {
+        display: flex;
+        align-items: center;
+        padding: 18px 0;
+        border-bottom: 1px solid #f1f1f1;
+    }
 
-                                            <td class="wishlist-product-info">
-                                                <h4><a href="javascript:void(0)">{{ $item->product->name }}</a></h4>
-                                                <p>Thương hiệu: {{ $item->product->brand ?? 'Không có' }}</p>
-                                            </td>
+    .wishlist-item:last-child {
+        border-bottom: none;
+    }
 
-                                            <td class="wishlist-product-price">
-                                                {{ number_format($item->product->price, 0, ',', '.') }}đ
-                                            </td>
+    .wishlist-image img {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 12px;
+        transition: 0.3s;
+    }
 
-                                            <td class="wishlist-product-actions">
-                                                <!-- Nút thêm vào giỏ hàng -->
-                                                <a href="javascript:void(0)"
-                                                    class="theme-btn-1 btn btn-effect-1 add-to-cart-btn"
-                                                    title="Thêm vào giỏ hàng" data-id="{{ $item->product->id }}">
-                                                    <i class="fas fa-shopping-cart"></i>
-                                                    <span>Thêm vào giỏ hàng</span>
-                                                </a>
+    .wishlist-image img:hover {
+        transform: scale(1.05);
+    }
 
-                                                <!-- Nút xóa khỏi wishlist -->
-                                                <a href="javascript:void(0)"
-                                                    class="theme-btn-2 btn btn-effect-2 remove-from-wishlist"
-                                                    title="Xóa khỏi danh sách yêu thích" data-id="{{ $item->product->id }}">
-                                                    <i class="far fa-trash-alt"></i>
-                                                    <span>Xóa</span>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
+    .wishlist-info h4 {
+        font-size: 18px;
+        margin-bottom: 6px;
+        font-weight: 600;
+    }
 
-                                </tbody>
-                            </table>
-                        </div>
-                        
+    .wishlist-info p {
+        margin: 0;
+        color: #777;
+    }
+
+    .wishlist-price {
+        font-size: 18px;
+        color: #ff4d4f;
+        font-weight: 600;
+    }
+
+    .wishlist-actions .btn {
+        padding: 10px 14px;
+        border-radius: 10px;
+        font-size: 14px;
+        margin-right: 8px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: 0.25s;
+    }
+
+    .wishlist-actions .btn i {
+        font-size: 16px;
+    }
+
+    .btn-add-cart {
+        background: #2ecc71;
+        color: #fff;
+    }
+
+    .btn-add-cart:hover {
+        background: #27ae60;
+    }
+
+    .btn-remove {
+        background: #e74c3c;
+        color: #fff;
+    }
+
+    .btn-remove:hover {
+        background: #c0392b;
+    }
+
+    @media (max-width: 768px) {
+        .wishlist-item {
+            flex-direction: column;
+            text-align: center;
+            gap: 15px;
+        }
+        .wishlist-actions {
+            display: flex;
+            justify-content: center;
+        }
+    }
+</style>
+
+<div class="container mb-120">
+    <div class="wishlist-container">
+        @foreach ($wishlistItems as $item)
+            <div class="wishlist-item">
+
+                <!-- Image -->
+                <div class="wishlist-image">
+                    <a href="{{ route('products.detail', $item->product->slug) }}">
+                        <img src="{{ $item->product->image_url }}" alt="{{ $item->product->name }}">
+                    </a>
                 </div>
+
+                <!-- Info -->
+                <div class="wishlist-info flex-grow-1 ms-4">
+                    <h4>{{ $item->product->name }}</h4>
+                    <p>Thương hiệu: {{ $item->product->brand ?? 'Không có' }}</p>
+                </div>
+
+                <!-- Price -->
+                <div class="wishlist-price me-4">
+                    {{ number_format($item->product->price, 0, ',', '.') }}đ
+                </div>
+
+                <!-- Actions -->
+                <div class="wishlist-actions">
+
+                    <a href="javascript:void(0)"
+                       class="btn btn-add-cart add-to-cart-btn"
+                       data-id="{{ $item->product->id }}"
+                       title="Thêm vào giỏ hàng">
+                        <i class="fas fa-shopping-cart"></i> Thêm
+                    </a>
+
+                    <a href="javascript:void(0)"
+                       class="btn btn-remove remove-from-wishlist"
+                       data-id="{{ $item->product->id }}"
+                       title="Xóa khỏi danh sách yêu thích">
+                        <i class="far fa-trash-alt"></i> Xóa
+                    </a>
+
+                </div>
+
             </div>
-        </div>
+        @endforeach
     </div>
-    </div>
+</div>
 @endsection
