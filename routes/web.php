@@ -159,4 +159,9 @@ Route::get('/history', [ChatbotController::class, 'history']);
 Route::get('/download-history', [ChatbotController::class, 'downloadHistory']);
 Route::delete('/delete-history', [ChatbotController::class, 'deleteHistory']);
 Route::post('/chat/send', [ChatbotController::class, 'chat'])->name('chat.send');
+
+Route::post('/chat/vision', [ChatbotController::class, 'vision'])->name('chat.vision');
+Route::get('/chat/trending', [ChatbotController::class, 'trending'])->name('chat.trending');
+
+
 require __DIR__ . '/admin.php';

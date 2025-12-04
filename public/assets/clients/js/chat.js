@@ -103,4 +103,47 @@ document.addEventListener("DOMContentLoaded", () => {
     input.addEventListener("keypress", (e) => {
         if (e.key === "Enter") sendMessage();
     });
+
+const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+const box = document.getElementById('chat-messages');
+const sessionId = localStorage.getItem('session_id') || (() => {
+  const id = Math.random().toString(36).slice(2);
+  localStorage.setItem('session_id', id);
+  return id;
+})();
+
+// Thêm nút vào header
+(function addHeaderButtons(){
+  const header = document.getElementById('chat-header');
+  if (!header) return;
+  const actions = document.createElement('div');
+  actions.style.cssText = 'display:flex;gap:8px;margin-left:auto';
+  actions.innerHTML = `
+    <input type="file" id="chat-image" accept="image/*" style="display:none">
+    <button id="chat-clear" title="Xóa lịch sử" style="background:#ef4444;color:#fff;border:none;border-radius:6px;width:34px;height:34px;display:flex;align-items:center;justify-content:center;">🗑️</button>
+  `;
+  header.insertBefore(actions, document.getElementById('chat-close'));
+})();
+// Xóa lịch sử
+document.getElementById('chat-clear')?.addEventListener('click', async () => {
+  if (!confirm('Xóa toàn bộ lịch sử chat?')) return;
+  await fetch('/delete-history?session_id='+sessionId, { method:'DELETE', headers:{'X-CSRF-TOKEN':csrf} });
+  box.innerHTML = '';
+});
+
+// Hiển thị bán chạy
+document.getElementById('chat-trending')?.addEventListener('click', async () => {
+  const res = await fetch('/chat/trending');
+  const data = await res.json();
+  const items = data.items || [];
+  let html = '<div class="trending-grid">';
+  items.forEach(p => {
+    html += `<div class="trending-card">
+      <div class="img"><img src="${p.image_url||''}" style="width:100%;height:auto"></>${p.name}</div><div class="price">${p.price.toLocaleString()} đ</div></div>
+    </div>`;
+  });
+  html += '</div>';
+  box.innerHTML += html;
+});
+  
 });

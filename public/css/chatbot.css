@@ -409,3 +409,67 @@ body.dark-mode .chat-form .message-input {
 #chatbot-popup { font-family: Arial, sans-serif; }
 #chat-body .user-message { text-align:right;color:#fff;background:#007bff;padding:8px;border-radius:8px;margin:5px; }
 #chat-body .bot-message { text-align:left;color:#333;background:#f1f1f1;padding:8px;border-radius:8px;margin:5px; }
+
+#chat-clear, #chat-trending {
+  border:none; border-radius:6px; padding:6px 10px; cursor:pointer;
+}
+#chat-clear:hover { background:#dc2626 !important; }
+#chat-trending:hover { background:#1d4ed8 !important; }
+
+.trending-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.trending-card { background:#fff; color:#111; border:1px solid #eee; border-radius:10px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.06); }
+.trending-card .img { width:100%; aspect-ratio:1/1; background:#f8f8f8; display:flex; align-items:center; justify-content:center; }
+.trending-card .info { padding:8px; }
+.trending-card .name { font-weight:600; font-size:.92rem; }
+.trending-card .price { color:#2563eb; margin-top:6px; }
+.trending-card .actions { display:flex; gap:8px; margin-top:8px; }
+.trending-card .btn { flex:1; padding:6px; border:none; border-radius:8px; cursor:pointer; font-size:.85rem; }
+.trending-card .btn.view { background:#7c3aed; color:#fff; }
+.trending-card .btn.add { background:#10b981; color:#fff; }
+
+/* Header */
+#chat-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 10px; background:#111827; color:#fff; border-radius:8px 8px 0 0;
+}
+#chat-header .chat-title { font-weight:600; }
+
+/* Dãy nút hành động */
+.chat-actions { display:flex; gap:8px; align-items:center; }
+
+/* Nút icon chung */
+.icon-btn {
+  display:inline-flex; align-items:center; justify-content:center;
+  width:34px; height:34px; border-radius:8px; border:none; cursor:pointer;
+  background:#1f2937; color:#fff;
+}
+.icon-btn:hover { background:#374151; }
+.icon-btn.primary { background:#2563eb; }
+.icon-btn.primary:hover { background:#1d4ed8; }
+.icon-btn.danger { background:#ef4444; }
+.icon-btn.danger:hover { background:#dc2626; }
+.icon { width:18px; height:18px; }
+
+/* Bán chạy – grid sản phẩm */
+#chat-trending-grid { margin-top:10px; }
+.trending-grid {
+  display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px;
+}
+.trending-card {
+  background:#fff; color:#111; border:1px solid #eee; border-radius:10px;
+  overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.06);
+}
+.trending-card .img {
+  width:100%; aspect-ratio:1/1; background:#f8f8f8;
+  display:flex; align-items:center; justify-content:center;
+}
+.trending-card .info { padding:8px; }
+.trending-card .name { font-weight:600; font-size:.92rem; }
+.trending-card .price { color:#2563eb; margin-top:6px; }
+.trending-card .actions { display:flex; gap:8px; margin-top:8px; }
+.trending-card .btn {
+  flex:1; padding:6px; border:none; border-radius:8px; cursor:pointer; font-size:.85rem;
+}
+.trending-card .btn.view { background:#7c3aed; color:#fff; }
+.trending-card .btn.add  { background:#10b981; color:#fff; }
+
