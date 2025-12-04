@@ -14,21 +14,21 @@ use Illuminate\Support\Facades\DB;
 class OrderController extends Controller
 {
 
-public function showOrder($id)
-{
-    $order = Order::with([
-        'orderItems.product',
-        'orderItems.variant.color',
-        'orderItems.variant.size',
-        'user',
-        'shippingAddress',
-        'payment'
-    ])
-    ->where('user_id', auth()->id())
-    ->findOrFail($id);
+    public function showOrder($id)
+    {
+        $order = Order::with([
+            'orderItems.product',
+            'orderItems.variant.color',
+            'orderItems.variant.size',
+            'user',
+            'shippingAddress',
+            'payment'
+        ])
+            ->where('user_id', auth()->id())
+            ->findOrFail($id);
 
-    return view('clients.pages.order-detail', compact('order'));
-}
+        return view('clients.pages.order-detail', compact('order'));
+    }
 
     public function confirmReceived(Order $order)
     {
@@ -62,7 +62,14 @@ public function showOrder($id)
     }
     public function cancelOrder(Request $request, $id): RedirectResponse
     {
-        $order = Order::with(['orderItems.product', 'orderCoupons.coupon', 'payment'])
+        $order = Order::with([
+            'orderItems.product',
+            'orderItems.variant',
+            'orderCoupons.coupon',
+            'payment',
+            'status_logs.user',
+            'status_logs.role',
+        ])
             ->where('id', $id)
             ->where('user_id', auth()->id())
             ->whereIn('status', ['pending', 'processing'])
@@ -75,10 +82,26 @@ public function showOrder($id)
         DB::beginTransaction();
 
         try {
+            // Hoàn kho chính xác
             foreach ($order->orderItems as $item) {
-                $item->product->increment('stock', $item->quantity);
+
+                // Nếu có variation thì hoàn vào variation
+                if ($item->variation_id) {
+                    if ($item->variation) {
+                        $item->variation->increment('stock', $item->quantity);
+                    } elseif ($item->product) {
+                        // fallback khi variation bị xoá
+                        $item->product->increment('stock', $item->quantity);
+                    }
+                } else {
+                    // Không có variation -> hoàn vào product
+                    if ($item->product) {
+                        $item->product->increment('stock', $item->quantity);
+                    }
+                }
             }
 
+            // Trả lại lượt dùng mã giảm giá
             foreach ($order->orderCoupons as $orderCoupon) {
                 $coupon = $orderCoupon->coupon;
                 if ($coupon && $coupon->used > 0) {
@@ -86,12 +109,24 @@ public function showOrder($id)
                 }
             }
 
+            $oldStatus = $order->status;
+
+            // Cập nhật đơn
             $order->update([
                 'status' => 'canceled',
                 'cancel_reason' => $request->cancel_reason,
             ]);
 
-            // Nếu thanh toán online mới tạo Refund
+            // Lưu log thay đổi trạng thái
+            $order->status_logs()->create([
+                'old_status' => $oldStatus,
+                'status' => 'canceled',
+                'role_id' => 3,
+                'user_id' => auth()->id(),
+                'notes' => $request->cancel_reason,
+            ]);
+
+            // Nếu thanh toán MoMo -> thêm yêu cầu hoàn tiền
             if ($order->payment && $order->payment->payment_method === 'momo') {
                 Refund::create([
                     'order_id' => $order->id,
@@ -103,11 +138,11 @@ public function showOrder($id)
                     ->with('success', 'Đơn hàng đã hủy. Vui lòng nhập thông tin ngân hàng để được hoàn tiền.');
             }
 
-            // COD hoặc phương thức khác: commit và thông báo thành công
             DB::commit();
             return redirect()->back()->with('success', 'Đơn hàng đã hủy thành công.');
         } catch (\Exception $e) {
             DB::rollBack();
+            report($e);
             return redirect()->back()->with('error', 'Có lỗi xảy ra, vui lòng thử lại.');
         }
     }
