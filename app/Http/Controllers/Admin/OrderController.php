@@ -52,9 +52,10 @@ class OrderController extends Controller
         $order->status = $newStatus;
         $order->save();
 
+        $admin = Auth::guard('admin')->user();
         // Lưu lịch sử trạng thái
         $order->status_logs()->create([
-            'role_id' => Auth::check() ? Auth::user()->role_id : 1,
+            'role_id' => $admin ? $admin->role_id : 1,
             'old_status' => $oldStatus, // dùng biến đã lưu
             'status' => $newStatus,
             'changed_at' => now(),
@@ -73,8 +74,9 @@ class OrderController extends Controller
      */
     public function showOrderDetail(string $id)
     {
-        $order = Order::with('orderItems.product','orderItems.variant.size','orderItems.variant.color', 'shippingAddress', 'user', 'payment', 'status_logs.role')->find($id);
-        return view('admin.pages.order.orders-detail', compact('order'));
+        $order = Order::with('orderItems.product', 'orderItems.variant.size', 'orderItems.variant.color', 'shippingAddress', 'user', 'payment', 'status_logs.role','status_logs.user','refund.histories.admin')->find($id);
+        $refund = $order->refund;
+        return view('admin.pages.order.orders-detail', compact('order','refund'));
     }
 
 
@@ -114,12 +116,12 @@ class OrderController extends Controller
         $order->update(['status' => $newStatus]);
 
         // Cập nhật trạng thái thanh toán (COD)
-        if (in_array($newStatus, ['completed', 'received'])) {
-            $order->payment?->update(['status' => 'completed']); // đã thanh toán
-        } elseif (in_array($newStatus, ['canceled', 'failed_delivery'])) {
-            $order->payment?->update(['status' => 'failed']); // thanh toán thất bại
-        } else {
-            $order->payment?->update(['status' => 'pending']); // mặc định
+        if ($order->payment?->method === 'cod') {
+            if (in_array($newStatus, ['completed', 'received'])) {
+                $order->payment->update(['status' => 'completed']);
+            } elseif (in_array($newStatus, ['canceled', 'failed_delivery'])) {
+                $order->payment->update(['status' => 'failed']);
+            }
         }
 
         // 🔹 FIX: Khai báo biến admin

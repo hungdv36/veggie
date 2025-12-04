@@ -172,7 +172,7 @@
                                     <td>{{ $statusVN[$log->old_status] ?? $log->old_status }} →
                                         {{ $statusVN[$log->status] ?? $log->status }}</td>
                                     <td>{{ $log->notes ?? '-' }}</td>
-                                    <td>{{ $log->role_id == 1 ? 'Admin' : 'Customer' }}</td>
+                                    <td>{{ $log->role_id == 1 ? 'Admin' : 'Khách hàng' }}</td>
                                     <td>{{ $log->changed_at ? \Carbon\Carbon::parse($log->changed_at)->format('H:i d/m/Y') : '-' }}
                                     </td>
                                 </tr>
@@ -186,11 +186,60 @@
                 </div>
             </div>
 
+            {{-- #4.Lịch sử hoàn tiền --}}
+            <div class="card mb-4">
+                <div class="card-header fw-bold bg-light">
+                    #4. Lịch sử hoàn tiền
+                </div>
+                <div class="card-body p-0" style="overflow-x:auto;">
+                    @if (optional($refund)->histories && optional($refund)->histories->count())
+                        <table class="table table-bordered text-center align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Người thực hiện</th>
+                                    <th>Trạng thái</th>
+                                    <th>Biên lai</th>
+                                    <th>Ghi chú</th>
+                                    <th>Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (optional($refund)->histories as $index => $history)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>
+    {{ $history->admin->name ?? 'N/A' }}
+    ({{ $history->admin->role->name ?? 'Unknown' }})
+</td>
 
-            {{-- #4. Thay Đổi Trạng Thái --}}
+                                        <td>{{ $refundStatus[$history->status] ?? $history->status }}</td>
+                                        <td>
+                                            @if ($history->receipt)
+                                                <a href="{{ asset($history->receipt) }}" target="_blank"><i
+                                                        class="bi bi-eye"></i></a> |
+                                                <a href="{{ asset($history->receipt) }}" download><i
+                                                        class="bi bi-download"></i></a>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>{{ $history->note ?? '-' }}</td>
+                                        <td>{{ $history->created_at->format('d/m/Y H:i') }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @else
+                        <p class="p-3 mb-0 text-center">Chưa có lịch sử hoàn tiền.</p>
+                    @endif
+                </div>
+            </div>
+
+            {{-- #5. Thay Đổi Trạng Thái --}}
             <div class="card shadow-sm border-0 rounded-3">
                 <div class="card-header fw-bold bg-light border-0 rounded-top-3">
-                    #4. Thay Đổi Trạng Thái Đơn Hàng
+                    #5. Thay Đổi Trạng Thái Đơn Hàng
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.orders.updateStatus', $order->id) }}" method="POST">
@@ -211,8 +260,14 @@
 
                                     @foreach ($statusOrder as $index => $status)
                                         @php
-                                            $showOption = $index >= $currentIndex && $status !== 'canceled';
-                                            if ($order->status === 'canceled' && $status === 'canceled') {
+                                            $showOption =
+                                                $index >= $currentIndex &&
+                                                $status !== 'canceled' &&
+                                                $status !== 'received';
+                                            if (
+                                                $order->status === 'canceled' &&
+                                                ($status === 'canceled' || $status === 'received')
+                                            ) {
                                                 $showOption = true;
                                             }
                                         @endphp
@@ -220,7 +275,7 @@
                                         @if ($showOption)
                                             <option value="{{ $status }}"
                                                 {{ $order->status == $status ? 'selected' : '' }}
-                                                {{ $order->status === 'canceled' && $status === 'canceled' ? 'disabled' : '' }}>
+                                                @if ($order->status === 'canceled' && ($status === 'canceled' || ($order->refund->status ?? null) === 'refunded')) disabled @endif>
                                                 @switch($status)
                                                     @case('pending')
                                                         Chờ Xác Nhận
@@ -247,7 +302,11 @@
                                                     @break
 
                                                     @case('canceled')
-                                                        Đơn hàng đã hủy
+                                                        @if (($order->refund->status ?? null) === 'refunded')
+                                                            Hoàn tiền thành công
+                                                        @else
+                                                            Đơn hàng đã hủy
+                                                        @endif
                                                     @break
                                                 @endswitch
                                             </option>
