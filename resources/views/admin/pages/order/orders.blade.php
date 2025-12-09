@@ -189,7 +189,15 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th>Thành phố:</th>
-                                                                    <td>{{ $order->shippingAddress->city }}</td>
+                                                                    <td>{{ $order->shippingAddress->province }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Quận:</th>
+                                                                    <td>{{ $order->shippingAddress->district }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Phường:</th>
+                                                                    <td>{{ $order->shippingAddress->ward }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <th>Số điện thoại:</th>

@@ -61,11 +61,76 @@ class CheckoutController extends Controller
 
         DB::beginTransaction();
         try {
-            $totalAmount = $cartItems->sum(function ($item) {
-                return $item->quantity * ($item->variant->sale_price ?? $item->product->price);
-            }) + 25000;
+            // Lấy Flash Sale hiện tại (nếu có)
+            $flashSale = \App\Models\FlashSale::with('items')
+                ->where('start_time', '<=', now())
+                ->where('end_time', '>=', now())
+                ->first();
 
-            $discountAmount = 0;
+            $totalAmount = 0;
+
+            // Tạo đơn hàng
+            do {
+                $orderCode = 'DH-' . date('Ymd') . '-' . strtoupper(Str::random(4));
+            } while (Order::where('order_code', $orderCode)->exists());
+
+            $order = Order::create([
+                'user_id' => $user->id,
+                'shipping_address_id' => $request->address_id,
+                'total_amount' => 0, // cập nhật sau
+                'status' => 'pending',
+                'order_code' => $orderCode,
+            ]);
+
+            // Xử lý từng item trong giỏ
+            foreach ($cartItems as $item) {
+                $product = $item->product;
+                $variant = $item->variant;
+
+                $basePrice = $variant->price ?? $product->price;
+                $price = $basePrice;
+
+                // 1. Tính giá Flash Sale nếu có
+                if ($flashSale) {
+                    $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+                    if ($flashItem) {
+                        $price = round($basePrice * (1 - $flashItem->discount_price / 100));
+                    }
+                } else {
+                    // 2. Dùng sale_price nếu không có Flash Sale
+                    if ($variant && $variant->sale_price > 0) {
+                        $price = $variant->sale_price;
+                    } elseif (!$variant && $product->sale_price > 0) {
+                        $price = $product->sale_price;
+                    }
+                }
+
+                $totalAmount += $price * $item->quantity; // 3. Tính totalAmount
+
+                // 4. Lưu giá đúng vào OrderItem
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $item->product_id,
+                    'variant_id' => $item->variant_id,
+                    'quantity' => $item->quantity,
+                    'price' => $price,
+                ]);
+
+                // Giảm tồn kho giữ nguyên logic cũ
+                if ($item->variant_id) {
+                    $item->variant->decrement('quantity', $item->quantity);
+                } else {
+                    $item->product->decrement('stock', $item->quantity);
+                }
+            }
+
+            // Cộng phí vận chuyển (cũ)
+            $totalAmount += 25000;
+
+            // Cập nhật tổng tiền đơn hàng
+            $order->update(['total_amount' => $totalAmount]);
+
+            // Giữ nguyên phần coupon, payment, xóa giỏ hàng, redirect
             if ($request->coupon_id) {
                 $coupon = Coupon::find($request->coupon_id);
                 if ($coupon) {
@@ -73,47 +138,19 @@ class CheckoutController extends Controller
                         ? $coupon->value
                         : $totalAmount * $coupon->value / 100;
                     $totalAmount -= $discountAmount;
+
+                    DB::table('order_coupons')->insert([
+                        'order_id' => $order->id,
+                        'coupon_id' => $coupon->id,
+                        'discount_amount' => $discountAmount,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+
+                    $coupon->increment('used');
                 }
             }
 
-            do {
-                $orderCode = 'DH-' . date('Ymd') . '-' . strtoupper(Str::random(4));
-            } while (Order::where('order_code', $orderCode)->exists());
-
-            // Tạo đơn hàng
-            $order = Order::create([
-                'user_id' => $user->id,
-                'shipping_address_id' => $request->address_id,
-                'total_amount' => $totalAmount,
-                'status' => 'pending',
-                'order_code' => $orderCode,
-            ]);
-
-            foreach ($cartItems as $item) {
-                OrderItem::create([
-                    'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'variant_id' => $item->variant_id,
-                    'quantity' => $item->quantity,
-                    'price' => $item->variant->sale_price ?? $item->product->price,
-                ]);
-            }
-
-            // Lưu vào order_coupons nếu có
-            if (isset($coupon)) {
-                DB::table('order_coupons')->insert([
-                    'order_id' => $order->id,
-                    'coupon_id' => $coupon->id,
-                    'discount_amount' => $discountAmount,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
-
-                // Tăng số lượt dùng
-                $coupon->increment('used');
-            }
-
-            // Tạo thanh toán
             Payment::create([
                 'order_id' => $order->id,
                 'payment_method' => $request->payment_method,
@@ -123,7 +160,7 @@ class CheckoutController extends Controller
 
             DB::commit();
 
-            // Nếu là MoMo hoặc PayPal
+            // Redirect theo payment method
             if ($request->payment_method === 'momo') {
                 return response()->json([
                     'redirect' => route('checkout.momo', ['order_id' => $order->id, 'amount' => $totalAmount])
@@ -136,7 +173,6 @@ class CheckoutController extends Controller
                 ]);
             }
 
-            // COD
             CartItem::where('user_id', $user->id)->delete();
             toastr()->success('Đặt hàng thành công!');
             return redirect()->route('account');
