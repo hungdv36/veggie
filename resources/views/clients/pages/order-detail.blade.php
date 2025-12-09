@@ -45,6 +45,10 @@
                                 <span class="badge bg-danger">Đã hủy</span>
                             @break
 
+                            @case('received')
+                                <span class="badge bg-info">Đã nhận được hàng</span>
+                            @break
+
                             @case('waiting_info')
                                 <span class="badge bg-warning">Chờ nhập thông tin ngân hàng</span>
                             @break
@@ -76,9 +80,9 @@
                         @if ($order->payment && $order->payment->payment_method == 'cash')
                             <span class="badge bg-secondary">Thanh toán khi nhận hàng</span>
                         @elseif ($order->payment && $order->payment->payment_method == 'paypal')
-                            <span class="badge bg-primary">Thanh toán bằng PayPal</span>
+                            <span class="badge bg-warning text-dark">Thanh toán bằng PayPal</span>
                         @elseif ($order->payment && $order->payment->payment_method == 'momo')
-                            <span class="badge bg-warning text-dark">Thanh toán bằng MoMo</span>
+                            <span class="badge bg-primary">Thanh toán bằng MoMo</span>
                         @else
                             <span class="badge bg-danger">Chưa xác định</span>
                         @endif
@@ -96,8 +100,6 @@
                             <tr>
                                 <th>Ảnh</th>
                                 <th>Sản phẩm</th>
-                                <th>Màu sắc</th>
-                                <th>Kích thước</th>
                                 <th>Giá</th>
                                 <th>Số lượng</th>
                                 <th>Thành tiền</th>
@@ -110,9 +112,13 @@
                                         <img src="{{ asset('assets/admin/img/product/' . $item->product->image) }}"
                                             alt="{{ $item->product->name }}" width="80">
                                     </td>
-                                    <td class="fw-medium">{{ $item->product->name }}</td>
-                                    <td>{{ $item->variant->color->name ?? 'N/A' }}</td>
-                                    <td>{{ $item->variant->size->name ?? 'N/A' }}</td>
+                                    <td>
+                                        <div class="fw-medium">{{ $item->product->name }}</div>
+                                        <div class="text-muted small">
+                                            {{ $item->variant->color->name ?? 'N/A' }} /
+                                            {{ $item->variant->size->name ?? 'N/A' }}
+                                        </div>
+                                    </td>
                                     <td>{{ number_format($item->price, 0, ',', '.') }}₫</td>
                                     <td>{{ $item->quantity }}</td>
                                     <td class="text-success fw-bold">
@@ -129,7 +135,9 @@
                     <div class="p-3 bg-light rounded-3">
                         <p class="mb-1"><strong>Tên người nhận:</strong> {{ $order->shippingAddress->full_name }}</p>
                         <p class="mb-1"><strong>Địa chỉ:</strong> {{ $order->shippingAddress->address }}</p>
-                        <p class="mb-1"><strong>Thành phố:</strong> {{ $order->shippingAddress->city }}</p>
+                        <p class="mb-1"><strong>Thành phố:</strong> {{ $order->shippingAddress->province }}</p>
+                        <p class="mb-1"><strong>Quận:</strong> {{ $order->shippingAddress->district }}</p>
+                        <p class="mb-1"><strong>Phường:</strong> {{ $order->shippingAddress->ward }}</p>
                         <p class="mb-0"><strong>Số điện thoại:</strong> {{ $order->shippingAddress->phone }}</p>
                     </div>
                 </div>

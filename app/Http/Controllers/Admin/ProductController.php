@@ -19,24 +19,24 @@ use App\Models\ProductVariant;
 class ProductController extends Controller
 {
     // 1. Hiển thị form
-   public function index(Request $request)
-{
-    // Tạo query ban đầu
-    $query = Product::query();
+    public function index(Request $request)
+    {
+        // Tạo query ban đầu
+        $query = Product::query();
 
-    // Nếu có từ khóa tìm kiếm
-    if ($request->search) {
-        $query->where('name', 'like', '%' . $request->search . '%');
+        // Nếu có từ khóa tìm kiếm
+        if ($request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Lấy danh sách + category + phân trang
+        $products = $query->with('category')->orderBy('id', 'DESC')->paginate(10);
+
+        // Lấy danh mục để lọc / form add
+        $categories = Category::all();
+
+        return view('admin.pages.product.products', compact('products', 'categories'));
     }
-
-    // Lấy danh sách + category + phân trang
-    $products = $query->with('category')->orderBy('id', 'DESC')->paginate(10);
-
-    // Lấy danh mục để lọc / form add
-    $categories = Category::all();
-
-    return view('admin.pages.product.products', compact('products', 'categories'));
-}
 
 
     public function showFormAddProduct()
@@ -211,7 +211,13 @@ class ProductController extends Controller
             'unit' => 'nullable|string|max:50',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
-            'images.*' => 'nullable|image|max:2048'
+            'images.*' => 'nullable|image|max:2048',
+            'variations' => 'nullable|array',
+            'variations.*.size_id' => 'required_with:variations|exists:sizes,id',
+            'variations.*.color_id' => 'required_with:variations|exists:colors,id',
+            'variations.*.price' => 'required_with:variations|numeric|min:0',
+            'variations.*.sale_price' => 'nullable|numeric|min:0',
+            'variations.*.quantity' => 'nullable|integer|min:0',
         ]);
 
         $product = Product::findOrFail($request->product_id);
@@ -250,7 +256,23 @@ class ProductController extends Controller
                 $product->images()->create(['image_path' => $path]);
             }
         }
+        // Cập nhật biến thể nếu tồn tại
+    if ($request->has('variations')) {
+            foreach ($request->variations as $v) {
+                $variant = $product->variants()
+                    ->where('size_id', $v['size_id'])
+                    ->where('color_id', $v['color_id'])
+                    ->first();
 
+                if ($variant) {
+                    $variant->update([
+                        'price' => $v['price'],
+                        'sale_price' => $v['sale_price'] ?? $variant->sale_price,
+                        'quantity' => $v['quantity'] ?? $variant->quantity
+                    ]);
+                }
+            }
+        }
 
         return response()->json(['status' => true, 'message' => 'Cập nhật sản phẩm thành công', 'data' => $product->load('category', 'images')]);
     }

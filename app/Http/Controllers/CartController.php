@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Models\FlashSale;
 use App\Models\ProductVariant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,98 +17,171 @@ class CartController extends Controller
      * Thêm sản phẩm vào giỏ hàng
      */
     public function addToCart(Request $request): JsonResponse
-{
-    $request->merge(['quantity' => (int) $request->quantity]);
-
-    $request->validate([
-        'product_id' => 'required|exists:products,id',
-        'variant_id' => 'required|exists:product_variants,id',
-        'quantity'   => 'required|integer|min:1',
-    ]);
-
-    $product = Product::with('images')->findOrFail($request->product_id);
-    $variant = ProductVariant::with(['color', 'size'])->findOrFail($request->variant_id);
-
-    // ✅ Mặc định lấy giá sale hoặc giá gốc
-    $price = $variant->sale_price ?? $variant->price ?? $product->sale_price ?? $product->price ?? 0;
-
-    // ✅ Kiểm tra xem sản phẩm có nằm trong Flash Sale đang diễn ra không
-    $flashSale = \App\Models\FlashSale::with('items')
-        ->where('start_time', '<=', now())
-        ->where('end_time', '>=', now())
-        ->first();
-
-    if ($flashSale) {
-        $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
-        if ($flashItem) {
-            $flashPrice = round($price * (1 - $flashItem->discount_price / 100), 0);
-            $price = $flashPrice; // ✅ dùng giá Flash Sale
-        }
-    }
-
-    // ✅ Ưu tiên nếu client gửi sẵn flash_price hoặc price
-    if ($request->filled('flash_price')) {
-        $price = (float) $request->flash_price;
-    } elseif ($request->filled('price')) {
-        $price = (float) $request->price;
-    }
-
-    if ($price <= 0) {
-        return response()->json(['message' => 'Giá sản phẩm không hợp lệ'], 400);
-    }
-
-    if ($request->quantity > $variant->quantity) {
-        return response()->json(['message' => 'Số lượng vượt quá tồn kho'], 400);
-    }
-
-    // ✅ Nếu người dùng đã đăng nhập
-    if (Auth::check()) {
-        $cartItem = CartItem::firstOrNew([
-            'user_id'    => Auth::id(),
-            'product_id' => $request->product_id,
-            'variant_id' => $request->variant_id,
+    {
+        // =========================
+        // VERIFY REQUEST
+        // =========================
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'variant_id' => 'required|exists:product_variants,id',
+            'quantity'   => 'required|integer|min:1',
         ]);
 
-        $cartItem->quantity = ($cartItem->exists ? $cartItem->quantity : 0) + $request->quantity;
-        $cartItem->price = $price;
-        $cartItem->total_price = $cartItem->price * $cartItem->quantity;
-        $cartItem->save();
+        $request->merge(['quantity' => (int) $request->quantity]);
 
-        $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
-    }
-    // ✅ Nếu chưa đăng nhập → lưu session
-    else {
-        $cart = session()->get('cart', []);
-        $key = $request->product_id . '_' . $request->variant_id;
+        $product = Product::with('images')->findOrFail($request->product_id);
+        $variant = ProductVariant::with(['color', 'size'])->findOrFail($request->variant_id);
 
-        if (isset($cart[$key])) {
-            $cart[$key]['quantity'] += $request->quantity;
-            $cart[$key]['price'] = $price;
-        } else {
-            $cart[$key] = [
-                'product_id' => $product->id,
-                'variant_id' => $variant->id,
-                'name'       => $product->name,
-                'price'      => $price,
-                'quantity'   => $request->quantity,
-                'stock'      => $variant->quantity,
-                'color'      => $variant->color_id,
-                'size'       => $variant->size_id,
-                'image'      => $product->images->first()->image ?? 'uploads/products/default-product.png',
-            ];
+        // =========================
+        // GIÁ GỐC (FLASH SALE giảm trên giá này!)
+        // =========================
+        $basePrice = $variant->price ?? $product->price;
+
+        // Giá thường (nếu có sale_price thì dùng)
+        $normalPrice = ($variant->sale_price && $variant->sale_price > 0)
+            ? $variant->sale_price
+            : $basePrice;
+
+        // Mặc định dùng giá thường
+        $price = $normalPrice;
+
+        // =========================
+        // FLASH SALE
+        // =========================
+        $flashSale = FlashSale::with('items')
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->first();
+
+        if ($flashSale) {
+            $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+
+            if ($flashItem) {
+
+                // số lượng còn bán trong flash sale
+                $flashQtyLeft = max(0, $flashItem->quantity - $flashItem->sold);
+
+                // nếu còn số lượng flash_sale thì dùng giá flash_sale
+                if ($flashQtyLeft > 0) {
+                    $price = round($basePrice * (1 - $flashItem->discount_price / 100));
+                }
+            }
         }
 
-        session()->put('cart', $cart);
-        $cartCount = count($cart);
+        // =========================
+        // ƯU TIÊN GIÁ CLIENT GỬI (nếu có)
+        // =========================
+        if ($request->filled('flash_price')) {
+            $price = (float) $request->flash_price;
+        } elseif ($request->filled('price')) {
+            $price = (float) $request->price;
+        }
+
+        if ($price <= 0) {
+            return response()->json(['message' => 'Giá sản phẩm không hợp lệ'], 400);
+        }
+
+        // =========================
+        // TỒN KHO
+        // =========================
+        $stock = $variant->quantity;
+
+        // ===================================
+        // 🧩 USER ĐĂNG NHẬP
+        // ===================================
+        if (Auth::check()) {
+
+            // TÌM ITEM CÙNG GIÁ → CHO PHÉP TÁCH DÒNG FLASH SALE & GIÁ THƯỜNG
+            $cartItem = CartItem::where('user_id', Auth::id())
+                ->where('product_id', $request->product_id)
+                ->where('variant_id', $request->variant_id)
+                ->where('price', $price)
+                ->first();
+
+            $currentQty = $cartItem ? $cartItem->quantity : 0;
+
+            // Giới hạn tồn kho
+            $remaining = $stock - $currentQty;
+
+            if ($remaining <= 0) {
+                return response()->json([
+                    'message' => 'Bạn đã thêm tối đa số lượng có sẵn cho sản phẩm này.'
+                ], 400);
+            }
+
+            if ($request->quantity > $remaining) {
+                return response()->json([
+                    'message' => 'Bạn chỉ có thể thêm tối đa ' . $remaining . ' sản phẩm nữa.'
+                ], 400);
+            }
+
+            if (!$cartItem) {
+                $cartItem = new CartItem([
+                    'user_id'    => Auth::id(),
+                    'product_id' => $request->product_id,
+                    'variant_id' => $request->variant_id,
+                ]);
+            }
+
+            $cartItem->quantity = $currentQty + $request->quantity;
+            $cartItem->price = $price;
+            $cartItem->total_price = $cartItem->quantity * $price;
+            $cartItem->save();
+
+            $cartCount = CartItem::where('user_id', Auth::id())->sum('quantity');
+        }
+
+        // ===================================
+        // 🧩 USER KHÔNG ĐĂNG NHẬP — SESSION
+        // ===================================
+        else {
+            $cart = session()->get('cart', []);
+
+            // Key chứa giá → tách dòng
+            $key = $request->product_id . '_' . $request->variant_id . '_' . $price;
+
+            $currentQty = isset($cart[$key]) ? $cart[$key]['quantity'] : 0;
+
+            $remaining = $stock - $currentQty;
+
+            if ($remaining <= 0 || $request->quantity > $remaining) {
+
+                $maxCanAdd = max(0, $remaining);
+
+                return response()->json([
+                    'message' => $maxCanAdd == 0
+                        ? 'Bạn đã thêm tối đa số lượng có sẵn cho sản phẩm này.'
+                        : 'Bạn chỉ có thể thêm tối đa ' . $maxCanAdd . ' sản phẩm nữa.',
+                ], 400);
+            }
+
+            if (isset($cart[$key])) {
+                $cart[$key]['quantity'] = $currentQty + $request->quantity;
+                $cart[$key]['price'] = $price;
+            } else {
+                $cart[$key] = [
+                    'product_id' => $product->id,
+                    'variant_id' => $variant->id,
+                    'name'       => $product->name,
+                    'price'      => $price,
+                    'quantity'   => $request->quantity,
+                    'stock'      => $stock,
+                    'color'      => $variant->color_id,
+                    'size'       => $variant->size_id,
+                    'image'      => $product->images->first()->image ?? 'assets/admin/img/product/default.png',
+                ];
+            }
+
+            session()->put('cart', $cart);
+            $cartCount = array_sum(array_column($cart, 'quantity'));
+        }
+
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Sản phẩm đã được thêm vào giỏ hàng!',
+            'cart_count' => $cartCount,
+        ]);
     }
-
-    return response()->json([
-        'success'    => true,
-        'message'    => 'Sản phẩm đã được thêm vào giỏ hàng!',
-        'cart_count' => $cartCount,
-    ]);
-}
-
 
     /**
      * Load mini cart
@@ -173,9 +247,9 @@ class CartController extends Controller
             session()->put('cart', $cart);
 
             $cartItems = collect($cart)->map(function ($item) {
-                $item['product'] = \App\Models\Product::find($item['product_id']);
+                $item['product'] = Product::find($item['product_id']);
                 $item['variant'] = isset($item['variant_id'])
-                    ? \App\Models\ProductVariant::with('color', 'size')->find($item['variant_id'])
+                    ? ProductVariant::with('color', 'size')->find($item['variant_id'])
                     : null;
                 return (object) $item;
             });
@@ -208,33 +282,87 @@ class CartController extends Controller
      */
     public function viewCart(): View
     {
+        $flashSale = FlashSale::with('items')
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->first();
+
         if (Auth::check()) {
             $cartItems = CartItem::with('product', 'variant.color', 'variant.size')
                 ->where('user_id', Auth::id())
                 ->get()
-                ->map(function (CartItem $item) {
+                ->map(function (CartItem $item) use ($flashSale) {
                     $product = $item->product;
                     $variant = $item->variant;
 
+                    $basePrice = $variant->price ?? $product->price;
+                    $salePrice = $variant->sale_price ?? $product->sale_price ?? $basePrice;
+                    $quantity = $item->quantity;
+
+                    $flashQty = 0;
+                    $flashPrice = $basePrice;
+
+                    if ($flashSale) {
+                        $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+                        if ($flashItem) {
+                            $flashSaleQty = max($flashItem->quantity - $flashItem->sold, 0);
+                            $flashQty = min($quantity, $flashSaleQty);
+                            $flashPrice = round($basePrice * (1 - $flashItem->discount_price / 100));
+                        }
+                    }
+
+                    // Tính giá trung bình nếu có flash_sale
+                    if ($flashQty > 0) {
+                        $price = ($flashQty * $flashPrice + ($quantity - $flashQty) * $salePrice) / $quantity;
+                    } else {
+                        $price = $salePrice;
+                    }
+
                     return [
                         'product_id' => $product->id,
-                     'variant_id' => $variant->id ?? null,
+                        'variant_id' => $variant->id ?? null,
                         'name'       => $product->name,
-                        'price'      => $item->price,
-                        'quantity'   => $item->quantity,
-                        'stock'      => $product->stock ?? 0,
+                        'price'      => $price,
+                        'quantity'   => $quantity,
+                        'stock'      => $variant ? $variant->quantity : $product->stock,
                         'image'      => 'assets/admin/img/product/' . ($product->image ?? 'default-product.png'),
                         'color_name' => $variant->color->name ?? null,
                         'size_name'  => $variant->size->name ?? null,
                     ];
                 })->toArray();
         } else {
-            $cartItems = session()->get('cart', []);
-            foreach ($cartItems as &$item) {
+            $cart = session()->get('cart', []);
+            foreach ($cart as &$item) {
+                $product = \App\Models\Product::find($item['product_id']);
+                $variant = isset($item['variant_id']) ? \App\Models\ProductVariant::find($item['variant_id']) : null;
+
+                $basePrice = $variant->price ?? $product->price;
+                $salePrice = $variant->sale_price ?? $product->sale_price ?? $basePrice;
+                $quantity = $item['quantity'];
+
+                $flashQty = 0;
+                $flashPrice = $basePrice;
+
+                if ($flashSale) {
+                    $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+                    if ($flashItem) {
+                        $flashSaleQty = max($flashItem->quantity - $flashItem->sold, 0);
+                        $flashQty = min($quantity, $flashSaleQty);
+                        $flashPrice = round($basePrice * (1 - $flashItem->discount_price / 100));
+                    }
+                }
+
+                $price = $flashQty > 0
+                    ? ($flashQty * $flashPrice + ($quantity - $flashQty) * $salePrice) / $quantity
+                    : $salePrice;
+
+                $item['price'] = $price;
                 $item['image'] = 'assets/admin/img/product/' . ($item['image'] ?? 'default-product.png');
-                $item['color_name'] = isset($item['color']) ? \App\Models\Color::find($item['color'])->name ?? null : null;
-                $item['size_name']  = isset($item['size']) ? \App\Models\Size::find($item['size'])->name ?? null : null;
+                $item['color_name'] = $variant->color->name ?? null;
+                $item['size_name']  = $variant->size->name ?? null;
             }
+
+            $cartItems = $cart;
         }
 
         return view('clients.pages.cart', compact('cartItems'));
@@ -294,8 +422,11 @@ class CartController extends Controller
         $variantId = $request->variant_id ?? null;
         $quantity = (int) $request->quantity;
 
+        $cartItem = null;
+        $userId = Auth::id();
+
         if (Auth::check()) {
-            $cartItem = CartItem::where('user_id', Auth::id())
+            $cartItem = CartItem::where('user_id', $userId)
                 ->where('product_id', $productId)
                 ->when($variantId, fn($q) => $q->where('variant_id', $variantId))
                 ->first();
@@ -303,38 +434,69 @@ class CartController extends Controller
             if (!$cartItem) {
                 return response()->json(['error' => 'Sản phẩm không tồn tại trong giỏ hàng'], 404);
             }
-
-            $stock = $cartItem->variant_id
-                ? $cartItem->variant->quantity
-                : $cartItem->product->stock;
-
-            if ($quantity > $stock) {
-                return response()->json(['error' => 'Số lượng vượt quá tồn kho'], 400);
-            }
-
-            $cartItem->quantity = $quantity;
-            $cartItem->save();
-
-            $cartItems = CartItem::where('user_id', Auth::id())->get();
-            $cartTotal = $cartItems->sum(fn($i) => $i->price * $i->quantity);
-            $cartCount = $cartItems->sum('quantity');
         } else {
             $cart = session()->get('cart', []);
             $key = $productId . '_' . ($variantId ?? 0);
-
             if (!isset($cart[$key])) {
                 return response()->json(['error' => 'Sản phẩm không tồn tại trong giỏ hàng'], 404);
             }
+            $cartItem = (object) $cart[$key];
+        }
 
-            $product = Product::find($productId);
-            $stock = $variantId
-                ? optional($product->variants->where('id', $variantId)->first())->quantity
-                : $product->stock;
+        // Lấy product & variant
+        $product = Product::find($productId);
+        $variant = $variantId ? $product->variants->where('id', $variantId)->first() : null;
+        $stock = $variant ? $variant->quantity : $product->stock;
 
-            if ($quantity > $stock) {
-                return response()->json(['error' => 'Số lượng vượt quá tồn kho'], 400);
+        if ($quantity > $stock) {
+            return response()->json(['error' => 'Số lượng vượt quá tồn kho'], 400);
+        }
+
+        // Kiểm tra Flash Sale đang diễn ra
+        $flashSale = \App\Models\FlashSale::with('items')
+            ->where('start_time', '<=', now())
+            ->where('end_time', '>=', now())
+            ->first();
+
+        $basePrice = $variant ? $variant->price : $product->price;
+        $salePrice = $variant ? $variant->sale_price : $product->sale_price;
+        $flashSalePrice = $basePrice;
+
+        $flashSaleQty = 0; // số lượng còn áp dụng flash_sale
+
+        if ($flashSale) {
+            $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+            if ($flashItem) {
+                $flashQty = min($quantity, $flashItem->quantity); // flash_sale áp dụng
+                $normalQty = $quantity - $flashQty; // phần còn lại
+
+                $flashPrice = round($basePrice * (1 - $flashItem->discount_price / 100));
+                $normalPrice = $salePrice ?: $basePrice;
+
+                $subtotal = $flashQty * $flashPrice + $normalQty * $normalPrice;
+
+                // Cập nhật cart: lưu giá **giá trị thực của flashPrice cho flashQty**
+                $cartItem->price = $flashPrice; // lưu giá flash sale
+            } else {
+                $price = $salePrice ?: $basePrice;
+                $subtotal = $quantity * $price;
+                $cartItem->price = $price;
             }
+        } else {
+            $subtotal = $quantity * ($salePrice ?: $basePrice);
+        }
 
+        // Cập nhật cart
+        if (Auth::check()) {
+            $cartItem->price = $subtotal / $quantity; // giá trung bình từng sản phẩm
+            $cartItem->quantity = $quantity;
+            $cartItem->save();
+
+            $cartItems = CartItem::where('user_id', $userId)->get();
+            $cartTotal = $cartItems->sum(fn($i) => $i->price * $i->quantity);
+            $cartCount = $cartItems->sum('quantity');
+        } else {
+            $cart[$key]['price'] = $subtotal / $quantity;
             $cart[$key]['quantity'] = $quantity;
             session()->put('cart', $cart);
 
@@ -344,13 +506,12 @@ class CartController extends Controller
 
         return response()->json([
             'success' => true,
+            'quantity' => $quantity,
+            'subtotal' => $subtotal,
             'cart_total' => $cartTotal,
             'cart_count' => $cartCount,
-            'quantity' => $quantity
         ]);
     }
-
-
     function calculateCartTotal()
     {
         if (Auth::check()) {

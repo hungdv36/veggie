@@ -68,12 +68,14 @@
                                                     <div
                                                         class="cart-plus-minus d-inline-flex align-items-center border rounded-pill px-2">
                                                         <div class="dec qtybutton px-2 text-secondary">−</div>
-                                                        <input type="text" value="{{ $item['quantity'] }}"
-                                                            class="cart-plus-minus-box border-0 text-center bg-transparent fw-bold"
-                                                            readonly data-max="{{ $item['stock'] }}"
+
+                                                        <input type="number" value="{{ $item['quantity'] }}"
+                                                            class="cart-plus-minus-box border-0 text-center bg-transparent fw-bold cart-qty-input"
+                                                            min="1" data-max="{{ $item['stock'] }}"
                                                             data-id="{{ $item['product_id'] }}"
                                                             data-variant-id="{{ $item['variant_id'] ?? 0 }}"
-                                                            style="width: 40px;">
+                                                            style="width: 55px;">
+
                                                         <div class="inc qtybutton px-2 text-secondary">+</div>
                                                     </div>
                                                 </td>
@@ -114,18 +116,6 @@
                                             <td class="text-end fw-semibold" id="cart-total"
                                                 data-total="{{ $cartTotal }}">
                                                 {{ number_format($cartTotal, 0, ',', '.') }}đ
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="text-muted">Phí vận chuyển</td>
-                                            <td class="text-end fw-semibold" id="shipping-fee" data-fee="25000">
-                                                25.000đ
-                                            </td>
-                                        </tr>
-                                        <tr class="table-light">
-                                            <td><strong>Tổng thanh toán</strong></td>
-                                            <td class="text-end fw-bold text-success" id="cart-grand-total">
-                                                {{ number_format($cartTotal + 25000, 0, ',', '.') }}đ
                                             </td>
                                         </tr>
                                     </tbody>

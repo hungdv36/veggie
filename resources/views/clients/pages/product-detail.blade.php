@@ -98,7 +98,7 @@
                                                 <p class="mb-1">
                                                     <span class="text-muted text-decoration-line-through"
                                                         style="font-size:16px;">
-                                                        {{ number_format($product->price ?? $maxPrice, 0, ',', '.') }} VNĐ
+                                                        {{ number_format($minPrice, 0, ',', '.') }} VNĐ
                                                     </span>
                                                     <span class="fw-bold text-danger ms-2" id="product-price"
                                                         style="font-size:22px;">
@@ -166,8 +166,6 @@
                                         @endif
                                     </div>
 
-
-
                                     <div class="modal-product-meta ltn__product-details-menu-1">
                                         <ul class="list-unstyled mb-0">
                                             <!-- Danh mục -->
@@ -196,12 +194,16 @@
                                                                 <div class="d-flex flex-wrap gap-2">
                                                                     @foreach ($colors as $color)
                                                                         <button type="button"
-                                                                            class="btn color-btn d-flex align-items-center"
+                                                                            class="btn color-btn d-flex align-items-center {{ $color->is_out_of_stock ? 'disabled opacity-50' : '' }}"
                                                                             data-value="{{ $color->id }}"
-                                                                            style="padding:6px 12px; border:1px solid #ccc; border-radius:4px; cursor:pointer;">
+                                                                            style="padding:6px 12px; border:1px solid #ccc; border-radius:4px; cursor:pointer;"
+                                                                            @if ($color->is_out_of_stock) disabled @endif>
                                                                             <span class="rounded-circle me-2"
                                                                                 style="width:14px; height:14px; background-color: {{ $color->hex_code }};"></span>
                                                                             {{ $color->name }}
+                                                                            @if ($color->is_out_of_stock)
+                                                                                (Hết hàng)
+                                                                            @endif
                                                                         </button>
                                                                     @endforeach
                                                                 </div>
@@ -220,10 +222,15 @@
                                                             @if ($sizes->count() > 0)
                                                                 <div class="d-flex flex-wrap gap-2">
                                                                     @foreach ($sizes as $size)
-                                                                        <button type="button" class="btn size-btn"
+                                                                        <button type="button"
+                                                                            class="btn size-btn {{ $size->is_out_of_stock ? 'disabled opacity-50' : '' }}"
                                                                             data-value="{{ $size->id }}"
-                                                                            style="padding:6px 12px; border:1px solid #ccc; border-radius:4px; cursor:pointer;">
+                                                                            style="padding:6px 12px; border:1px solid #ccc; border-radius:4px; cursor:pointer;"
+                                                                            @if ($size->is_out_of_stock) disabled @endif>
                                                                             {{ strtoupper($size->name) }}
+                                                                            @if ($size->is_out_of_stock)
+                                                                                (Hết hàng)
+                                                                            @endif
                                                                         </button>
                                                                     @endforeach
                                                                 </div>
@@ -244,7 +251,7 @@
                                                     style="display: flex; align-items: center; width: fit-content; border: 1px solid #ddd; border-radius: 6px; overflow: hidden;">
                                                     <button type="button" class="qtybutton-detail dec"
                                                         style="background: #f5f5f5; border: none; padding: 6px 12px; cursor: pointer; font-weight: bold;">-</button>
-                                                    <input id="cart-qty-box" type="text" value="1" readonly
+                                                    <input id="cart-qty-box" type="text" value="1"
                                                         class="cart-plus-minus-box"
                                                         style="width: 50px; text-align: center; border: none; outline: none;"
                                                         data-max="{{ $product->stock }}">
@@ -630,15 +637,13 @@
         const qtyBox = document.getElementById('cart-qty-box');
         const priceEl = document.querySelector('.product-price span');
 
-        // Lấy dao động giá ban đầu
-        const allPrices = variants.map(v => v.sale_price ?? v.price).sort((a, b) => a - b);
-        if (allPrices.length > 1) {
-            priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' – ' +
-                new Intl.NumberFormat('vi-VN').format(allPrices[allPrices.length - 1]) + ' VNĐ';
-        } else if (allPrices.length === 1) {
+        const colorBtns = document.querySelectorAll('.color-btn');
+        const sizeBtns = document.querySelectorAll('.size-btn');
+
+        // Lấy giá min và max
+        const allPrices = variants.map(v => v.price).sort((a, b) => a - b);
+        if (allPrices.length > 0) {
             priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' VNĐ';
-        } else {
-            priceEl.textContent = new Intl.NumberFormat('vi-VN').format({{ $product->price ?? 0 }}) + ' VNĐ';
         }
 
         function findVariant(color, size) {
@@ -651,59 +656,77 @@
             const variant = findVariant(color, size);
 
             if (variant) {
-                // Stock biến thể
                 stockEl.textContent = variant.quantity;
+
+                // cập nhật max cho input
                 qtyBox.dataset.max = variant.quantity;
                 if (parseInt(qtyBox.value) > variant.quantity) qtyBox.value = variant.quantity;
 
-                // Giá biến thể
                 const displayPrice = variant.sale_price ?? variant.price;
                 priceEl.textContent = new Intl.NumberFormat('vi-VN').format(displayPrice) + ' VNĐ';
             } else {
-                // Không có biến thể hợp lệ
                 stockEl.textContent = '0';
                 qtyBox.dataset.max = 0;
                 qtyBox.value = 1;
 
-                // Hiển thị dao động giá ban đầu
                 if (allPrices.length > 1) {
                     priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' – ' +
                         new Intl.NumberFormat('vi-VN').format(allPrices[allPrices.length - 1]) + ' VNĐ';
                 } else if (allPrices.length === 1) {
                     priceEl.textContent = new Intl.NumberFormat('vi-VN').format(allPrices[0]) + ' VNĐ';
-                } else {
-                    priceEl.textContent = new Intl.NumberFormat('vi-VN').format({{ $product->price ?? 0 }}) +
-                        ' VNĐ';
                 }
             }
+
+            // 🔥 Disable màu & size không còn hàng theo selection
+            colorBtns.forEach(btn => {
+                const cid = btn.dataset.value;
+                let hasStock = variants.some(v => v.color_id == cid && (!size || v.size_id == size) && v
+                    .quantity > 0);
+                btn.disabled = !hasStock;
+                btn.classList.toggle('opacity-50', !hasStock);
+            });
+
+            sizeBtns.forEach(btn => {
+                const sid = btn.dataset.value;
+                let hasStock = variants.some(v => v.size_id == sid && (!color || v.color_id == color) &&
+                    v.quantity > 0);
+                btn.disabled = !hasStock;
+                btn.classList.toggle('opacity-50', !hasStock);
+            });
         }
 
         // Chọn màu
-        document.querySelectorAll('.color-btn').forEach(btn => {
+        colorBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.color-btn').forEach(b => b.classList.remove(
-                    'btn-primary', 'text-white'));
-                this.classList.add('btn-primary', 'text-white');
-                colorInput.value = this.dataset.value;
+                colorBtns.forEach(b => b.classList.remove('btn-primary', 'text-white'));
+                if (!btn.disabled) {
+                    btn.classList.add('btn-primary', 'text-white');
+                    colorInput.value = btn.dataset.value;
+                } else {
+                    colorInput.value = '';
+                }
                 updateVariantUI();
             });
         });
 
         // Chọn size
-        document.querySelectorAll('.size-btn').forEach(btn => {
+        sizeBtns.forEach(btn => {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove(
-                    'btn-primary', 'text-white'));
-                this.classList.add('btn-primary', 'text-white');
-                sizeInput.value = this.dataset.value;
+                sizeBtns.forEach(b => b.classList.remove('btn-primary', 'text-white'));
+                if (!btn.disabled) {
+                    btn.classList.add('btn-primary', 'text-white');
+                    sizeInput.value = btn.dataset.value;
+                } else {
+                    sizeInput.value = '';
+                }
                 updateVariantUI();
             });
         });
 
         // Quantity controls
         document.querySelectorAll('.cart-plus-minus').forEach(wrapper => {
-            const dec = wrapper.querySelector('.dec');
-            const inc = wrapper.querySelector('.inc');
+            const dec = wrapper.querySelector('.qtybutton-detail.dec');
+            const inc = wrapper.querySelector('.qtybutton-detail.inc');
             const input = wrapper.querySelector('.cart-plus-minus-box');
             if (!dec || !inc || !input) return;
 
@@ -711,10 +734,19 @@
                 let val = parseInt(input.value) || 1;
                 if (val > 1) input.value = val - 1;
             });
+
             inc.addEventListener('click', () => {
                 let val = parseInt(input.value) || 1;
                 const max = parseInt(input.dataset.max) || 0;
-                if (val < max) input.value = val + 1;
+                if (val < max) input.value = val + 1; // cộng 1 thôi
+            });
+
+            input.addEventListener('input', () => {
+                let val = parseInt(input.value) || 1;
+                const max = parseInt(input.dataset.max) || 0;
+                if (val < 1) val = 1;
+                if (val > max) val = max;
+                input.value = val;
             });
         });
 
@@ -774,7 +806,6 @@
             });
         });
 
-        // Init
         updateVariantUI();
     });
 </script>

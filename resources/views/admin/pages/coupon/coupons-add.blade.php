@@ -79,15 +79,6 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <label class="form-label">Đã dùng</label>
-                                    <input type="number" name="used" class="form-control not-allowed" min="0"
-                                        value="{{ old('used', $coupon->used ?? 0) }}" readonly>
-                                    @error('used')
-                                        <small class="text-danger">{{ $message }}</small>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-3">
                                     <label class="form-label">Trạng thái</label>
                                     <select name="status" class="form-select">
                                         <option value="1"
