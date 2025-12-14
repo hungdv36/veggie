@@ -16,48 +16,34 @@
     @if (!empty($cartItems) && count($cartItems) > 0)
         @foreach ($cartItems as $item)
             @php
+                // Lấy dữ liệu sản phẩm
                 $product = auth()->check() ? $item->product : \App\Models\Product::find($item['product_id']);
-                $quantity = auth()->check() ? $item->quantity : $item['quantity'];
                 $variant = auth()->check() ? $item->variant ?? null : $item['variant'] ?? null;
+                $quantity = auth()->check() ? $item->quantity : $item['quantity'];
 
-                // Giá gốc
-                $basePrice = $variant ? $variant->price : $product->price;
+                // ===== GIÁ GỐC =====
+                $basePrice = $variant->price ?? $product->price;
 
-                // Kiểm tra Flash Sale
+                // ===== SALE THƯỜNG =====
+                $salePrice = $variant->sale_price ?? $product->sale_price;
+
+                // ===== FLASH SALE =====
                 $flashSale = \App\Models\FlashSale::with('items')
                     ->where('start_time', '<=', now())
                     ->where('end_time', '>=', now())
                     ->first();
 
-                $price = $basePrice; // mặc định
+                $flashItem = $flashSale ? $flashSale->items->firstWhere('product_id', $product->id) : null;
 
-                if ($flashSale) {
-                    $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
-                    if ($flashItem) {
-                        $flashQtyLeft = max(0, $flashItem->quantity - $flashItem->sold);
-                        $flashApplied = min($quantity, $flashQtyLeft);
-                        $flashPrice = round($basePrice * (1 - $flashItem->discount_price / 100));
-
-                        if ($flashApplied < $quantity) {
-                            $otherQty = $quantity - $flashApplied;
-                            $otherPrice = $variant
-                                ? $variant->sale_price ?? $variant->price
-                                : $product->sale_price ?? $product->price;
-
-                            $subtotal += $flashPrice * $flashApplied + $otherPrice * $otherQty;
-                        } else {
-                            $subtotal += $flashPrice * $quantity;
-                        }
-                    } else {
-                        $subtotal += $variant
-                            ? $variant->sale_price ?? $variant->price
-                            : ($product->sale_price ?? $product->price) * $quantity;
-                    }
+                // ===== CHỌN GIÁ CUỐI CÙNG =====
+                if ($flashItem) {
+                    $price = round($basePrice * (1 - $flashItem->discount_price / 100));
                 } else {
-                    $subtotal += $variant
-                        ? $variant->sale_price ?? $variant->price
-                        : ($product->sale_price ?? $product->price) * $quantity;
+                    $price = $salePrice && $salePrice > 0 ? $salePrice : $basePrice;
                 }
+
+                // Tính subtotal
+                $subtotal += $price * $quantity;
             @endphp
 
             <div class="mini-cart-item clearfix">
@@ -83,7 +69,7 @@
                                     {{ $variant->color->name }}
                                 @endif
                                 @if ($variant->size)
-                                    ,{{ $variant->size->name }}
+                                    , {{ $variant->size->name }}
                                 @endif
                             </small>
                         @endif
@@ -91,39 +77,7 @@
 
                     <!-- HIỂN THỊ GIÁ -->
                     <span class="mini-cart-quantity">
-                        @php
-                            $product = $item->product;
-                            $variant = $item->variant ?? null;
-
-                            // Giá gốc
-                            $basePrice = $variant->price ?? $product->price;
-                            $price = $basePrice;
-
-                            // Price Sale thường
-                            $salePrice = $variant->sale_price ?? $product->sale_price;
-
-                            // Lấy Flash Sale hiện tại
-                            $flashSale = \App\Models\FlashSale::with('items')
-                                ->where('start_time', '<=', now())
-                                ->where('end_time', '>=', now())
-                                ->first();
-
-                            $flashItem = $flashSale ? $flashSale->items->firstWhere('product_id', $product->id) : null;
-
-                            if ($flashItem) {
-                                // Flash Sale giảm %
-                                $price = round($basePrice * (1 - $flashItem->discount_price / 100));
-                            } else {
-                                // Không có Flash Sale dùng sale_price nếu có
-                                if (($salePrice ?? 0) > 0) {
-                                    $price = $salePrice;
-                                }
-                            }
-                        @endphp
-
-                        <span class="mini-cart-quantity">
-                            {{ $quantity }} x {{ number_format($price, 0, ',', '.') }}₫
-                        </span>
+                        {{ $quantity }} x {{ number_format($price, 0, ',', '.') }}₫
                     </span>
                 </div>
             </div>

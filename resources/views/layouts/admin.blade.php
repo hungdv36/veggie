@@ -152,6 +152,30 @@
             flex-shrink: 0;
             /* luôn nằm dưới */
         }
+
+        .navbar-right {
+            float: right;
+            /* giữ nguyên */
+        }
+
+        .navbar-right>li {
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .navbar-right>li>a {
+            display: inline-flex;
+            align-items: center;
+            height: 50px;
+            /* chiều cao chuẩn */
+            line-height: 50px;
+        }
     </style>
     @stack('scripts')
     <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>

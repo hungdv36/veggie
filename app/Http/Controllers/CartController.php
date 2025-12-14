@@ -33,11 +33,11 @@ class CartController extends Controller
         $variant = ProductVariant::with(['color', 'size'])->findOrFail($request->variant_id);
 
         // =========================
-        // GIÁ GỐC (FLASH SALE giảm trên giá này!)
+        // GIÁ GỐC
         // =========================
         $basePrice = $variant->price ?? $product->price;
 
-        // Giá thường (nếu có sale_price thì dùng)
+        // Giá thường (sale_price nếu có)
         $normalPrice = ($variant->sale_price && $variant->sale_price > 0)
             ? $variant->sale_price
             : $basePrice;
@@ -46,7 +46,7 @@ class CartController extends Controller
         $price = $normalPrice;
 
         // =========================
-        // FLASH SALE
+        // FLASH SALE (KHÔNG KIỂM TRA SỐ LƯỢNG)
         // =========================
         $flashSale = FlashSale::with('items')
             ->where('start_time', '<=', now())
@@ -57,19 +57,13 @@ class CartController extends Controller
             $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
 
             if ($flashItem) {
-
-                // số lượng còn bán trong flash sale
-                $flashQtyLeft = max(0, $flashItem->quantity - $flashItem->sold);
-
-                // nếu còn số lượng flash_sale thì dùng giá flash_sale
-                if ($flashQtyLeft > 0) {
-                    $price = round($basePrice * (1 - $flashItem->discount_price / 100));
-                }
+                // FLASH SALE ƯU TIÊN CAO NHẤT
+                $price = round($basePrice * (1 - $flashItem->discount_price / 100));
             }
         }
 
         // =========================
-        // ƯU TIÊN GIÁ CLIENT GỬI (nếu có)
+        // GIÁ CLIENT GỬI ƯU TIÊN CAO NHẤT
         // =========================
         if ($request->filled('flash_price')) {
             $price = (float) $request->flash_price;
@@ -91,7 +85,7 @@ class CartController extends Controller
         // ===================================
         if (Auth::check()) {
 
-            // TÌM ITEM CÙNG GIÁ → CHO PHÉP TÁCH DÒNG FLASH SALE & GIÁ THƯỜNG
+            // TÌM ITEM CÙNG GIÁ → TÁCH FLASH SALE / GIÁ THƯỜNG
             $cartItem = CartItem::where('user_id', Auth::id())
                 ->where('product_id', $request->product_id)
                 ->where('variant_id', $request->variant_id)
@@ -100,19 +94,14 @@ class CartController extends Controller
 
             $currentQty = $cartItem ? $cartItem->quantity : 0;
 
-            // Giới hạn tồn kho
             $remaining = $stock - $currentQty;
 
             if ($remaining <= 0) {
-                return response()->json([
-                    'message' => 'Bạn đã thêm tối đa số lượng có sẵn cho sản phẩm này.'
-                ], 400);
+                return response()->json(['message' => 'Bạn đã thêm tối đa số lượng có sẵn cho sản phẩm này.'], 400);
             }
 
             if ($request->quantity > $remaining) {
-                return response()->json([
-                    'message' => 'Bạn chỉ có thể thêm tối đa ' . $remaining . ' sản phẩm nữa.'
-                ], 400);
+                return response()->json(['message' => 'Bạn chỉ có thể thêm tối đa ' . $remaining . ' sản phẩm nữa.'], 400);
             }
 
             if (!$cartItem) {
@@ -137,7 +126,6 @@ class CartController extends Controller
         else {
             $cart = session()->get('cart', []);
 
-            // Key chứa giá → tách dòng
             $key = $request->product_id . '_' . $request->variant_id . '_' . $price;
 
             $currentQty = isset($cart[$key]) ? $cart[$key]['quantity'] : 0;
@@ -145,9 +133,7 @@ class CartController extends Controller
             $remaining = $stock - $currentQty;
 
             if ($remaining <= 0 || $request->quantity > $remaining) {
-
                 $maxCanAdd = max(0, $remaining);
-
                 return response()->json([
                     'message' => $maxCanAdd == 0
                         ? 'Bạn đã thêm tối đa số lượng có sẵn cho sản phẩm này.'
@@ -288,34 +274,32 @@ class CartController extends Controller
             ->first();
 
         if (Auth::check()) {
+
             $cartItems = CartItem::with('product', 'variant.color', 'variant.size')
                 ->where('user_id', Auth::id())
                 ->get()
                 ->map(function (CartItem $item) use ($flashSale) {
+
                     $product = $item->product;
                     $variant = $item->variant;
 
                     $basePrice = $variant->price ?? $product->price;
                     $salePrice = $variant->sale_price ?? $product->sale_price ?? $basePrice;
-                    $quantity = $item->quantity;
 
-                    $flashQty = 0;
-                    $flashPrice = $basePrice;
+                    // ======================
+                    // KHÔNG KIỂM TRA SỐ LƯỢNG FLASH SALE
+                    // ======================
+
+                    $flashItem = null;
+                    $price = $salePrice;
 
                     if ($flashSale) {
                         $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
-                        if ($flashItem) {
-                            $flashSaleQty = max($flashItem->quantity - $flashItem->sold, 0);
-                            $flashQty = min($quantity, $flashSaleQty);
-                            $flashPrice = round($basePrice * (1 - $flashItem->discount_price / 100));
-                        }
-                    }
 
-                    // Tính giá trung bình nếu có flash_sale
-                    if ($flashQty > 0) {
-                        $price = ($flashQty * $flashPrice + ($quantity - $flashQty) * $salePrice) / $quantity;
-                    } else {
-                        $price = $salePrice;
+                        if ($flashItem) {
+                            // Chỉ áp dụng flash_price – KHÔNG kiểm tra số lượng
+                            $price = round($basePrice * (1 - $flashItem->discount_price / 100));
+                        }
                     }
 
                     return [
@@ -323,7 +307,7 @@ class CartController extends Controller
                         'variant_id' => $variant->id ?? null,
                         'name'       => $product->name,
                         'price'      => $price,
-                        'quantity'   => $quantity,
+                        'quantity'   => $item->quantity,
                         'stock'      => $variant ? $variant->quantity : $product->stock,
                         'image'      => 'assets/admin/img/product/' . ($product->image ?? 'default-product.png'),
                         'color_name' => $variant->color->name ?? null,
@@ -331,30 +315,27 @@ class CartController extends Controller
                     ];
                 })->toArray();
         } else {
+
             $cart = session()->get('cart', []);
+
             foreach ($cart as &$item) {
                 $product = \App\Models\Product::find($item['product_id']);
                 $variant = isset($item['variant_id']) ? \App\Models\ProductVariant::find($item['variant_id']) : null;
 
                 $basePrice = $variant->price ?? $product->price;
                 $salePrice = $variant->sale_price ?? $product->sale_price ?? $basePrice;
-                $quantity = $item['quantity'];
 
-                $flashQty = 0;
-                $flashPrice = $basePrice;
+                $flashItem = null;
+                $price = $salePrice;
 
                 if ($flashSale) {
                     $flashItem = $flashSale->items->firstWhere('product_id', $product->id);
+
                     if ($flashItem) {
-                        $flashSaleQty = max($flashItem->quantity - $flashItem->sold, 0);
-                        $flashQty = min($quantity, $flashSaleQty);
-                        $flashPrice = round($basePrice * (1 - $flashItem->discount_price / 100));
+                        // Áp dụng flash sale toàn bộ – KHÔNG kiểm tra số lượng
+                        $price = round($basePrice * (1 - $flashItem->discount_price / 100));
                     }
                 }
-
-                $price = $flashQty > 0
-                    ? ($flashQty * $flashPrice + ($quantity - $flashQty) * $salePrice) / $quantity
-                    : $salePrice;
 
                 $item['price'] = $price;
                 $item['image'] = 'assets/admin/img/product/' . ($item['image'] ?? 'default-product.png');
@@ -367,7 +348,6 @@ class CartController extends Controller
 
         return view('clients.pages.cart', compact('cartItems'));
     }
-
 
     public function removeCartItem(Request $request)
     {
