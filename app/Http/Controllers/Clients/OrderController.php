@@ -20,6 +20,7 @@ class OrderController extends Controller
             'orderItems.product',
             'orderItems.variant.color',
             'orderItems.variant.size',
+            'orderItems.returnRequest',
             'user',
             'shippingAddress',
             'payment'

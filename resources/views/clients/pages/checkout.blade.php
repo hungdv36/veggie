@@ -146,7 +146,7 @@
 
                         @php
                             $total = 0;
-                            // Lấy flash sale đang chạy (một lần thôi)
+
                             $flashSale = \App\Models\FlashSale::with('items')
                                 ->where('start_time', '<=', now())
                                 ->where('end_time', '>=', now())
@@ -160,37 +160,27 @@
                                         $product = $item->product;
                                         $variant = $item->variant ?? null;
 
+                                        // Giá gốc
                                         $basePrice = $variant->price ?? $product->price;
-                                        $salePrice = $variant->sale_price ?? $product->sale_price;
+
+                                        // Giá sale (nếu có)
+                                        $salePrice = $variant->sale_price ?? ($product->sale_price ?? $basePrice);
+
                                         $quantity = $item->quantity;
 
-                                        $subtotal = 0;
+                                        // Mặc định dùng salePrice
+                                        $price = $salePrice;
 
-                                        // flash item của đúng product
+                                        // Kiểm tra Flash Sale — KHÔNG kiểm tra số lượng!
                                         $flashItem = $flashSale
                                             ? $flashSale->items->firstWhere('product_id', $product->id)
                                             : null;
 
                                         if ($flashItem) {
-                                            $flashRemaining = max(
-                                                ($flashItem->quantity ?? 0) - ($flashItem->sold ?? 0),
-                                                0,
-                                            );
-                                            $flashQty = min($quantity, $flashRemaining);
-
-                                            $flashPrice = round(
-                                                $basePrice * (1 - ($flashItem->discount_price ?? 0) / 100),
-                                            );
-
-                                            $normalQty = $quantity - $flashQty;
-                                            $normalPrice = ($salePrice ?? 0) > 0 ? $salePrice : $basePrice;
-
-                                            $subtotal = $flashQty * $flashPrice + $normalQty * $normalPrice;
-                                        } else {
-                                            $price = ($salePrice ?? 0) > 0 ? $salePrice : $basePrice;
-                                            $subtotal = $price * $quantity;
+                                            $price = round($basePrice * (1 - ($flashItem->discount_price ?? 0) / 100));
                                         }
 
+                                        $subtotal = $price * $quantity;
                                         $total += $subtotal;
                                     @endphp
 
@@ -207,23 +197,54 @@
                                     <td>Vận chuyển và xử lý</td>
                                     <td>{{ number_format(25000, 0, ',', '.') }} đ</td>
                                 </tr>
+
                                 <tr>
                                     <td>Giảm giá</td>
                                     <td><strong id="discount-amount">0 đ</strong></td>
                                 </tr>
+
                                 <tr>
                                     <td><strong>Tổng tiền</strong></td>
-                                    <td><strong id="total-amount">{{ number_format($total + 25000, 0, ',', '.') }}
-                                            đ</strong></td>
+                                    <td><strong id="total-amount">
+                                            {{ number_format($total + 25000, 0, ',', '.') }} đ
+                                        </strong></td>
                                 </tr>
                             </tbody>
                         </table>
 
                         <div class="coupon-section mt-3">
-                            <input type="text" id="coupon-code" placeholder="Nhập mã giảm giá"
-                                class="form-control" />
-                            <button type="button" id="apply-coupon" class="btn btn-primary mt-2">Áp dụng</button>
+
+                            <button id="open-coupon-modal" class="btn btn-outline-secondary mt-2">
+                                Chọn mã giảm giá
+                            </button>
+
                             <div id="coupon-message" class="text-danger mt-1"></div>
+                        </div>
+                        <!-- Modal Voucher -->
+                        <div class="modal fade" id="couponModal" tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Voucher của shop</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="input-group mb-3">
+                                            <div class="d-flex mb-3" style="gap: 8px;">
+                                                <input type="text" id="coupon-code" class="form-control flex-grow-1"
+                                                    placeholder="Nhập mã voucher" style="height: 42px; font-size: 14px;">
+                                                <button class="btn btn-primary" id="apply-coupon"
+                                                    style="height: 42px; padding: 0 18px; font-size: 14px; white-space: nowrap;">
+                                                    Áp dụng
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="coupon-message" class="text-danger mb-3"></div>
+                                        <h6 class="mb-2">Voucher khả dụng</h6>
+                                        <div id="coupon-list"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -233,11 +254,96 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+
+            // Mở modal và load voucher
+            document.getElementById('open-coupon-modal').addEventListener('click', function() {
+                const couponList = document.getElementById('coupon-list');
+                couponList.innerHTML = '<p class="text-center text-muted">Đang tải...</p>';
+
+                fetch('/coupons/list')
+                    .then(res => res.json())
+                    .then(data => {
+                        couponList.innerHTML = '';
+                        data.forEach(coupon => {
+                            couponList.innerHTML += `
+                    <div class="border rounded p-3 mb-2 coupon-item ${coupon.usable ? '' : 'opacity-50'}"
+                         style="cursor:${coupon.usable ? 'pointer':'not-allowed'}"
+                         data-code="${coupon.code}"
+                         data-usable="${coupon.usable}">
+                        <h6 class="mb-1">${coupon.name}</h6>
+                        <p class="text-muted mb-0" style="font-size:14px">
+                            Giảm: ${coupon.value_text}<br>
+                            Đơn tối thiểu: ${coupon.min_text}
+                        </p>
+                        ${coupon.usable ? '' : `<small class="text-danger">${coupon.reason}</small>`}
+                    </div>
+                `;
+                        });
+                    });
+
+                new bootstrap.Modal(document.getElementById('couponModal')).show();
+            });
+
+            // Click trực tiếp vào voucher
+            $(document).on('click', '.coupon-item', function() {
+                const code = $(this).data('code');
+                const usable = $(this).data('usable') === true || $(this).data('usable') === 'true';
+
+                if (!usable || !code) return;
+
+                $('#coupon-code').val(code);
+
+                // đóng modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('couponModal'));
+                modal.hide();
+
+                // trigger apply
+                $('#apply-coupon').trigger('click');
+            });
+
+            // Áp dụng voucher
+            $('#apply-coupon').click(function() {
+                const couponCode = $('#coupon-code').val().trim();
+                if (!couponCode) {
+                    $('#coupon-message').removeClass('text-success').addClass('text-danger')
+                        .text("Vui lòng nhập mã giảm giá");
+                    return;
+                }
+
+                $.ajax({
+                    url: "{{ route('checkout.applyCoupon') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        coupon_code: couponCode
+                    },
+                    success: function(res) {
+                        if (res.success) {
+                            $('#coupon-message').removeClass('text-danger').addClass(
+                                    'text-success')
+                                .text("Mã giảm giá áp dụng thành công!");
+                            $('#discount-amount').text(new Intl.NumberFormat().format(res
+                                .discount) + " đ");
+                            $('#total-amount').text(new Intl.NumberFormat().format(res
+                                .total_after_discount) + " đ");
+                            $('#coupon_id').val(res.coupon_id || '');
+                        }
+                    },
+                    error: function(xhr) {
+                        const err = xhr.responseJSON?.error || "Lỗi không xác định";
+                        $('#coupon-message').removeClass('text-success').addClass('text-danger')
+                            .text(err);
+                    }
+                });
+            });
+
+            /* ============================================================
+                4) THỰC HIỆN THANH TOÁN
+            ============================================================ */
             const form = document.getElementById('checkout-form');
             const button = document.getElementById('order_button_cash');
             const totalAmount = {{ $totalPrice + 25000 }};
 
-            // --- XỬ LÝ SUBMIT FORM (Thanh toán) ---
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 button.disabled = true;
@@ -250,7 +356,6 @@
 
                 try {
                     if (method === 'paypal') {
-                        // PayPal
                         const res = await fetch('{{ route('checkout.paypal') }}', {
                             method: 'POST',
                             headers: {
@@ -262,7 +367,6 @@
                         if (data.redirect_url) window.location.href = data.redirect_url;
                         else alert('Không thể khởi tạo thanh toán PayPal.');
                     } else if (method === 'momo') {
-                        // MoMo
                         const res = await fetch('{{ route('checkout.placeOrder') }}', {
                             method: 'POST',
                             headers: {
@@ -295,7 +399,6 @@
                             alert('Không thể tạo đơn hàng cho MoMo.');
                         }
                     } else {
-                        // COD
                         form.submit();
                     }
                 } catch (err) {
@@ -307,41 +410,6 @@
                 }
             });
 
-            // --- AJAX ÁP DỤNG COUPON ---
-            $('#apply-coupon').click(function() {
-                let couponCode = $('#coupon-code').val();
-                if (!couponCode) {
-                    $('#coupon-message').removeClass('text-success').addClass('text-danger').text(
-                        "Vui lòng nhập mã giảm giá");
-                    return;
-                }
-
-                $.ajax({
-                    url: "{{ route('checkout.applyCoupon') }}",
-                    type: "POST",
-                    data: {
-                        _token: "{{ csrf_token() }}",
-                        coupon_code: couponCode
-                    },
-                    success: function(res) {
-                        if (res.success) {
-                            $('#coupon-message').removeClass('text-danger').addClass(
-                                    'text-success')
-                                .text("Mã giảm giá áp dụng thành công!");
-                            $('#discount-amount').text(new Intl.NumberFormat().format(res
-                                .discount_amount) + " đ");
-                            $('#total-amount').text(new Intl.NumberFormat().format(res
-                                .new_total) + " đ");
-                            $('#coupon_id').val(res.coupon_id);
-                        }
-                    },
-                    error: function(xhr) {
-                        let err = xhr.responseJSON?.error || "Lỗi không xác định";
-                        $('#coupon-message').removeClass('text-success').addClass('text-danger')
-                            .text(err);
-                    }
-                });
-            });
         });
     </script>
 @endsection

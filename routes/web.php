@@ -17,6 +17,7 @@ use App\Http\Controllers\Clients\ProductController;
 use App\Http\Controllers\Clients\FlashSaleController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ChatbotController;
+use App\Http\Controllers\Clients\ReturnRequestController;
 // use App\Http\Controllers\Clients\WishController;
 
 use App\Http\Controllers\Clients\ReviewController;
@@ -69,8 +70,8 @@ Route::middleware(['auth.custom'])->group(function () {
         // Đổi mật khẩu
         Route::post('/change-password', [AccountController::class, 'changePassword'])
             ->name('account.change-password');
- Route::get('/addresses', [AccountController::class, 'showAddresses'])
-        ->name('account.addresses.index');
+        Route::get('/addresses', [AccountController::class, 'showAddresses'])
+            ->name('account.addresses.index');
         // Thêm địa chỉ
         Route::post('/addresses', [AccountController::class, 'addAddress'])
             ->name('account.addresses.add');
@@ -90,6 +91,7 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::get('/checkout/get-address', [CheckoutController::class, 'getAddress'])->name('checkout.getAddress');
     Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+    Route::get('/coupons/list', [CheckoutController::class, 'listCoupons'])->name('coupons.list');
     Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.applyCoupon');
 
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
@@ -101,7 +103,9 @@ Route::middleware(['auth.custom'])->group(function () {
 
     Route::post('/refund/bank-info/{order}', [RefundController::class, 'updateBankInfo'])
         ->name('refund.bank-info.update');
-
+    Route::get('/return/{orderItem}',[ReturnRequestController::class, 'create'])
+        ->name('client.return.form');
+    Route::post('/return-request', [ReturnRequestController::class, 'store'])->name('return-request.store');
 
     Route::post('/review', [ReviewController::class, 'createReview']);
     Route::get('/review/{product}', [ReviewController::class, 'index']);

@@ -48,6 +48,60 @@ class CheckoutController extends Controller
         return response()->json(['success' => true, 'data' => $address]);
     }
 
+    public function listCoupons()
+    {
+        $user = Auth::user();
+
+        // Lấy tổng tiền giỏ hàng
+        $cartItems = CartItem::where('user_id', $user->id)
+            ->with('product', 'variant')
+            ->get();
+
+        $cartTotal = $cartItems->sum(function ($item) {
+            return $item->quantity * ($item->variant->sale_price ?? $item->product->price);
+        }) + 25000;
+
+        // Lấy TẤT CẢ mã giảm giá
+        $coupons = Coupon::orderBy('id', 'desc')->get();
+
+        $result = $coupons->map(function ($c) use ($cartTotal) {
+
+            // Kiểm tra mã có dùng được không
+            $usable = true;
+            $reason = '';
+
+            if ($c->status != 1) {
+                $usable = false;
+                $reason = 'Mã đã tắt';
+            } elseif (now()->lt($c->start_date)) {
+                $usable = false;
+                $reason = 'Chưa đến ngày áp dụng';
+            } elseif (now()->gt($c->end_date)) {
+                $usable = false;
+                $reason = 'Mã đã hết hạn';
+            } elseif ($c->used_count >= $c->usage_limit) {
+                $usable = false;
+                $reason = 'Hết lượt sử dụng';
+            } elseif ($cartTotal < ($c->min_order ?? 0)) {
+                $usable = false;
+                $reason = 'Không đạt giá trị tối thiểu';
+            }
+
+            return [
+                'code' => $c->code,
+                'name' => $c->name,
+                'value_text' => $c->type === 'percent'
+                    ? $c->value . '%'
+                    : number_format($c->value, 0, ',', '.') . ' đ',
+                'min_text' => number_format($c->min_order ?? 0, 0, ',', '.') . ' đ',
+                'usable' => $usable,
+                'reason' => $reason,
+            ];
+        });
+
+        return response()->json($result);
+    }
+
     // Đặt hàng
     public function placeOrder(Request $request)
     {
@@ -185,48 +239,76 @@ class CheckoutController extends Controller
     }
     public function applyCoupon(Request $request)
     {
-        $request->validate([
-            'coupon_code' => 'required|string|exists:coupons,code',
-        ]);
+        Log::info('Request voucher:', $request->all());
 
-        $user = Auth::user();
+        $couponCode = trim($request->coupon_code);
+        $user = auth()->user();
+        $shipFee = 25000; // phí ship cố định (nếu có thể thay đổi tùy logic)
 
-        $coupon = Coupon::where('code', $request->coupon_code)
+        // Tìm coupon hợp lệ
+        $coupon = Coupon::where('code', $couponCode)
             ->where('status', 1)
-            ->where('end_date', '>=', now())
+            ->where('start_date', '<=', now()->timezone('Asia/Ho_Chi_Minh'))
+            ->where('end_date', '>=', now()->timezone('Asia/Ho_Chi_Minh'))
             ->first();
 
+        Log::info('Coupon tìm được:', ['coupon' => $coupon]);
+
         if (!$coupon) {
-            return response()->json(['error' => 'Mã giảm giá đã hết hiệu lực, vui lòng chọn mã giảm giá khác'], 400);
+            return response()->json(['error' => 'Mã giảm giá không hợp lệ hoặc đã hết hạn'], 400);
         }
 
-        if ($coupon->usage_limit <= $coupon->used_count) {
+        // Kiểm tra lượt dùng
+        Log::info('Usage check:', ['used' => $coupon->used, 'limit' => $coupon->usage_limit]);
+        if ($coupon->used >= $coupon->usage_limit) {
             return response()->json(['error' => 'Mã giảm giá đã hết lượt sử dụng'], 400);
         }
 
-        $cartItems = CartItem::where('user_id', $user->id)->with('product', 'variant')->get();
+        // Lấy giỏ hàng user
+        $cartItems = CartItem::with(['product', 'variant'])
+            ->where('user_id', $user->id)
+            ->get();
+
         if ($cartItems->isEmpty()) {
             return response()->json(['error' => 'Giỏ hàng trống'], 400);
         }
 
-        $cartTotal = $cartItems->sum(function ($item) {
-            return $item->quantity * ($item->variant->sale_price ?? $item->product->price);
-        }) + 25000;
-
-        if ($cartTotal < ($coupon->min_order ?? 0)) {
-            return response()->json(['error' => 'Đơn hàng phải tối thiểu ' . number_format($coupon->min_order, 0, ',', '.') . ' đ để áp dụng mã này'], 400);
+        // Tính tổng tiền sản phẩm
+        $totalAmount = 0;
+        foreach ($cartItems as $item) {
+            $price = $item->variant->sale_price ?? $item->product->price;
+            $totalAmount += ($price * $item->quantity);
         }
-        $discountAmount = $coupon->type === 'fixed'
-            ? $coupon->value
-            : $cartTotal * $coupon->value / 100;
 
-        $newTotal = $cartTotal - $discountAmount;
+        // Check min order
+        if ($totalAmount < $coupon->min_order) {
+            return response()->json([
+                'error' => 'Đơn hàng chưa đạt mức tối thiểu để áp dụng mã giảm giá'
+            ], 400);
+        }
+
+        // Tính discount chỉ trên tiền sản phẩm
+        $discount = 0;
+        if ($coupon->type === 'amount') {
+            $discount = $coupon->value;
+        } elseif ($coupon->type === 'percent') {
+            $discount = ($totalAmount * $coupon->value) / 100;
+        }
+
+        // Không để discount > tổng tiền sản phẩm
+        if ($discount > $totalAmount) {
+            $discount = $totalAmount;
+        }
+
+        // Tổng tiền sau khi áp voucher + phí ship
+        $totalAfterDiscount = ($totalAmount - $discount) + $shipFee;
 
         return response()->json([
             'success' => true,
-            'coupon_id' => $coupon->id,
-            'discount_amount' => $discountAmount,
-            'new_total' => $newTotal
+            'discount' => $discount,
+            'total_after_discount' => $totalAfterDiscount,
+            'ship_fee' => $shipFee,
+            'message' => 'Áp dụng mã giảm giá thành công'
         ]);
     }
 

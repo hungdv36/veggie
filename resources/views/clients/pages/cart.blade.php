@@ -14,6 +14,7 @@
                         <div class="card-header bg-white py-3 border-bottom">
                             <h4 class="mb-0"><i class="fa fa-shopping-cart me-2 text-success"></i> Giỏ hàng của bạn</h4>
                         </div>
+
                         <div class="card-body p-0">
                             <div class="table-responsive">
                                 <table class="table align-middle mb-0">
@@ -25,13 +26,21 @@
                                             <th class="text-end">Tạm tính</th>
                                         </tr>
                                     </thead>
+
                                     <tbody>
-                                        @php $cartTotal = 0; @endphp
+                                        @php
+                                            $cartTotal = 0;
+                                        @endphp
+
                                         @forelse ($cartItems as $item)
+
                                             @php
-                                                $subtotal = $item['price'] * $item['quantity'];
+                                                // Giá đã được tính đầy đủ tại controller
+                                                $price = $item['price'];
+                                                $subtotal = $price * $item['quantity'];
                                                 $cartTotal += $subtotal;
                                             @endphp
+
                                             <tr>
                                                 <td class="align-middle text-center">
                                                     <button class="btn btn-sm btn-outline-danger remove-from-cart"
@@ -40,14 +49,17 @@
                                                         <i class="fa fa-times"></i>
                                                     </button>
                                                 </td>
+
                                                 <td>
                                                     <div class="d-flex align-items-center">
                                                         <div class="me-3" style="width: 70px;">
                                                             <img src="{{ asset($item['image']) }}" alt="{{ $item['name'] }}"
                                                                 class="img-fluid rounded">
                                                         </div>
+
                                                         <div>
                                                             <h6 class="fw-bold mb-1">{{ $item['name'] }}</h6>
+
                                                             @if ($item['color_name'] || $item['size_name'])
                                                                 <small class="text-muted">
                                                                     @if ($item['color_name'])
@@ -58,12 +70,14 @@
                                                                     @endif
                                                                 </small>
                                                             @endif
+
                                                             <div class="text-success fw-semibold mt-1">
-                                                                {{ number_format($item['price'], 0, ',', '.') }}đ
+                                                                {{ number_format($price, 0, ',', '.') }}đ
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </td>
+
                                                 <td class="text-center">
                                                     <div
                                                         class="cart-plus-minus d-inline-flex align-items-center border rounded-pill px-2">
@@ -79,11 +93,13 @@
                                                         <div class="inc qtybutton px-2 text-secondary">+</div>
                                                     </div>
                                                 </td>
+
                                                 <td class="text-end fw-semibold text-dark cart-product-subtotal"
-                                                    data-price="{{ $item['price'] }}">
+                                                    data-price="{{ $price }}">
                                                     {{ number_format($subtotal, 0, ',', '.') }}đ
                                                 </td>
                                             </tr>
+
                                         @empty
                                             <tr>
                                                 <td colspan="4" class="text-center py-4 text-muted">
@@ -101,18 +117,20 @@
 
                 @if (!empty($cartItems))
                     <div class="col-lg-4">
-                        <div class="card shadow-sm border-0 position-sticky" style="top: 90px; z-index: 10;">
+                        <div class="card shadow-sm border-0 position-sticky" style="top: 90px;">
                             <div class="card-header bg-white border-bottom">
-                                <h5 class="mb-0 d-flex align-items-center">
+                                <h5 class="mb-0">
                                     <i class="fa fa-credit-card me-2 text-success"></i>
                                     Tổng giỏ hàng
                                 </h5>
                             </div>
+
                             <div class="card-body">
                                 <table class="table mb-3">
                                     <tbody>
                                         <tr>
                                             <td class="text-muted">Tổng tiền hàng</td>
+
                                             <td class="text-end fw-semibold" id="cart-total"
                                                 data-total="{{ $cartTotal }}">
                                                 {{ number_format($cartTotal, 0, ',', '.') }}đ
@@ -130,6 +148,7 @@
                         </div>
                     </div>
                 @endif
+
             </div>
         </div>
     </div>

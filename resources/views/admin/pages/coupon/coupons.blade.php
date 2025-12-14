@@ -29,6 +29,7 @@
                                 <thead class="thead-light">
                                     <tr>
                                         <th>STT</th>
+                                        <th>Tên</th>
                                         <th>Mã coupon</th>
                                         <th>Loại</th>
                                         <th>Giá trị</th>
@@ -43,6 +44,7 @@
                                     @foreach ($coupons as $coupon)
                                         <tr>
                                             <td>{{ $coupon->id }}</td>
+                                            <td>{{ $coupon->name }}</td>
                                             <td>{{ $coupon->code }}</td>
                                             <td>{{ $coupon->type === 'percent' ? '%' : 'VNĐ' }}</td>
                                             <td>{{ number_format($coupon->value, 0, ',', '.') }}
@@ -97,6 +99,13 @@
                                                             </div>
 
                                                             <div class="mb-3">
+                                                                <label class="form-label">Tên mã giảm giá <span
+                                                                        class="text-danger">*</span></label>
+                                                                <input type="text" name="name" class="form-control"
+                                                                    value="{{ $coupon->name }}" required>
+                                                            </div>
+
+                                                            <div class="mb-3">
                                                                 <label class="form-label">Loại <span
                                                                         class="text-danger">*</span></label>
                                                                 <select name="type" class="form-select" required>
@@ -129,12 +138,6 @@
                                                                 <input type="number" name="usage_limit"
                                                                     class="form-control"
                                                                     value="{{ $coupon->usage_limit }}">
-                                                            </div>
-
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Số lượt đã dùng</label>
-                                                                <input type="number" name="used" class="form-control"
-                                                                    value="{{ $coupon->used }}">
                                                             </div>
 
                                                             <div class="mb-3">

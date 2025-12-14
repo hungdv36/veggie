@@ -4,6 +4,17 @@
 @section('breadcrumb', 'Chi tiết đơn hàng')
 
 @section('content')
+    <style>
+        .btn-xs {
+            font-size: 12px;
+            line-height: 1;
+            border-radius: 6px;
+        }
+
+        .btn-xs {
+            line-height: 1;
+        }
+    </style>
     <div class="container my-5">
         <div class="card shadow-lg border-0 rounded-4">
             <div class="card-body p-4">
@@ -23,6 +34,15 @@
                             } else {
                                 $status = $order->status;
                             }
+
+                            $hasReturn = false;
+                            if (isset($item) && $item->returnRequest) {
+                                $hasReturn = in_array($item->returnRequest->status, [
+                                    'requested',
+                                    'reviewing',
+                                    'approved',
+                                ]);
+                            }
                         @endphp
                         @switch($status)
                             @case('pending')
@@ -30,7 +50,7 @@
                             @break
 
                             @case('processing')
-                                <span class="badge bg-primary">Đã Xác Nhận</span>
+                                <span class="badge bg-primary">Đã xác nhận</span>
                             @break
 
                             @case('shipped')
@@ -49,8 +69,22 @@
                                 <span class="badge bg-info">Đã nhận được hàng</span>
                             @break
 
+                            {{-- 🔁 HOÀN ĐƠN --}}
+                            @case('requested')
+                                <span class="badge bg-warning">Đã gửi yêu cầu hoàn hàng</span>
+                            @break
+
+                            @case('return_processing')
+                                <span class="badge bg-info">Đang xử lý hoàn hàng</span>
+                            @break
+
+                            @case('canceled')
+                                <span class="badge bg-danger">Đã hủy</span>
+                            @break
+
+                            {{-- 💰 HOÀN TIỀN (nếu có) --}}
                             @case('waiting_info')
-                                <span class="badge bg-warning">Chờ nhập thông tin ngân hàng</span>
+                                <span class="badge bg-warning">Chờ thông tin ngân hàng</span>
                             @break
 
                             @case('submitted')
@@ -103,6 +137,7 @@
                                 <th>Giá</th>
                                 <th>Số lượng</th>
                                 <th>Thành tiền</th>
+                                <th>Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -122,7 +157,51 @@
                                     <td>{{ number_format($item->price, 0, ',', '.') }}₫</td>
                                     <td>{{ $item->quantity }}</td>
                                     <td class="text-success fw-bold">
-                                        {{ number_format($item->price * $item->quantity, 0, ',', '.') }}₫</td>
+                                        {{ number_format($item->price * $item->quantity, 0, ',', '.') }}₫
+                                    </td>
+                                    <td>
+                                        @if ($item->returnRequest)
+                                            @switch($item->returnRequest->status)
+                                                @case('requested')
+                                                    <span class="badge bg-warning">Đã gửi yêu cầu hoàn</span>
+                                                @break
+
+                                                @case('reviewing')
+                                                    <span class="badge bg-info">Đang xử lý</span>
+                                                @break
+
+                                                @case('approved')
+                                                    <span class="badge bg-success">Được chấp nhận</span>
+                                                @break
+
+                                                @case('rejected')
+                                                    <span class="badge bg-danger">Bị từ chối</span>
+                                                @break
+
+                                                @case('completed')
+                                                    <span class="badge bg-success">Hoàn hàng xong</span>
+                                                @break
+                                            @endswitch
+                                        @elseif ($order->status === 'completed')
+                                            <div class="d-flex align-items-center gap-1">
+                                                <form action="{{ route('orders.confirmReceived', $order->id) }}"
+                                                    method="POST" class="m-0">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="btn btn-success btn-xs px-2 py-1">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </button>
+                                                </form>
+
+                                                <a href="{{ route('client.return.form', $item->id) }}"
+                                                    class="btn btn-warning btn-xs px-2 py-1">
+                                                    <i class="fas fa-undo-alt"></i>
+                                                </a>
+                                            </div>
+                                        @else
+                                            <span class="text-muted">—</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -142,7 +221,9 @@
                     </div>
                 </div>
                 <!-- Hành động -->
-                @if ($order->status == 'pending' || $order->status == 'processing')
+                @if (
+                    ($order->status == 'pending' || $order->status == 'processing') &&
+                        (!$order->payment || !in_array($order->payment->payment_method, ['momo', 'vnpay', 'zalopay'])))
                     <form action="{{ route('order.cancel', $order->id) }}" method="POST" class="mt-4"
                         onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn hàng này?');">
                         @csrf
@@ -160,15 +241,6 @@
 
                         <button type="submit" class="btn btn-outline-danger px-4 py-2">
                             <i class="fas fa-times-circle me-1"></i> Hủy đơn hàng
-                        </button>
-                    </form>
-                @endif
-                @if ($order->status == 'completed')
-                    <form action="{{ route('orders.confirmReceived', $order->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
-                        <button type="submit" class="btn btn-success btn-sm">
-                            <i class="fas fa-check-circle me-1"></i> Đã nhận được hàng
                         </button>
                     </form>
                 @endif

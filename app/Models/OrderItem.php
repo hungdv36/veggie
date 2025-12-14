@@ -29,4 +29,13 @@ class OrderItem extends Model
     {
         return $this->belongsTo(ProductVariant::class, 'variant_id');
     }
+    public function returnRequest()
+    {
+        return $this->hasOne(ReturnRequest::class);
+    }
+    public function isReturning(): bool
+    {
+        return $this->returnRequest
+            && in_array($this->returnRequest->status, ['requested', 'reviewing', 'approved']);
+    }
 }
