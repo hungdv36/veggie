@@ -1542,20 +1542,26 @@
 
             // Remove product from cart
             $(document).on('click', '.mini-cart-item-delete', function () {
-                let productId = $(this).data('id');
+                let productId = $(this).data('product-id');
+                let variantId = $(this).data('variant-id');
+                let price = $(this).data('price');
                 $.ajaxSetup({
                     headers: {
                         "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
                     },
                 });
                 $.ajax({
-                    url: '/cart/remove',
+                    url: '/cart/remove-mini',
                     type: 'POST',
-                    data: { product_id: productId },
-                    success: function (response) {
-                        if (response.status) {
-                            $('#cart_count').text(response.cart_count);
-                            $('.mini-cart-icon').click();
+                    data: {
+                        product_id: productId,
+                        variant_id: variantId,
+                        price: price
+                    },
+                    success: function (res) {
+                        if (res.status) {
+                            $('#cart_count').text(res.cart_count);
+                            $('.ltn__mini-cart').html(res.html);
                         }
                     }
                 });

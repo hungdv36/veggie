@@ -146,7 +146,7 @@ Route::get('/products/{slug}', [ProductController::class, 'detail'])->name('prod
 
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'updateCart'])->name('cart.update');
-Route::post('/cart/remove', [CartController::class, 'removeCartItem'])->name('cart.removeItem');
+Route::post('/cart/remove-mini', [CartController::class, 'removeCartItem'])->name('cart.removeItem');
 Route::get('/mini-cart', [CartController::class, 'loadMiniCart'])->name('cart.mini');
 Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.index');
 
