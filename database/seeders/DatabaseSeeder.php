@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,22 +11,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // ================= Tạo dữ liệu test dashboard =================
+        // Lưu ý: Chỉ chọn 1 seeder để tránh xóa dữ liệu trùng lặp
+        $this->call(\Database\Seeders\FullTestSeeder::class);
+        // Hoặc nếu muốn dùng DashboardTestSeeder thay thế
+        // $this->call(\Database\Seeders\DashboardTestSeeder::class);
 
-        // User::factory()->create([
-        //     'name' => 'Test User',
-        //     'email' => 'test@example.com',
-        // ]);
-
-        $this->call(class: [
-            // RolesTableSeeder::class,
-            // PermissionsTableSeeder::class,
+        // ================= Tạo role & permission =================
+        $this->call([
             RolePermissionsTableSeeder::class,
-            // AdminStaffTableSeeder::class,
-            // UsersTableSeeder::class,
-            // CategorySeeder::class,
-            // ProductSeeder::class,
-            // VariantSeeder::class,
         ]);
+
+        // ================= Seeder khác (tùy chọn) =================
+        // $this->call([
+        //     RolesTableSeeder::class,
+        //     PermissionsTableSeeder::class,
+        //     AdminStaffTableSeeder::class,
+        //     UsersTableSeeder::class,
+        //     CategorySeeder::class,
+        //     ProductSeeder::class,
+        //     VariantSeeder::class,
+        // ]);
     }
 }
