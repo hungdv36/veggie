@@ -288,7 +288,16 @@
                                                         <td>{{ $order->created_at->format('d/m/Y') }}</td>
                                                         <td>
                                                             @php
-                                                                $refundStatus =
+                                                                $returned = $order->orderItems
+                                                                    ->filter(
+                                                                        fn($item) => $item->returnRequest &&
+                                                                            $item->returnRequest->status === 'done',
+                                                                    )
+                                                                    ->count();
+                                                                $total = $order->orderItems->count();
+
+                                                                // Xác định trạng thái chính
+                                                                $status =
                                                                     $order->payment?->payment_method === 'momo' &&
                                                                     $order->status === 'canceled'
                                                                         ? trim(
@@ -297,57 +306,71 @@
                                                                         : $order->status;
                                                             @endphp
 
-                                                            @switch($refundStatus)
-                                                                {{-- Orders --}}
-                                                                @case('pending')
-                                                                    <span class="badge bg-warning">Chờ xác nhận</span>
-                                                                @break
+                                                            {{-- Trường hợp tất cả sản phẩm đã hoàn --}}
+                                                            @if ($total > 0 && $returned === $total)
+                                                                <span class="badge bg-primary">Đã hoàn hàng</span>
 
-                                                                @case('processing')
-                                                                    <span class="badge bg-primary">Đang xử lý</span>
-                                                                @break
+                                                                {{-- Trường hợp hoàn 1 phần --}}
+                                                            @elseif ($returned > 0)
+                                                                <span class="badge bg-info">Đã hoàn
+                                                                    {{ $returned }}/{{ $total }} sản
+                                                                    phẩm</span>
 
-                                                                @case('shipped')
-                                                                    <span class="badge bg-secondary">Đang giao hàng</span>
-                                                                @break
+                                                                {{-- Trường hợp chưa hoàn --}}
+                                                            @else
+                                                                @switch($status)
+                                                                    {{-- Orders --}}
+                                                                    @case('pending')
+                                                                        <span class="badge bg-warning">Chờ xác nhận</span>
+                                                                    @break
 
-                                                                @case('completed')
-                                                                    <span class="badge bg-success">Hoàn thành</span>
-                                                                @break
+                                                                    @case('processing')
+                                                                        <span class="badge bg-primary">Đang xử lý</span>
+                                                                    @break
 
-                                                                @case('received')
-                                                                    <span class="badge bg-info">Đã nhận được hàng</span>
-                                                                @break
+                                                                    @case('shipped')
+                                                                        <span class="badge bg-secondary">Đang giao hàng</span>
+                                                                    @break
 
-                                                                @case('canceled')
-                                                                    <span class="badge bg-danger">Đã hủy</span>
-                                                                @break
+                                                                    @case('completed')
+                                                                        <span class="badge bg-success">Đã giao hàng</span>
+                                                                    @break
 
-                                                                {{-- Refund --}}
-                                                                @case('waiting_info')
-                                                                    <span class="badge bg-warning">Chờ nhập thông tin ngân
-                                                                        hàng</span>
-                                                                @break
+                                                                    @case('received')
+                                                                        <span class="badge bg-info">Đã nhận hàng</span>
+                                                                    @break
 
-                                                                @case('submitted')
-                                                                    <span class="badge bg-primary">Đã gửi yêu cầu hoàn tiền</span>
-                                                                @break
+                                                                    @case('canceled')
+                                                                        <span class="badge bg-danger">Đã hủy</span>
+                                                                    @break
 
-                                                                @case('in_process')
-                                                                    <span class="badge bg-info">Đang xử lý hoàn tiền</span>
-                                                                @break
+                                                                    {{-- Refund --}}
+                                                                    @case('waiting_info')
+                                                                        <span class="badge bg-warning">Chờ nhập thông tin ngân
+                                                                            hàng</span>
+                                                                    @break
 
-                                                                @case('refunded')
-                                                                    <span class="badge bg-success">Hoàn tiền thành công</span>
-                                                                @break
+                                                                    @case('submitted')
+                                                                        <span class="badge bg-primary">Đã gửi yêu cầu hoàn
+                                                                            tiền</span>
+                                                                    @break
 
-                                                                @case('failed')
-                                                                    <span class="badge bg-danger">Hoàn tiền thất bại</span>
-                                                                @break
+                                                                    @case('in_process')
+                                                                        <span class="badge bg-info">Đang xử lý hoàn tiền</span>
+                                                                    @break
 
-                                                                @default
-                                                                    <span class="badge bg-secondary">Không xác định</span>
-                                                            @endswitch
+                                                                    @case('refunded')
+                                                                        <span class="badge bg-success">Hoàn tiền thành công</span>
+                                                                    @break
+
+                                                                    @case('failed')
+                                                                        <span class="badge bg-danger">Hoàn tiền thất bại</span>
+                                                                    @break
+
+                                                                    @default
+                                                                        <span class="badge bg-secondary">Không xác định</span>
+                                                                @endswitch
+                                                            @endif
                                                         </td>
                                                         <td>{{ number_format($order->total_amount, 0, ',', '.') }} đ</td>
                                                         <td>

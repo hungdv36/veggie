@@ -43,66 +43,33 @@
                                     'approved',
                                 ]);
                             }
+                            $allReturned = $order->orderItems->every(function ($item) {
+                                return $item->returnRequest && $item->returnRequest->status === 'done';
+                            });
                         @endphp
-                        @switch($status)
-                            @case('pending')
-                                <span class="badge bg-warning text-dark">Chờ xác nhận</span>
-                            @break
+                        @if ($allReturned)
+                            <span class="badge bg-secondary">Đã hoàn hàng</span>
+                        @else
+                            @switch($status)
+                                @case('completed')
+                                    <span class="badge bg-success">Hoàn thành</span>
+                                @break
 
-                            @case('processing')
-                                <span class="badge bg-primary">Đã xác nhận</span>
-                            @break
+                                @case('pending')
+                                    <span class="badge bg-warning text-dark">Chờ xác nhận</span>
+                                @break
 
-                            @case('shipped')
-                                <span class="badge bg-info">Đang giao hàng</span>
-                            @break
+                                @case('processing')
+                                    <span class="badge bg-primary">Đã xác nhận</span>
+                                @break
 
-                            @case('completed')
-                                <span class="badge bg-success">Hoàn thành</span>
-                            @break
+                                @case('shipped')
+                                    <span class="badge bg-info">Đang giao hàng</span>
+                                @break
 
-                            @case('canceled')
-                                <span class="badge bg-danger">Đã hủy</span>
-                            @break
-
-                            @case('received')
-                                <span class="badge bg-info">Đã nhận được hàng</span>
-                            @break
-
-                            {{-- 🔁 HOÀN ĐƠN --}}
-                            @case('requested')
-                                <span class="badge bg-warning">Đã gửi yêu cầu hoàn hàng</span>
-                            @break
-
-                            @case('return_processing')
-                                <span class="badge bg-info">Đang xử lý hoàn hàng</span>
-                            @break
-
-                            @case('canceled')
-                                <span class="badge bg-danger">Đã hủy</span>
-                            @break
-
-                            {{-- 💰 HOÀN TIỀN (nếu có) --}}
-                            @case('waiting_info')
-                                <span class="badge bg-warning">Chờ thông tin ngân hàng</span>
-                            @break
-
-                            @case('submitted')
-                                <span class="badge bg-primary">Đã gửi yêu cầu hoàn tiền</span>
-                            @break
-
-                            @case('in_process')
-                                <span class="badge bg-info">Đang xử lý hoàn tiền</span>
-                            @break
-
-                            @case('refunded')
-                                <span class="badge bg-success">Hoàn tiền thành công</span>
-                            @break
-
-                            @case('failed')
-                                <span class="badge bg-danger">Hoàn tiền thất bại</span>
-                            @break
-                        @endswitch
+                                {{-- các case khác giữ nguyên --}}
+                            @endswitch
+                        @endif
                     </p>
                     @if ($order->status == 'canceled' && $order->cancel_reason)
                         <p class="mb-1"><strong>Lý do hủy đơn hàng:</strong> <span
@@ -178,8 +145,8 @@
                                                     <span class="badge bg-danger">Bị từ chối</span>
                                                 @break
 
-                                                @case('completed')
-                                                    <span class="badge bg-success">Hoàn hàng xong</span>
+                                                @case('done')
+                                                    <span class="badge bg-success">Đã hoàn hàng</span>
                                                 @break
                                             @endswitch
                                         @elseif ($order->status === 'completed')

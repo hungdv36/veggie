@@ -38,4 +38,8 @@ class OrderItem extends Model
         return $this->returnRequest
             && in_array($this->returnRequest->status, ['requested', 'reviewing', 'approved']);
     }
+    public function isReturned(): bool
+    {
+        return $this->returnRequest && $this->returnRequest->status === 'done';
+    }
 }
