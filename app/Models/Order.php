@@ -58,4 +58,13 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+    public function returnedCount(): int
+    {
+        return $this->orderItems->filter(fn($item) => $item->isReturned())->count();
+    }
+
+    public function totalItems(): int
+    {
+        return $this->orderItems->count();
+    }
 }

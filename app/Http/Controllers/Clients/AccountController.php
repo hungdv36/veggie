@@ -18,7 +18,11 @@ class AccountController extends Controller
         $user = Auth::user();
 
         $addresses = ShippingAddress::where('user_id', Auth::id())->get();
-        $orders = Order::with(['refund', 'payment'])
+        $orders = Order::with([
+            'refund',
+            'payment',
+            'orderItems.returnRequest'
+        ])
             ->where('user_id', auth()->id())
             ->orderBy('created_at', 'desc')
             ->get();
@@ -97,42 +101,42 @@ class AccountController extends Controller
             'message' => 'Mật khẩu đã được thay đổi thành công.',
         ]);
     }
-   public function addAddress(Request $request)
-{
-    $request->validate([
-        'full_name' => 'required|string|max:255',
-        'phone' => 'required|string|max:20',
-        'address' => 'required|string|max:255',
-        'province' => 'required|string|max:100',
-        'district' => 'required|string|max:100', // Đảm bảo cột này có trong DB
-        'ward' => 'required|string|max:100', // Đảm bảo cột này có trong DB
-    ]);
+    public function addAddress(Request $request)
+    {
+        $request->validate([
+            'full_name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:255',
+            'province' => 'required|string|max:100',
+            'district' => 'required|string|max:100', // Đảm bảo cột này có trong DB
+            'ward' => 'required|string|max:100', // Đảm bảo cột này có trong DB
+        ]);
 
-    // Nếu đánh dấu là mặc định, unset các địa chỉ mặc định trước
-    if ($request->has('default')) {
-        ShippingAddress::where('user_id', Auth::id())->update(['default' => 0]);
+        // Nếu đánh dấu là mặc định, unset các địa chỉ mặc định trước
+        if ($request->has('default')) {
+            ShippingAddress::where('user_id', Auth::id())->update(['default' => 0]);
+        }
+
+        ShippingAddress::create([
+            'user_id' => Auth::id(),
+            'full_name' => $request->full_name,
+            'phone' => $request->phone,
+            'address' => $request->address,       // e.g., 96 Nguyễn Biểu B
+            'province' => $request->province,     // Lưu tỉnh/thành phố vào cột 'province' (hoặc 'city')
+            'district' => $request->district,     // LƯU Quận/Huyện riêng
+            'ward' => $request->ward,             // LƯU Phường/Xã riêng
+            'default' => $request->has('default') ? 1 : 0,
+        ]);
+
+        return back()->with('success', 'Địa chỉ đã được thêm thành công.');
     }
 
-    ShippingAddress::create([
-        'user_id' => Auth::id(),
-        'full_name' => $request->full_name,
-        'phone' => $request->phone,
-        'address' => $request->address,       // e.g., 96 Nguyễn Biểu B
-        'province' => $request->province,     // Lưu tỉnh/thành phố vào cột 'province' (hoặc 'city')
-        'district' => $request->district,     // LƯU Quận/Huyện riêng
-        'ward' => $request->ward,             // LƯU Phường/Xã riêng
-        'default' => $request->has('default') ? 1 : 0,
-    ]);
+    public function showAddresses()
+    {
+        // Lấy tất cả địa chỉ của user hiện tại
+        $addresses = ShippingAddress::where('user_id', Auth::id())->get();
 
-    return back()->with('success', 'Địa chỉ đã được thêm thành công.');
-}
+        // Trả về view với biến $addresses
 
-public function showAddresses()
-{
-    // Lấy tất cả địa chỉ của user hiện tại
-    $addresses = ShippingAddress::where('user_id', Auth::id())->get();
-
-    // Trả về view với biến $addresses
-    
-}
+    }
 }
