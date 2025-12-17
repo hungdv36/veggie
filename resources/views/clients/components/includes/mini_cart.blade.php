@@ -52,7 +52,8 @@
                         <img src="{{ $product->image ? asset('assets/admin/img/product/' . $product->image) : asset('assets/img/product/default.png') }}"
                             alt="{{ $product->name }}" style="height:100px;width:100px; object-fit:cover;">
                     </a>
-                    <span class="mini-cart-item-delete" data-id="{{ $product->id }}">
+                    <span class="mini-cart-item-delete" data-product-id="{{ $product->id }}"
+                        data-variant-id="{{ $variant->id ?? 0 }}" data-price="{{ $price }}">
                         <i class="icon-cancel"></i>
                     </span>
                 </div>

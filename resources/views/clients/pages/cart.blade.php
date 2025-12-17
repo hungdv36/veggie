@@ -20,12 +20,16 @@
                                 <table class="table align-middle mb-0">
                                     <thead class="table-light">
                                         <tr>
+                                            <th class="text-center">
+                                                <input type="checkbox" id="check-all">
+                                            </th>
                                             <th></th>
                                             <th>Sản phẩm</th>
                                             <th class="text-center">Số lượng</th>
                                             <th class="text-end">Tạm tính</th>
                                         </tr>
                                     </thead>
+
 
                                     <tbody>
                                         @php
@@ -41,7 +45,14 @@
                                                 $cartTotal += $subtotal;
                                             @endphp
 
-                                            <tr>
+                                            <tr data-id="{{ $item['product_id'] }}"
+                                                data-variant="{{ $item['variant_id'] ?? 0 }}"
+                                                data-price="{{ $price }}" data-qty="{{ $item['quantity'] }}">
+
+                                                <td class="align-middle text-center">
+                                                    <input type="checkbox" class="cart-item-checkbox" checked>
+                                                </td>
+
                                                 <td class="align-middle text-center">
                                                     <button class="btn btn-sm btn-outline-danger remove-from-cart"
                                                         data-id="{{ $item['product_id'] }}"
@@ -139,11 +150,12 @@
                                     </tbody>
                                 </table>
 
-                                <a href="{{ route('checkout') }}"
+                                <button type="button" id="btn-checkout"
                                     class="btn btn-success w-100 py-2 fw-semibold d-flex justify-content-center align-items-center">
                                     Tiến hành thanh toán
                                     <i class="fa fa-arrow-right ms-2"></i>
-                                </a>
+                                </button>
+
                             </div>
                         </div>
                     </div>
@@ -154,3 +166,91 @@
     </div>
     <!-- SHOPPING CART AREA END -->
 @endsection
+@push('scripts')
+    <script>
+        $(document).ready(function() {
+
+            function formatMoney(number) {
+                return new Intl.NumberFormat('vi-VN').format(number) + 'đ';
+            }
+
+            function updateSelectedTotal() {
+                let total = 0;
+
+                $('.cart-item-checkbox:checked').each(function() {
+                    let row = $(this).closest('tr');
+                    let price = parseFloat(row.data('price'));
+                    let qty = parseInt(row.data('qty'));
+
+                    if (!isNaN(price) && !isNaN(qty)) {
+                        total += price * qty;
+                    }
+                });
+
+                $('#cart-total')
+                    .attr('data-total', total)
+                    .text(formatMoney(total));
+            }
+
+            // ✅ Tick / bỏ tick từng sản phẩm
+            $(document).on('change', '.cart-item-checkbox', function() {
+                updateSelectedTotal();
+
+                let allChecked = $('.cart-item-checkbox').length === $('.cart-item-checkbox:checked')
+                    .length;
+                $('#check-all').prop('checked', allChecked);
+            });
+
+            // ✅ Check all
+            $('#check-all').on('change', function() {
+                $('.cart-item-checkbox').prop('checked', this.checked);
+                updateSelectedTotal();
+            });
+
+            // ✅ Khi đổi số lượng
+            $(document).on('change', '.cart-qty-input', function() {
+                let row = $(this).closest('tr');
+                row.attr('data-qty', $(this).val());
+                updateSelectedTotal();
+            });
+
+            // Load lần đầu
+            updateSelectedTotal();
+        });
+
+        $('#btn-checkout').on('click', function() {
+            let items = [];
+
+            $('.cart-item-checkbox:checked').each(function() {
+                let row = $(this).closest('tr');
+
+                items.push({
+                    product_id: row.data('id'),
+                    variant_id: row.data('variant'),
+                    quantity: row.data('qty')
+                });
+            });
+
+            if (items.length === 0) {
+                alert('Vui lòng chọn ít nhất 1 sản phẩm để thanh toán');
+                return;
+            }
+
+            let form = $('<form>', {
+                action: "{{ route('checkout') }}",
+                method: 'POST'
+            });
+
+            form.append('@csrf');
+
+            form.append($('<input>', {
+                type: 'hidden',
+                name: 'items',
+                value: JSON.stringify(items)
+            }));
+
+            $('body').append(form);
+            form.submit();
+        });
+    </script>
+@endpush

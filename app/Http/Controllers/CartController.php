@@ -209,15 +209,17 @@ class CartController extends Controller
         $request->validate([
             'product_id' => 'required',
             'variant_id' => 'required',
+            'price'      => 'required|numeric',
         ]);
 
-        $key = $request->product_id . '_' . $request->variant_id;
+        $key = $request->product_id . '_' . $request->variant_id . '_' . $request->price;
 
         if (Auth::check()) {
             // Xóa sản phẩm
             CartItem::where('user_id', Auth::id())
                 ->where('product_id', $request->product_id)
                 ->where('variant_id', $request->variant_id)
+                ->where('price', $request->price) // 🔥 CỰC QUAN TRỌNG
                 ->delete();
 
             // Lấy lại danh sách giỏ hàng
@@ -229,6 +231,7 @@ class CartController extends Controller
             $cartCount = $cartItems->sum('quantity');
         } else {
             $cart = session()->get('cart', []);
+            $key = $request->product_id . '_' . $request->variant_id . '_' . $request->price;
             unset($cart[$key]);
             session()->put('cart', $cart);
 
@@ -252,13 +255,16 @@ class CartController extends Controller
         });
 
         // Render lại mini cart HTML
-        $mini_cart_html = view('clients.components.includes.mini_cart', compact('cartItems'))->render();
+        $miniCartHtml = view(
+            'clients.components.includes.mini_cart',
+            compact('cartItems')
+        )->render();
 
         return response()->json([
             'status'     => true,
             'cart_count' => $cartCount,
             'subtotal'   => $subtotal,
-            'html'       => $mini_cart_html,
+            'html'       => $miniCartHtml,
         ]);
     }
 
