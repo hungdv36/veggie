@@ -20,6 +20,7 @@ class OrderController extends Controller
             'orderItems.product',
             'orderItems.variant.color',
             'orderItems.variant.size',
+            'orderItems.returnRequest',
             'user',
             'shippingAddress',
             'payment'
@@ -62,9 +63,11 @@ class OrderController extends Controller
     }
     public function cancelOrder(Request $request, $id): RedirectResponse
     {
+        // Load order với quan hệ variant + color + size
         $order = Order::with([
             'orderItems.product',
-            'orderItems.variant',
+            'orderItems.variant.color',
+            'orderItems.variant.size',
             'orderCoupons.coupon',
             'payment',
             'status_logs.user',
@@ -84,20 +87,12 @@ class OrderController extends Controller
         try {
             // Hoàn kho chính xác
             foreach ($order->orderItems as $item) {
-
-                // Nếu có variation thì hoàn vào variation
-                if ($item->variation_id) {
-                    if ($item->variation) {
-                        $item->variation->increment('stock', $item->quantity);
-                    } elseif ($item->product) {
-                        // fallback khi variation bị xoá
-                        $item->product->increment('stock', $item->quantity);
-                    }
-                } else {
-                    // Không có variation -> hoàn vào product
-                    if ($item->product) {
-                        $item->product->increment('stock', $item->quantity);
-                    }
+                if ($item->variant) {
+                    // Hoàn vào biến thể → cập nhật quantity
+                    $item->variant->increment('quantity', $item->quantity);
+                } elseif ($item->product) {
+                    // Không có biến thể → cập nhật stock của product
+                    $item->product->increment('stock', $item->quantity);
                 }
             }
 
@@ -111,7 +106,7 @@ class OrderController extends Controller
 
             $oldStatus = $order->status;
 
-            // Cập nhật đơn
+            // Cập nhật trạng thái đơn
             $order->update([
                 'status' => 'canceled',
                 'cancel_reason' => $request->cancel_reason,
@@ -121,7 +116,7 @@ class OrderController extends Controller
             $order->status_logs()->create([
                 'old_status' => $oldStatus,
                 'status' => 'canceled',
-                'role_id' => 3,
+                'role_id' => 3, // Role user
                 'user_id' => auth()->id(),
                 'notes' => $request->cancel_reason,
             ]);

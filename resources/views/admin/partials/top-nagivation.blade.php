@@ -4,27 +4,39 @@
             <a id="menu_toggle"><i class="fa fa-bars"></i></a>
         </div>
         <nav class="nav navbar-nav">
-            <ul class=" navbar-right">
-                <li class="nav-item dropdown open" style="padding-left: 15px;">
-                    <a href="javascript:;" class="user-profile dropdown-toggle" aria-haspopup="true" id="navbarDropdown"
-                        data-toggle="dropdown" aria-expanded="false">
-                        <img src="{{ asset('assets/clients/img/avt.png') }}" alt=""
-                            class="img-circle img-fluid" style="object-fit: cover; width: 50px; height: 50px;">
+            <ul class="navbar-right">
+                <li class="nav-item dropdown">
+                    <a href="javascript:;" class="user-profile dropdown-toggle" id="navbarDropdown" data-toggle="dropdown"
+                        aria-expanded="false">
+                        <img src="{{ asset('assets/clients/img/avt.png') }}" class="img-circle img-fluid"
+                            style="width:40px;height:40px;object-fit:cover;">
                         {{ Auth::guard('admin')->check() ? Auth::guard('admin')->user()->name : 'Guest' }}
                     </a>
-                    <div class="dropdown-menu dropdown-usermenu pull-right" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="{{ route('admin.profile') }}">Tài khoản</a>
+                    ...
+                </li>
 
-                        <a class="dropdown-item" href="{{ route('admin.logout') }}"
-                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="fa fa-sign-out pull-right"></i> Log Out
-                        </a>
+                <li class="nav-item dropdown">
+                    <a href="javascript:;" class="dropdown-toggle info-number" data-toggle="dropdown">
+                        <i class="fa fa-envelope-o"></i>
 
-                        <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
-                            style="display: none;">
-                            @csrf
-                        </form>
-                    </div>
+                        @if ($pendingReturnsCount > 0)
+                            <span class="badge bg-green">{{ $pendingReturnsCount }}</span>
+                        @endif
+                    </a>
+
+                    <ul class="dropdown-menu list-unstyled msg_list">
+                        <li class="nav-item text-center px-3 py-2">
+                            <strong>{{ $pendingReturnsCount }}</strong> yêu cầu hoàn hàng mới
+                        </li>
+
+                        <li class="divider"></li>
+
+                        <li class="nav-item text-center">
+                            <a href="{{ route('admin.returns.index') }}">
+                                <strong>Xem quản lý hoàn đơn</strong>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
             </ul>
         </nav>

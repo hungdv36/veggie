@@ -18,6 +18,7 @@
     <p><strong>Ngày hoàn:</strong> {{ now()->format('d/m/Y') }}</p>
 
     <p>Biên lai hoàn tiền được đính kèm trong email này dưới dạng file PDF.</p>
+    <p>Nếu có gì thắc mắc hãy liên hệ qua SĐT: 0335239319 hoặc email: trandinhanhquan17072021@gmail.com</p>
 
     <br>
     <p>Trân trọng,<br>

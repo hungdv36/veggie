@@ -99,25 +99,63 @@
                                 <th>Số Lượng</th>
                                 <th>Giá Bán</th>
                                 <th>Thành Tiền</th>
+                                <th>Trạng thái</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach ($order->orderItems as $index => $item)
+                                @php
+                                    $return = $item->returnRequest ?? null;
+                                    $statusText = '';
+                                    if ($return) {
+                                        $statusVN = [
+                                            'requested' => 'Khách gửi yêu cầu',
+                                            'reviewing' => 'Shop đang xem xét',
+                                            'approved' => 'Shop đồng ý',
+                                            'received_from_customer' => 'Hàng trả về shop',
+                                            'inspected' => 'Shop kiểm tra hàng',
+                                            'packaging' => 'Shop chuẩn bị hàng đổi',
+                                            'shipped_to_customer' => 'Hàng đang vận chuyển',
+                                            'completed_run' => 'Hoàn tất đổi hàng',
+                                            'rejected' => 'Yêu cầu bị từ chối',
+                                            'done' => 'Hoàn tất đơn hàng trả',
+                                        ];
+
+                                        $statusText = $statusVN[$return->status] ?? 'Đang xử lý';
+                                    } else {
+                                        // Nếu chưa có hoàn, hiển thị trạng thái đơn bình thường
+                                        $statusText = match ($order->status) {
+                                            'pending' => 'Chờ xác nhận',
+                                            'processing' => 'Đã xác nhận',
+                                            'shipped' => 'Đang giao hàng',
+                                            'completed' => 'Giao hàng thành công',
+                                            'received' => 'Đã nhận được hàng',
+                                            'failed_delivery' => 'Giao hàng thất bại',
+                                            'canceled' => 'Đã hủy',
+                                            default => '-',
+                                        };
+                                    }
+                                @endphp
+
                                 <tr>
                                     <td>{{ $index + 1 }}</td>
                                     <td>
                                         <strong>{{ $item->product->name ?? 'N/A' }}</strong><br>
-
                                         @if ($item->variant)
-                                            <small>
-                                                {{ $item->variant->size->name ?? 'N/A' }},
-                                                {{ $item->variant->color->name ?? 'N/A' }}
-                                            </small>
+                                            <small>{{ $item->variant->size->name ?? 'N/A' }},
+                                                {{ $item->variant->color->name ?? 'N/A' }}</small>
                                         @endif
                                     </td>
                                     <td>{{ $item->quantity }}</td>
                                     <td>{{ number_format($item->price, 0, ',', '.') }}₫</td>
                                     <td>{{ number_format($item->price * $item->quantity, 0, ',', '.') }}₫</td>
+                                    <td>
+                                        @if ($return)
+                                            <span class="badge bg-info fs-7 px-3 py-2">{{ $statusText }}</span>
+                                        @else
+                                            <span class="badge bg-primary fs-7 px-3 py-2">{{ $statusText }}</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -163,6 +201,16 @@
                                     'completed' => 'Giao hàng thành công',
                                     'received' => 'Đã nhận được hàng',
                                     'canceled' => 'Đơn hàng đã hủy',
+                                    'requested' => 'Khách gửi yêu cầu',
+                                    'reviewing' => 'Shop đang xem xét',
+                                    'approved' => 'Shop đồng ý',
+                                    'rejected' => 'Yêu cầu bị từ chối',
+                                    'received_from_customer' => 'Hàng trả về shop',
+                                    'inspected' => 'Shop kiểm tra hàng',
+                                    'packaging' => 'Shop chuẩn bị hàng đổi',
+                                    'shipped_to_customer' => 'Hàng đang vận chuyển',
+                                    'completed_run' => 'Hoàn tất đổi hàng',
+                                    'done' => 'Hoàn tất đơn hàng trả',
                                 ];
                             @endphp
 
@@ -209,9 +257,9 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>
-    {{ $history->admin->name ?? 'N/A' }}
-    ({{ $history->admin->role->name ?? 'Unknown' }})
-</td>
+                                            {{ $history->admin->name ?? 'N/A' }}
+                                            ({{ $history->admin->role->name ?? 'Unknown' }})
+                                        </td>
 
                                         <td>{{ $refundStatus[$history->status] ?? $history->status }}</td>
                                         <td>
@@ -249,70 +297,83 @@
                         <div class="row g-3">
                             {{-- Trạng thái --}}
                             <div class="col-12">
-                                <label class="form-label">Trạng Thái</label>
-                                <select id="statusSelect" name="status" class="form-select"
-                                    {{ in_array($order->status, ['completed', 'received', 'canceled', 'failed_delivery']) ? 'disabled' : '' }}>
+                                @php
+                                    // Tổng số sản phẩm trong đơn
+                                    $itemsCount = $order->orderItems->count();
 
-                                    {{-- Nếu chưa có trạng thái --}}
-                                    @if (!$order->status)
-                                        <option value="">-- Chọn trạng thái --</option>
-                                    @endif
+                                    // Số sản phẩm đã hoàn xong
+                                    $completedReturns = $order->orderItems
+                                        ->filter(function ($item) {
+                                            return $item->returnRequest &&
+                                                in_array($item->returnRequest->status, ['completed_run', 'done']);
+                                        })
+                                        ->count();
 
-                                    @foreach ($statusOrder as $index => $status)
-                                        @php
-                                            $showOption =
-                                                $index >= $currentIndex &&
-                                                $status !== 'canceled' &&
-                                                $status !== 'received';
-                                            if (
-                                                $order->status === 'canceled' &&
-                                                ($status === 'canceled' || $status === 'received')
-                                            ) {
-                                                $showOption = true;
-                                            }
-                                        @endphp
+                                    // Đơn chỉ có 1 SP và SP đó đã hoàn xong
+                                    $isFullyReturned = $itemsCount === 1 && $completedReturns === 1;
+                                @endphp
 
-                                        @if ($showOption)
-                                            <option value="{{ $status }}"
-                                                {{ $order->status == $status ? 'selected' : '' }}
-                                                @if ($order->status === 'canceled' && ($status === 'canceled' || ($order->refund->status ?? null) === 'refunded')) disabled @endif>
-                                                @switch($status)
-                                                    @case('pending')
-                                                        Chờ Xác Nhận
-                                                    @break
+                                <div class="col-12">
+                                    <label class="form-label">Trạng Thái</label>
 
-                                                    @case('processing')
-                                                        Đã Xác Nhận
-                                                    @break
+                                    <select id="statusSelect" name="status" class="form-select"
+                                        {{ $isFullyReturned || in_array($order->status, ['canceled', 'failed_delivery']) ? 'disabled' : '' }}>
 
-                                                    @case('shipped')
-                                                        Đang Giao Hàng
-                                                    @break
+                                        {{-- Nếu đơn đã hoàn xong --}}
+                                        @if ($isFullyReturned)
+                                            <option selected>Hoàn hàng thành công</option>
+                                        @else
+                                            @foreach ($statusOrder as $index => $status)
+                                                @php
+                                                    $showOption =
+                                                        $index >= $currentIndex &&
+                                                        !in_array($status, ['canceled', 'received']);
 
-                                                    @case('failed_delivery')
-                                                        Giao hàng thất bại
-                                                    @break
+                                                    // Không cho hiển thị "Giao hàng thành công" nếu đã hoàn
+                                                    if ($isFullyReturned && $status === 'completed') {
+                                                        $showOption = false;
+                                                    }
+                                                @endphp
 
-                                                    @case('completed')
-                                                        Giao hàng thành công
-                                                    @break
+                                                @if ($showOption)
+                                                    <option value="{{ $status }}"
+                                                        {{ $order->status === $status ? 'selected' : '' }}>
 
-                                                    @case('received')
-                                                        Đã nhận được hàng
-                                                    @break
+                                                        @switch($status)
+                                                            @case('pending')
+                                                                Chờ xác nhận
+                                                            @break
 
-                                                    @case('canceled')
-                                                        @if (($order->refund->status ?? null) === 'refunded')
-                                                            Hoàn tiền thành công
-                                                        @else
-                                                            Đơn hàng đã hủy
-                                                        @endif
-                                                    @break
-                                                @endswitch
-                                            </option>
+                                                            @case('processing')
+                                                                Đã xác nhận
+                                                            @break
+
+                                                            @case('shipped')
+                                                                Đang giao hàng
+                                                            @break
+
+                                                            @case('failed_delivery')
+                                                                Giao hàng thất bại
+                                                            @break
+
+                                                            @case('completed')
+                                                                Giao hàng thành công
+                                                            @break
+
+                                                            @case('received')
+                                                                Đã nhận được hàng
+                                                            @break
+
+                                                            @case('canceled')
+                                                                Đơn hàng đã hủy
+                                                            @break
+                                                        @endswitch
+                                                    </option>
+                                                @endif
+                                            @endforeach
                                         @endif
-                                    @endforeach
-                                </select>
+                                    </select>
+                                </div>
                             </div>
 
                             {{-- Ghi chú --}}

@@ -2,6 +2,7 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
+
 @php
     $subtotal = 0;
 @endphp
@@ -10,22 +11,39 @@
     <span class="ltn__utilize-menu-title">Giỏ hàng</span>
     <button class="ltn__utilize-close">×</button>
 </div>
+
 <div class="mini-cart-product-area ltn__scrollbar">
     @if (!empty($cartItems) && count($cartItems) > 0)
         @foreach ($cartItems as $item)
             @php
+                // Lấy dữ liệu sản phẩm
                 $product = auth()->check() ? $item->product : \App\Models\Product::find($item['product_id']);
-                $quantity = auth()->check() ? $item->quantity : $item['quantity'];
                 $variant = auth()->check() ? $item->variant ?? null : $item['variant'] ?? null;
+                $quantity = auth()->check() ? $item->quantity : $item['quantity'];
 
-                // Lấy giá hiển thị: sale_price nếu có, ngược lại price
-                if ($variant) {
-                    $price = $variant->sale_price && $variant->sale_price > 0 ? $variant->sale_price : $variant->price;
+                // ===== GIÁ GỐC =====
+                $basePrice = $variant->price ?? $product->price;
+
+                // ===== SALE THƯỜNG =====
+                $salePrice = $variant->sale_price ?? $product->sale_price;
+
+                // ===== FLASH SALE =====
+                $flashSale = \App\Models\FlashSale::with('items')
+                    ->where('start_time', '<=', now())
+                    ->where('end_time', '>=', now())
+                    ->first();
+
+                $flashItem = $flashSale ? $flashSale->items->firstWhere('product_id', $product->id) : null;
+
+                // ===== CHỌN GIÁ CUỐI CÙNG =====
+                if ($flashItem) {
+                    $price = round($basePrice * (1 - $flashItem->discount_price / 100));
                 } else {
-                    $price = $product->sale_price && $product->sale_price > 0 ? $product->sale_price : $product->price;
+                    $price = $salePrice && $salePrice > 0 ? $salePrice : $basePrice;
                 }
 
-                $subtotal += $quantity * $price;
+                // Tính subtotal
+                $subtotal += $price * $quantity;
             @endphp
 
             <div class="mini-cart-item clearfix">
@@ -34,43 +52,34 @@
                         <img src="{{ $product->image ? asset('assets/admin/img/product/' . $product->image) : asset('assets/img/product/default.png') }}"
                             alt="{{ $product->name }}" style="height:100px;width:100px; object-fit:cover;">
                     </a>
-                    <span class="mini-cart-item-delete" data-id="{{ $product->id }}">
+                    <span class="mini-cart-item-delete" data-product-id="{{ $product->id }}"
+                        data-variant-id="{{ $variant->id ?? 0 }}" data-price="{{ $price }}">
                         <i class="icon-cancel"></i>
                     </span>
                 </div>
+
                 <div class="mini-cart-info d-flex justify-content-between align-items-start">
                     <div>
                         <h6 class="mb-1">
                             <a href="#">{{ $product->name }}</a>
                         </h6>
+
                         @if ($variant)
                             <small class="text-muted">
                                 @if ($variant->color)
-                                    Color: {{ $variant->color->name }}
+                                    {{ $variant->color->name }}
                                 @endif
                                 @if ($variant->size)
-                                    - Size: {{ $variant->size->name }}
+                                    , {{ $variant->size->name }}
                                 @endif
                             </small>
                         @endif
                     </div>
-                    @php
-                        if ($variant) {
-                            $price =
-                                $variant->sale_price && $variant->sale_price > 0
-                                    ? $variant->sale_price
-                                    : $variant->price;
-                        } else {
-                            $price =
-                                $product->sale_price && $product->sale_price > 0
-                                    ? $product->sale_price
-                                    : $product->price;
-                        }
-                    @endphp
 
-                    <span class="mini-cart-quantity">{{ $quantity }} x
-                        {{ number_format($price, 0, ',', '.') }}₫</span>
-
+                    <!-- HIỂN THỊ GIÁ -->
+                    <span class="mini-cart-quantity">
+                        {{ $quantity }} x {{ number_format($price, 0, ',', '.') }}₫
+                    </span>
                 </div>
             </div>
         @endforeach

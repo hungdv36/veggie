@@ -9,6 +9,8 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use App\Models\OrderItem;
 use App\Models\Review;
+use App\Models\Color;
+use App\Models\Size;
 
 class ProductController extends Controller
 {
@@ -111,6 +113,23 @@ class ProductController extends Controller
             ->where('slug', $slug)
             ->firstOrFail();
 
+        // ---------------------------------------------------------
+        // 🔥 Thêm trạng thái hết hàng cho màu & size
+        // ---------------------------------------------------------
+        $colors = Color::all()->map(function ($color) use ($product) {
+            $color->is_out_of_stock = $product->variants
+                ->where('color_id', $color->id)
+                ->sum('quantity') <= 0; // nếu tổng quantity của màu đó = 0 => hết hàng
+            return $color;
+        });
+
+        $sizes = Size::all()->map(function ($size) use ($product) {
+            $size->is_out_of_stock = $product->variants
+                ->where('size_id', $size->id)
+                ->sum('quantity') <= 0; // tổng quantity của size = 0 => hết hàng
+            return $size;
+        });
+
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->limit(6)
@@ -127,7 +146,8 @@ class ProductController extends Controller
             $hasPurchased = OrderItem::whereHas('order', function ($query) use ($user) {
                 $query->where('user_id', $user->id)
                     ->where('status', 'completed');
-            })->where('product_id', $product->id)
+            })
+                ->where('product_id', $product->id)
                 ->exists();
 
             $hasReviewed = Review::where('user_id', $user->id)
@@ -135,7 +155,15 @@ class ProductController extends Controller
                 ->exists();
         }
 
-        // ✅ Kiểm tra xem sản phẩm có trong Flash Sale đang diễn ra không
+        // ---------------------------------------------------------
+        // 🔥 Lấy giá min từ biến thể (giá gốc duy nhất để hiển thị)
+        // ---------------------------------------------------------
+        $minPrice = $product->variants->min('price') ?? $product->price;
+        $maxPrice = $product->variants->max('price') ?? $product->price;
+
+        // ---------------------------------------------------------
+        // 🔥 Kiểm tra Flash Sale và tính giá giảm theo biến thể
+        // ---------------------------------------------------------
         $flashSale = \App\Models\FlashSale::with(['items' => function ($q) use ($product) {
             $q->where('product_id', $product->id);
         }])
@@ -144,16 +172,25 @@ class ProductController extends Controller
             ->first();
 
         $flashItem = null;
+
         if ($flashSale && $flashSale->items->count() > 0) {
             $flashItem = $flashSale->items->first();
+
             $product->is_flash_sale = true;
-            $product->discount_price = $flashItem->discount_price; // % giảm
-            $product->flash_sale_price = round($product->price * (1 - $flashItem->discount_price / 100), 0);
+            $product->discount_price = $flashItem->discount_price;      // % giảm
+
+            // 🔥 ÁP GIẢM GIÁ TRÊN GIÁ BIẾN THỂ MIN, KHÔNG PHẢI GIÁ SẢN PHẨM
+            $product->flash_sale_price = round($minPrice * (1 - $flashItem->discount_price / 100), 0);
+
             $product->flash_end_time = $flashSale->end_time;
         } else {
             $product->is_flash_sale = false;
+            $product->flash_sale_price = null;
         }
 
+        // ---------------------------------------------------------
+        // 🔥 Chuẩn bị dữ liệu JS cho biến thể
+        // ---------------------------------------------------------
         $jsVariants = $product->variants->map(function ($v) {
             return [
                 'id'         => $v->id,
@@ -173,7 +210,9 @@ class ProductController extends Controller
             'hasPurchased',
             'hasReviewed',
             'averageRating',
-            'flashItem'
+            'flashItem',
+            'minPrice',
+            'maxPrice'
         ));
     }
 }

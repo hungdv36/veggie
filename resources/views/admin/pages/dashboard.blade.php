@@ -2,464 +2,187 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <style>
-        /* ==== RESET ==== */
-        html,
-        body {
-            height: 100%;
-            background-color: #f5f6fa;
-            overflow-x: hidden;
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
-            scrollbar-width: none;
-            /* Firefox */
-            -ms-overflow-style: none;
-            /* IE, Edge */
-        }
+<style>
+    body.dark-mode { background: #1e1e2f; color: #f1f1f1; }
+    .dark-mode .x_panel, .dark-mode .stat-card { background: #2a2a40; color: #fff; }
+    .stat-card { background: #fff; border-radius:16px; padding:20px; text-align:center; box-shadow:0 4px 14px rgba(0,0,0,.08); transition:.3s; }
+    .stat-card:hover { transform:translateY(-5px); }
+    .stat-icon { width:60px;height:60px;border-radius:50%;margin:auto;display:flex;align-items:center;justify-content:center;font-size:24px;color:#fff;margin-bottom:10px; }
+    .growth-up { color: #1cc88a; font-weight: 600; }
+    .growth-down { color: #e74a3b; font-weight: 600; }
+    .x_panel { background: #fff; border-radius:16px; padding:20px; margin-bottom:25px; box-shadow:0 3px 12px rgba(0,0,0,.06); }
+    .x_title { border-bottom:1px solid #eee; margin-bottom:15px; padding-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+    .chart-container { height:320px; }
+</style>
 
-        /* Ẩn thanh cuộn (Webkit) */
-        ::-webkit-scrollbar {
-            width: 0;
-            height: 0;
-        }
+<div class="right_col" role="main">
 
-        /* ==== THẺ TỔNG QUAN ==== */
-        .stat-card {
-            background: #fff;
-            border-radius: 18px;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07);
-            padding: 25px 20px;
-            text-align: center;
-            transition: 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
+    {{-- HEADER --}}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>📊 Dashboard</h2>
+        <button onclick="toggleDarkMode()" class="btn btn-dark btn-sm">🌙 Dark Mode</button>
+    </div>
 
-        .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
+    {{-- FILTER --}}
+    <form method="GET" class="row mb-4">
+        <div class="col-md-3">
+            <select name="range" class="form-control" onchange="this.form.submit()">
+                <option value="today" {{ $range=='today'?'selected':'' }}>Hôm nay</option>
+                <option value="7days" {{ $range=='7days'?'selected':'' }}>7 ngày</option>
+                <option value="month" {{ $range=='month'?'selected':'' }}>Tháng</option>
+                <option value="year" {{ $range=='year'?'selected':'' }}>Năm</option>
+            </select>
+        </div>
 
-        .stat-icon {
-            width: 65px;
-            height: 65px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            font-size: 28px;
-            color: #fff;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
-        }
+        <div class="col-md-3">
+            <select name="month" class="form-control">
+                @for($m=1;$m<=12;$m++)
+                    <option value="{{ $m }}" {{ $month==$m?'selected':'' }}>Tháng {{ $m }}</option>
+                @endfor
+            </select>
+        </div>
 
-        .stat-label {
-            color: #6c757d;
-            font-size: 15px;
-            font-weight: 500;
-        }
+        <div class="col-md-3">
+            <select name="year" class="form-control">
+                @for($y=date('Y');$y>=date('Y')-5;$y--)
+                    <option value="{{ $y }}" {{ $year==$y?'selected':'' }}>{{ $y }}</option>
+                @endfor
+            </select>
+        </div>
 
-        .stat-value {
-            font-size: 26px;
-            font-weight: 700;
-        }
+        <div class="col-md-2">
+            <button class="btn btn-primary">Lọc</button>
+        </div>
+    </form>
 
-        /* ==== PANEL CHUNG ==== */
-        .x_panel {
-            background: #fff;
-            border-radius: 18px;
-            border: none;
-            padding: 20px;
-            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
-        }
-
-        .x_title {
-            border-bottom: 2px solid #eee;
-            margin-bottom: 15px;
-            padding-bottom: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .x_title h2 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #2d3436;
-            margin: 0;
-        }
-
-        /* ==== BIỂU ĐỒ ==== */
-        .chart-container {
-            position: relative;
-            height: 350px;
-        }
-
-        /* ==== BẢNG ==== */
-        .table thead th {
-            background: #f8f9fa;
-            color: #555;
-            font-weight: 600;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .table tbody tr:hover {
-            background-color: #f3f6ff;
-        }
-
-        .table td,
-        .table th {
-            vertical-align: middle;
-        }
-
-        /* ==== DANH SÁCH TOP SẢN PHẨM ==== */
-        .list-group-item {
-            border: none;
-            border-radius: 10px !important;
-            margin-bottom: 8px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s;
-        }
-
-        .list-group-item:hover {
-            transform: translateX(4px);
-            background: #f8faff;
-        }
-
-        .badge {
-            font-size: 14px;
-            padding: 8px 12px;
-            border-radius: 10px;
-        }
-
-        /* ==== CUỘN SIDEBAR ==== */
-        .nav.side-menu {
-            height: calc(100vh - 60px);
-            overflow-y: auto;
-            scrollbar-width: none;
-        }
-
-        .nav.side-menu::-webkit-scrollbar {
-            display: none;
-        }
-
-        /* ==== RESPONSIVE ==== */
-        @media (max-width: 992px) {
-            .right_col {
-                margin-left: 0;
-                padding: 20px;
-            }
-
-            .left_col {
-                position: relative;
-                width: 100%;
-                height: auto;
-            }
-        }
-    </style>
-
-
-    <div class="right_col" role="main">
-        {{-- ==== DANH SÁCH CẦN LÀM ==== --}}
-        <div class="x_panel mb-4">
-            <div class="x_title">
-                <h2><i class="fa fa-tasks text-primary me-2"></i> Danh sách cần làm</h2>
+    {{-- TODO LIST --}}
+    <div class="row mb-4">
+        @php
+            $todoList = [
+                ['Chờ xác nhận', $todo['pending'], 'warning'],
+                ['Chờ lấy hàng', $todo['processing'], 'info'],
+                ['Đã xử lý', $todo['completed'], 'success'],
+                ['Đơn hủy', $todo['cancelled'], 'danger']
+            ];
+        @endphp
+        @foreach($todoList as $item)
+        <div class="col-md-3 col-6 mb-3">
+            <div class="stat-card">
+                <div class="stat-label">{{ $item[0] }}</div>
+                <div class="stat-value text-{{ $item[2] }}" style="font-size:28px;font-weight:700">{{ $item[1] }}</div>
             </div>
+        </div>
+        @endforeach
+    </div>
 
-            {{-- ==== Bộ lọc thời gian ==== --}}
-            <form method="GET" class="row mb-3">
-                <div class="col-md-3">
-                    <select name="range" class="form-control" onchange="this.form.submit()">
-                        <option value="today" {{ $range == 'today' ? 'selected' : '' }}>Hôm nay</option>
-                        <option value="7days" {{ $range == '7days' ? 'selected' : '' }}>7 ngày gần nhất</option>
-                        <option value="month" {{ $range == 'month' ? 'selected' : '' }}>Tháng này</option>
-                        <option value="custom" {{ $range == 'custom' ? 'selected' : '' }}>Tùy chọn</option>
-                    </select>
-                </div>
-
-                @if ($range == 'custom')
-                    <div class="col-md-3">
-                        <input type="date" name="start" value="{{ $startDate->toDateString() }}" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <input type="date" name="end" value="{{ $endDate->toDateString() }}" class="form-control">
-                    </div>
-                    <div class="col-md-3">
-                        <button class="btn btn-primary w-100">Lọc</button>
-                    </div>
-                @endif
-            </form>
-
-            {{-- ==== Danh sách cần làm giống Shopee ==== --}}
-            <div class="row text-center">
-
-                @php
-                    $items = [
-                        'Chờ xác nhận' => $todo['pending'],
-                        'Chờ lấy hàng' => $todo['processing'],
-                        'Đã xử lý' => $todo['completed'],
-                        'Đơn hủy' => $todo['cancelled'],
-                    ];
-                @endphp
-
-                @foreach ($items as $label => $count)
-                    <div class="col-md-3 col-6 mb-3">
-                        <div
-                            style="
-                    background:#fff;
-                    padding:18px;
-                    border-radius:15px;
-                    box-shadow:0 2px 8px rgba(0,0,0,0.08);
-                    transition:.3s;
-                ">
-                            <div style="font-size:14px;color:#666;">{{ $label }}</div>
-                            <div style="font-size:26px;font-weight:700;color:#333;">{{ $count }}</div>
-                        </div>
-                    </div>
-                @endforeach
-
+    {{-- KPI --}}
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-primary"><i class="fa fa-users"></i></div>
+                <div>Tổng người dùng</div>
+                <h3>{{ $totalUsers }}</h3>
+                <small class="{{ $userGrowth>=0?'growth-up':'growth-down' }}">{{ round($userGrowth,1) }}%</small>
             </div>
         </div>
 
-        {{-- ==== THỐNG KÊ TỔNG ==== --}}
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #4e73df, #224abe)">
-                        <i class="fa fa-users"></i>
-                    </div>
-                    <div class="stat-label">Tổng người dùng</div>
-                    <div class="stat-value text-primary">{{ $totalUsers }}</div>
-                </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-warning"><i class="fa fa-shopping-cart"></i></div>
+                <div>Tổng đơn hàng</div>
+                <h3>{{ $totalOrders }}</h3>
+                <small class="{{ $orderGrowth>=0?'growth-up':'growth-down' }}">{{ round($orderGrowth,1) }}%</small>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #1cc88a, #13855c)">
-                        <i class="fa fa-cube"></i>
-                    </div>
-                    <div class="stat-label">Tổng sản phẩm</div>
-                    <div class="stat-value text-success">{{ $totalProducts }}</div>
-                </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-success"><i class="fa fa-cube"></i></div>
+                <div>Tổng sản phẩm</div>
+                <h3>{{ $totalProducts }}</h3>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #f6c23e, #dda20a)">
-                        <i class="fa fa-shopping-cart"></i>
-                    </div>
-                    <div class="stat-label">Tổng đơn hàng</div>
-                    <div class="stat-value text-warning">{{ $totalOrders }}</div>
-                </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <div class="stat-icon bg-danger"><i class="fa fa-money"></i></div>
+                <div>Doanh thu</div>
+                <h3>{{ number_format($totalRevenue,0,',','.') }} đ</h3>
+                <small class="{{ $revenueGrowth>=0?'growth-up':'growth-down' }}">{{ round($revenueGrowth,1) }}%</small>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #e74a3b, #be2617)">
-                        <i class="fa fa-money"></i>
-                    </div>
-                    <div class="stat-label">Tổng doanh thu</div>
-                    <div class="stat-value text-danger">{{ number_format($totalRevenue, 0, ',', '.') }} đ</div>
+        </div>
+    </div>
+
+    {{-- BIỂU ĐỒ --}}
+    <div class="row">
+        <div class="col-md-6">
+            <div class="x_panel">
+                <div class="x_title"><h3>📈 Doanh thu theo thời gian</h3></div>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
                 </div>
             </div>
         </div>
 
-        {{-- ==== BIỂU ĐỒ ==== --}}
-        <div class="row">
-            <div class="col-md-8">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2><i class="fa fa-line-chart me-1 text-primary"></i> Biểu đồ doanh thu</h2>
-                    </div>
-                    <div class="x_content">
-                        <div class="chart-container">
-                            <canvas id="revenueChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2><i class="fa fa-pie-chart me-1 text-success"></i> Sản phẩm theo danh mục</h2>
-                    </div>
-                    <div class="x_content">
-                        <div class="chart-container" style="height: 300px;">
-                            <canvas id="categoryChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- ==== THỐNG KÊ TRUY CẬP ==== --}}
-        <div class="row mb-4">
-            <div class="col-md-6 col-sm-6 mb-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #6f42c1, #4b2c91)">
-                        <i class="fa fa-eye"></i>
-                    </div>
-                    <div class="stat-label">Tổng lượt truy cập</div>
-                    <div class="stat-value text-purple">{{ $totalVisits }}</div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-sm-6 mb-3">
-                <div class="stat-card">
-                    <div class="stat-icon" style="background: linear-gradient(135deg, #20c997, #138f72)">
-                        <i class="fa fa-mobile"></i>
-                    </div>
-                    <div class="stat-label">Truy cập theo thiết bị</div>
-                    <div class="stat-value">
-                        🌐 Windows: <b>{{ $deviceStats['Windows'] ?? 0 }}</b> |
-                        📱 Mobile:
-                        <b>{{ ($deviceStats['Android'] ?? 0) + ($deviceStats['iPhone'] ?? 0) + ($deviceStats['Mobile'] ?? 0) }}</b>
-                        |
-                        💻 MacOS: <b>{{ $deviceStats['MacOS'] ?? 0 }}</b>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-        {{-- ==== THỐNG KÊ ĐƠN HÀNG & TOP SẢN PHẨM ==== --}}
-        <div class="row mt-4">
-            <div class="col-md-6 mb-4">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2><i class="fa fa-list me-1 text-info"></i> Thống kê đơn hàng</h2>
-                    </div>
-                    <div class="x_content">
-                        <table class="table table-hover align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Trạng thái</th>
-                                    <th class="text-end">Số lượng</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($orderStats as $stat)
-                                    <tr>
-                                        <td>{{ ucfirst($stat->status) }}</td>
-                                        <td class="text-end fw-bold">{{ $stat->total }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 mb-4">
-                <div class="x_panel">
-                    <div class="x_title">
-                        <h2><i class="fa fa-star me-1 text-warning"></i> Top 5 sản phẩm bán chạy</h2>
-                    </div>
-                    <div class="x_content">
-                        <ul class="list-group">
-                            @foreach ($topProducts as $item)
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <div><i class="fa fa-tag text-primary me-2"></i>{{ $item->name }}</div>
-                                    <span class="badge bg-gradient-success">{{ $item->sold }}</span>
-                                </li>
-                            @endforeach
-                        </ul>
-                    </div>
+        <div class="col-md-6">
+            <div class="x_panel">
+                <div class="x_title"><h3>📦 Sản phẩm theo danh mục</h3></div>
+                <div class="chart-container">
+                    <canvas id="categoryChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- ==== CHART.JS ==== --}}
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        /* ----------- Doanh thu 7 ngày gần nhất ----------- */
-        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-        new Chart(revenueCtx, {
-            type: 'bar',
-            data: {
-                labels: {!! json_encode($revenueChart->pluck('date')) !!},
-                datasets: [{
-                    label: 'Doanh thu (VNĐ)',
-                    data: {!! json_encode($revenueChart->pluck('total')) !!},
-                    backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1.5,
-                    borderRadius: 10
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        display: false
-                    }
-                },
-                scales: {
-                    x: {
-                        grid: {
-                            display: false
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        ticks: {
-                            callback: v => v.toLocaleString() + ' đ'
-                        }
-                    }
-                }
-            }
-        });
+    {{-- TOP SẢN PHẨM --}}
+    <div class="x_panel mt-4">
+        <div class="x_title"><h3>🔥 Top sản phẩm bán chạy</h3></div>
+        <table class="table">
+            <thead>
+                <tr><th>Sản phẩm</th><th>Đã bán</th></tr>
+            </thead>
+            <tbody>
+                @foreach($topProducts as $item)
+                    <tr><td>{{ $item->name }}</td><td>{{ $item->total_sold }}</td></tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
-        /* ----------- Biểu đồ tròn danh mục sản phẩm ----------- */
-        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
-        new Chart(categoryCtx, {
-            type: 'doughnut',
-            data: {
-                labels: {!! json_encode($productByCategory->pluck('name')) !!},
-                datasets: [{
-                    data: {!! json_encode($productByCategory->pluck('total')) !!},
-                    backgroundColor: [
-                        '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#fd7e14',
-                        '#20c997'
-                    ],
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                cutout: '65%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 14,
-                            padding: 15
-                        }
-                    }
-                }
-            }
-        });
+    {{-- ORDER STATUS CHART --}}
+    <div class="x_panel mt-4">
+        <div class="x_title"><h3>📊 Trạng thái đơn hàng</h3></div>
+        <canvas id="orderStatusChart"></canvas>
+    </div>
 
-        /* ----------- Biểu đồ thiết bị truy cập ----------- */
-        const deviceCtx = document.getElementById('deviceChart').getContext('2d');
-        new Chart(deviceCtx, {
-            type: 'doughnut',
-            data: {
-                labels: {!! json_encode($deviceStats->keys()) !!},
-                datasets: [{
-                    data: {!! json_encode($deviceStats->values()) !!},
-                    backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
-                    hoverOffset: 10
-                }]
-            },
-            options: {
-                cutout: '65%',
-                plugins: {
-                    legend: {
-                        position: 'bottom',
-                        labels: {
-                            boxWidth: 14,
-                            padding: 15
-                        }
-                    }
-                }
-            }
-        });
-    </script>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+function toggleDarkMode() { document.body.classList.toggle('dark-mode'); }
+
+new Chart(document.getElementById('revenueChart'), {
+    type: 'line',
+    data: {
+        labels: {!! json_encode($revenueChart->pluck('date')) !!},
+        datasets: [{ label:'Doanh thu', data:{!! json_encode($revenueChart->pluck('total')) !!}, borderColor:'#4e73df', backgroundColor:'rgba(78,115,223,0.15)', tension:.4, fill:true }]
+    }
+});
+
+new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+        labels: {!! json_encode($productByCategory->pluck('name')) !!},
+        datasets:[{ data:{!! json_encode($productByCategory->pluck('total')) !!}, backgroundColor:['#4e73df','#1cc88a','#f6c23e','#e74a3b','#36b9cc'] }]
+    }
+});
+
+new Chart(document.getElementById('orderStatusChart'), {
+    type: 'pie',
+    data: {
+        labels: {!! json_encode($orderStatusChart->pluck('status')) !!},
+        datasets:[{ data:{!! json_encode($orderStatusChart->pluck('total')) !!}, backgroundColor:['#f6c23e','#36b9cc','#1cc88a','#e74a3b'] }]
+    }
+});
+</script>
 @endsection

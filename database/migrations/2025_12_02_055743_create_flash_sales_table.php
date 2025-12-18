@@ -9,20 +9,25 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up()
+public function up()
 {
-    Schema::create('flash_sales', function (Blueprint $table) {
-        $table->id();
-        $table->timestamp('start_time')->nullable();
-        $table->timestamp('end_time')->nullable();
-        $table->integer('status')->default(1);
-        $table->timestamps();
-    });
+Schema::create('flash_sales', function (Blueprint $table) {
+    $table->id();
+    $table->string('name');
+    $table->dateTime('start_time');
+    $table->dateTime('end_time');
+    $table->boolean('status')->default(1);
+    $table->timestamps();
+});
+
 }
 
 public function down()
 {
-    Schema::dropIfExists('flash_sales');
+    Schema::table('flash_sales', function (Blueprint $table) {
+        $table->dropColumn(['name', 'start_time', 'end_time', 'status']);
+    });
 }
+
 
 };

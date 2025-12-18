@@ -74,9 +74,9 @@ class OrderController extends Controller
      */
     public function showOrderDetail(string $id)
     {
-        $order = Order::with('orderItems.product', 'orderItems.variant.size', 'orderItems.variant.color', 'shippingAddress', 'user', 'payment', 'status_logs.role','status_logs.user','refund.histories.admin')->find($id);
+        $order = Order::with('orderItems.product', 'orderItems.variant.size', 'orderItems.variant.color', 'shippingAddress', 'user', 'payment', 'status_logs.role', 'status_logs.user', 'refund.histories.admin')->find($id);
         $refund = $order->refund;
-        return view('admin.pages.order.orders-detail', compact('order','refund'));
+        return view('admin.pages.order.orders-detail', compact('order', 'refund'));
     }
 
 
@@ -91,43 +91,73 @@ class OrderController extends Controller
             'note' => 'nullable|string|max:500',
         ]);
 
-        $order = Order::with('payment')->find($request->order_id);
+        $order = Order::with('payment')->findOrFail($request->order_id);
         $oldStatus = $order->status;
         $newStatus = $request->status;
         $note = $request->note;
 
-        // Không cho cập nhật nhảy cóc
+        // Không cho nhảy trạng thái tùy tiện
         $validFlow = [
-            'pending'        => ['processing'],
-            'processing'     => ['shipped', 'canceled'],
-            'shipped'        => ['completed', 'failed_delivery'],
-            'completed'      => ['received'],
+            'pending'         => ['processing'],
+            'processing'      => ['shipped', 'canceled'],
+            'shipped'         => ['completed', 'failed_delivery'],
+            'completed'       => ['received'],
             'failed_delivery' => ['canceled'],
         ];
 
         if (isset($validFlow[$oldStatus]) && !in_array($newStatus, $validFlow[$oldStatus])) {
             return response()->json([
                 'status' => false,
-                'message' => "Không thể chuyển từ trạng thái '$oldStatus' sang '$newStatus'!"
+                'message' => "Không thể chuyển từ '$oldStatus' sang '$newStatus'!"
             ]);
         }
 
         // Cập nhật trạng thái đơn hàng
         $order->update(['status' => $newStatus]);
 
-        // Cập nhật trạng thái thanh toán (COD)
-        if ($order->payment?->method === 'cod') {
-            if (in_array($newStatus, ['completed', 'received'])) {
-                $order->payment->update(['status' => 'completed']);
-            } elseif (in_array($newStatus, ['canceled', 'failed_delivery'])) {
-                $order->payment->update(['status' => 'failed']);
+        // 🔹 Xử lý thanh toán COD
+        if ($order->payment_method === 'cod' || $order->payment_method === 'cash') {
+            $payment = $order->payment;
+
+            if (!$payment) {
+                // Tạo mới payment COD nếu chưa có
+                $order->payment()->create([
+                    'amount' => $order->total_amount,
+                    'status' => in_array($newStatus, ['completed', 'received']) ? 'completed' : 'pending',
+                    'paid_at' => in_array($newStatus, ['completed', 'received']) ? now() : null,
+                    'transaction_id' => null,
+                ]);
+            } else {
+                // Cập nhật payment COD hiện có
+                if (in_array($newStatus, ['completed', 'received'])) {
+                    $payment->update([
+                        'status' => 'completed',
+                        'paid_at' => now(),
+                    ]);
+                } elseif (in_array($newStatus, ['canceled', 'failed_delivery'])) {
+                    $payment->update([
+                        'status' => 'failed',
+                    ]);
+                }
+            }
+
+            // Reload relation để Blade nhận đúng
+            $order->load('payment');
+        }
+
+        // 🔹 Xử lý online payment (giữ nguyên logic)
+        elseif ($order->payment && $order->payment_method !== 'cod') {
+            // Chỉ cần giữ status đã thanh toán
+            if ($newStatus === 'completed' && $order->payment->status !== 'completed') {
+                $order->payment->update([
+                    'status' => 'completed',
+                    'paid_at' => now(),
+                ]);
             }
         }
 
-        // 🔹 FIX: Khai báo biến admin
+        // Lưu lịch sử trạng thái
         $admin = Auth::guard('admin')->user();
-
-        // Lưu lịch sử thay đổi trạng thái
         $order->status_logs()->create([
             'role_id' => $admin ? $admin->role_id : 1,
             'old_status' => $oldStatus,

@@ -54,50 +54,84 @@
                                                         </th>
                                                         <td>{{ number_format($order->total_amount, 0, ',', '.') }} VNĐ</td>
                                                         <td class="order-status">
-                                                            @if ($order->status == 'pending')
-                                                                <span class="badge bg-warning text-dark fs-7 px-3 py-2">Chờ
-                                                                    xác
-                                                                    nhận</span>
-                                                            @elseif ($order->status == 'processing')
-                                                                <span class="badge bg-primary fs-7 px-3 py-2">Đã
-                                                                    xác nhận</span>
-                                                            @elseif ($order->status == 'shipped')
-                                                                <span class="badge bg-info text-dark fs-7 px-3 py-2">Đang
-                                                                    giao
-                                                                    hàng</span>
-                                                            @elseif ($order->status == 'completed')
-                                                                <span class="badge bg-success fs-7 px-3 py-2">Giao hàng
-                                                                    thành
-                                                                    công</span>
-                                                            @elseif ($order->status == 'received')
-                                                                <span class="badge bg-info fs-7 px-3 py-2">Đã nhận được
-                                                                    hàng</span>
-                                                            @elseif($order->status == 'failed_delivery')
-                                                                <span class="badge bg-secondary fs-7 px-3 py-2">Giao hàng
-                                                                    thất bại</span>
-                                                            @elseif ($order->status == 'canceled')
-                                                                <span class="badge bg-danger fs-7 px-3 py-2">Đã hủy</span>
+                                                            @php
+                                                                $itemsCount = $order->orderItems->count();
+
+                                                                // Kiểm tra có item nào bị hoàn không
+                                                                $returnItem = $order->orderItems->first(function (
+                                                                    $item,
+                                                                ) {
+                                                                    return $item->returnRequest !== null;
+                                                                });
+                                                            @endphp
+
+                                                            {{-- TRƯỜNG HỢP 1: Đơn chỉ có 1 sản phẩm & sản phẩm đó bị hoàn --}}
+                                                            @if ($itemsCount === 1 && $returnItem)
+                                                                @php
+                                                                    $returnStatusVN = [
+                                                                        'requested' => 'Khách gửi yêu cầu',
+                                                                        'reviewing' => 'Shop đang xem xét',
+                                                                        'approved' => 'Shop đồng ý',
+                                                                        'rejected' => 'Yêu cầu bị từ chối',
+                                                                        'received_from_customer' => 'Hàng trả về shop',
+                                                                        'inspected' => 'Shop kiểm tra hàng',
+                                                                        'packaging' => 'Shop chuẩn bị hàng đổi',
+                                                                        'shipped_to_customer' => 'Hàng đang vận chuyển',
+                                                                        'completed_run' => 'Hoàn tất đổi hàng',
+                                                                        'done' => 'Hoàn tất đơn hàng trả',
+                                                                    ];
+                                                                @endphp
+
+                                                                <span class="badge bg-info fs-7 px-3 py-2">
+                                                                    {{ $returnStatusVN[$returnItem->returnRequest->status] ?? 'Đang hoàn hàng' }}
+                                                                </span>
+
+                                                                {{-- TRƯỜNG HỢP 2: Đơn có nhiều sản phẩm → GIỮ NGUYÊN TRẠNG THÁI ĐƠN --}}
+                                                            @else
+                                                                @if ($order->status == 'pending')
+                                                                    <span
+                                                                        class="badge bg-warning text-dark fs-7 px-3 py-2">Chờ
+                                                                        xác nhận</span>
+                                                                @elseif ($order->status == 'processing')
+                                                                    <span class="badge bg-primary fs-7 px-3 py-2">Đã xác
+                                                                        nhận</span>
+                                                                @elseif ($order->status == 'shipped')
+                                                                    <span
+                                                                        class="badge bg-info text-dark fs-7 px-3 py-2">Đang
+                                                                        giao hàng</span>
+                                                                @elseif ($order->status == 'completed')
+                                                                    <span class="badge bg-success fs-7 px-3 py-2">Giao hàng
+                                                                        thành công</span>
+                                                                @elseif ($order->status == 'received')
+                                                                    <span class="badge bg-info fs-7 px-3 py-2">Đã nhận được
+                                                                        hàng</span>
+                                                                @elseif ($order->status == 'failed_delivery')
+                                                                    <span class="badge bg-secondary fs-7 px-3 py-2">Giao
+                                                                        hàng thất bại</span>
+                                                                @elseif ($order->status == 'canceled')
+                                                                    <span class="badge bg-danger fs-7 px-3 py-2">Đã
+                                                                        hủy</span>
+                                                                @endif
                                                             @endif
                                                         </td>
                                                         <td>
+                                                            {{-- Trạng thái hoàn tiền --}}
                                                             @if ($order->status == 'canceled' && $order->payment?->status == 'completed')
                                                                 @php
                                                                     $refundStatus = $order->refund->status ?? null;
                                                                 @endphp
-
                                                                 @if (!$refundStatus)
                                                                     <span class="badge bg-warning fs-7 px-3 py-2">Chờ nhập
                                                                         thông tin ngân hàng</span>
                                                                 @else
                                                                     <span
                                                                         class="badge 
-                                                                        {{ $refundStatus == 'waiting_info' ? 'bg-warning' : '' }}
-                                                                        {{ $refundStatus == 'submitted' ? 'bg-primary' : '' }}
-                                                                        {{ $refundStatus == 'in_process' ? 'bg-dark' : '' }}
-                                                                        {{ $refundStatus == 'refunded' ? 'bg-info' : '' }}
-                                                                        {{ $refundStatus == 'failed' ? 'bg-danger' : '' }}
-                                                                    fs-7 px-3 py-2">
-
+                {{ $refundStatus == 'waiting_info' ? 'bg-warning' : '' }}
+                {{ $refundStatus == 'submitted' ? 'bg-primary' : '' }}
+                {{ $refundStatus == 'in_process' ? 'bg-dark' : '' }}
+                {{ $refundStatus == 'refunded' ? 'bg-info' : '' }}
+                {{ $refundStatus == 'failed' ? 'bg-danger' : '' }}
+            fs-7 px-3 py-2">
                                                                         @switch($refundStatus)
                                                                             @case('waiting_info')
                                                                                 Chờ nhập thông tin
@@ -121,17 +155,30 @@
                                                                         @endswitch
                                                                     </span>
                                                                 @endif
+                                                            @endif
+
+                                                            @if ($order->payment_method == 'cod')
+                                                                @php
+                                                                    $codPaidStatuses = ['completed', 'received']; // trạng thái COD coi là đã thanh toán
+                                                                @endphp
+                                                                <span
+                                                                    class="badge {{ in_array($order->status, $codPaidStatuses) ? 'bg-success' : 'bg-danger' }} fs-7 px-3 py-2">
+                                                                    {{ in_array($order->status, $codPaidStatuses) ? 'Đã thanh toán (COD)' : 'Chưa thanh toán' }}
+                                                                </span>
                                                             @else
-                                                                @if ($order->payment?->status == 'pending')
-                                                                    <span class="badge bg-danger fs-7 px-3 py-2">Chưa thanh
-                                                                        toán</span>
-                                                                @elseif($order->payment?->status == 'completed')
-                                                                    <span class="badge bg-success fs-7 px-3 py-2">Đã thanh
-                                                                        toán</span>
-                                                                @elseif($order->payment?->status == 'failed')
-                                                                    <span class="badge bg-secondary fs-7 px-3 py-2">Thanh
-                                                                        toán thất bại</span>
-                                                                @endif
+                                                                {{-- Online --}}
+                                                                <span
+                                                                    class="badge 
+        {{ $order->payment?->status == 'completed' ? 'bg-success' : ($order->payment?->status == 'pending' ? 'bg-danger' : 'bg-secondary') }}
+        fs-7 px-3 py-2">
+                                                                    @if ($order->payment?->status == 'completed')
+                                                                        Đã thanh toán
+                                                                    @elseif ($order->payment?->status == 'pending')
+                                                                        Chưa thanh toán
+                                                                    @else
+                                                                        Thanh toán thất bại
+                                                                    @endif
+                                                                </span>
                                                             @endif
                                                         </td>
 
@@ -189,7 +236,15 @@
                                                                 </tr>
                                                                 <tr>
                                                                     <th>Thành phố:</th>
-                                                                    <td>{{ $order->shippingAddress->city }}</td>
+                                                                    <td>{{ $order->shippingAddress->province }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Quận:</th>
+                                                                    <td>{{ $order->shippingAddress->district }}</td>
+                                                                </tr>
+                                                                <tr>
+                                                                    <th>Phường:</th>
+                                                                    <td>{{ $order->shippingAddress->ward }}</td>
                                                                 </tr>
                                                                 <tr>
                                                                     <th>Số điện thoại:</th>
