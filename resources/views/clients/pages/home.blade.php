@@ -79,31 +79,30 @@
         }
     </style>
 
-  <div id="homeBanner" class="carousel slide" data-bs-ride="carousel">
-    
-    <div class="carousel-inner">
+    <div id="homeBanner" class="carousel slide" data-bs-ride="carousel">
 
-        @foreach ($banners as $key => $banner)
-            <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
-                <img src="{{ asset('uploads/banners/' . $banner->image) }}" 
-                     class="d-block w-100" 
-                     style="height: 600px; object-fit: cover;">
-            </div>
-        @endforeach
+        <div class="carousel-inner">
+
+            @foreach ($banners as $key => $banner)
+                <div class="carousel-item {{ $key == 0 ? 'active' : '' }}">
+                    <img src="{{ asset('uploads/banners/' . $banner->image) }}" class="d-block w-100"
+                        style="height: 600px; object-fit: cover;">
+                </div>
+            @endforeach
+
+        </div>
+
+        <!-- Nút trước -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeBanner" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+
+        <!-- Nút sau -->
+        <button class="carousel-control-next" type="button" data-bs-target="#homeBanner" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
 
     </div>
-
-    <!-- Nút trước -->
-    <button class="carousel-control-prev" type="button" data-bs-target="#homeBanner" data-bs-slide="prev">
-        <span class="carousel-control-prev-icon"></span>
-    </button>
-
-    <!-- Nút sau -->
-    <button class="carousel-control-next" type="button" data-bs-target="#homeBanner" data-bs-slide="next">
-        <span class="carousel-control-next-icon"></span>
-    </button>
-
-</div>
 
 
     <script>
@@ -1266,3 +1265,102 @@
         }
     }
 </style>
+@push('scripts')
+    <script>
+        // Popup: hiển thị ngay lập tức, tự ẩn sau duration milliseconds
+        function showWishlistPopup(message = "Đã thêm vào Wishlist thành công", duration = 1400) {
+            let popup = document.getElementById('wishlist-popup');
+            if (!popup) {
+                popup = document.createElement('div');
+                popup.id = 'wishlist-popup';
+                popup.style =
+                    "position:fixed;top:25px;right:25px;background:#2ecc71;color:#fff;padding:12px 18px;border-radius:8px;box-shadow:0 6px 18px rgba(0,0,0,0.12);opacity:0;visibility:hidden;transition:all .18s;z-index:99999;";
+                document.body.appendChild(popup);
+            }
+            // set text exactly once
+            popup.textContent = message;
+
+            // show immediately
+            popup.style.opacity = '1';
+            popup.style.visibility = 'visible';
+
+            // cancel previous hide timer if any
+            if (popup._hideTimer) {
+                clearTimeout(popup._hideTimer);
+                popup._hideTimer = null;
+            }
+
+            // auto-hide after duration (if duration > 0)
+            if (duration > 0) {
+                popup._hideTimer = setTimeout(() => {
+                    popup.style.opacity = '0';
+                    popup.style.visibility = 'hidden';
+                    popup._hideTimer = null;
+                }, duration);
+            }
+        }
+
+        $(function() {
+            // Use one delegated handler and remove previous bindings to avoid duplication
+            $(document).off('click', '#btn-add-to-wishlist, .add-to-wishlist')
+                .on('click', '#btn-add-to-wishlist, .add-to-wishlist', function(e) {
+                    e.preventDefault();
+
+                    var $btn = $(this);
+                    // prevent double-click
+                    if ($btn.data('processing')) return;
+                    $btn.data('processing', true);
+
+                    // get product id from the button first; fallback to cart-qty-box
+                    var productId = $btn.data('id') || $("#cart-qty-box").data("id");
+                    var variantId = $btn.data('variant-id') || $("#cart-qty-box").data("variant-id") || 0;
+
+                    if (!productId) {
+                        console.warn("productId not found for wishlist add");
+                        showWishlistPopup("Không tìm thấy sản phẩm", 1600);
+                        $btn.data('processing', false);
+                        return;
+                    }
+
+                    $.ajax({
+                        url: "/wishlist/add",
+                        type: "POST",
+                        data: {
+                            _token: $('meta[name="csrf-token"]').attr("content"),
+                            product_id: productId,
+                            variant_id: variantId,
+                        },
+                        success: function(res) {
+                            // ensure we only trigger once
+                            if (res && res.status === true) {
+                                // try show modal (if exists) but don't block popup
+                                try {
+                                    $("#liton_wishlist_modal-" + productId).modal('show');
+                                } catch (e) {
+                                    /* ignore */ }
+
+                                // show immediate popup (correct text)
+                                showWishlistPopup("Đã thêm vào wishlist thành công", 0);
+                                console.log("Wishlist add success:", productId);
+                            } else {
+                                var msg = (res && res.message) ? res.message :
+                                    "Đã thêm vào wishlist thành công";
+                                showWishlistPopup(msg, 2000);
+                                console.log("Wishlist add failed response:", res);
+                            }
+                        },
+                        error: function(xhr) {
+                            var msg = xhr.responseJSON?.message ||
+                                "Có lỗi xảy ra khi thêm vào wishlist";
+                            showWishlistPopup(msg, 2200);
+                            console.error("Wishlist add error:", xhr);
+                        },
+                        complete: function() {
+                            // re-enable button
+                            $btn.data('processing', false);
+                        }
+                    });
+                });
+        });
+    </script>
+@endpush
