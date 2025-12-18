@@ -21,9 +21,9 @@ class WishListController extends Controller
 
         return view('clients.pages.wishlist', compact('wishlistItems'));
     }
-    public function addToWishList(Request $request)
+  public function addToWishList(Request $request)
 {
-    $role_id = Auth::user()->role_id; // lấy role_id của user đăng nhập
+    $role_id = Auth::user()->role_id; 
     $product_id = $request->product_id;
 
     Wishlist::create([
@@ -31,8 +31,12 @@ class WishListController extends Controller
         'product_id' => $product_id,
     ]);
 
-    return response()->json(['status' => true]);
+    return response()->json([
+        'success' => true,
+        'message' => 'Đã thêm vào wishlist'
+    ]);
 }
+
 
 public function remove(Request $request)
 {

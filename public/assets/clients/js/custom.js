@@ -619,42 +619,6 @@ $(document).ready(function () {
         });
     });
 
-   function loadReviews(productId) {
-       $.ajax({
-    url: "/review/" + productId,
-    type: "GET",
-    success: function (response) {
-         $(".ltn__comment-inner").html(response);
-    }
-});
-   }
-   // Handle add to wishlist
-           $("#btn-add-to-wishlist").click(function () {
-            var $input = $("#cart-qty-box");
-            var productId = $input.data("id");
-            var variantId = $input.data("variant-id") || 0;
-
-            $.ajax({
-                url: "/wishlist/add",
-                type: "POST",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr("content"),
-                    product_id: productId,
-                    variant_id: variantId,
-                },
-                success: function (res) {
-                    if(response.status)
-                    {
-                        $("#liton_wishlist_modal-" + productId).modal('show');
-                    }
-                },
-                error: function (xhr) {
-                    toastr.error(
-                        xhr.responseJSON?.message || "Có lỗi xảy ra khi addToWishList."
-                    );
-                },
-            });
-        });
     function loadReviews(productId) {
         $.ajax({
             url: "/review/" + productId,
@@ -664,6 +628,36 @@ $(document).ready(function () {
             }
         });
     }
+    // Handle add to wishlist
+    // $("#btn-add-to-wishlist").click(function () {
+    //     var $input = $("#cart-qty-box");
+    //     var productId = $input.data("id");
+    //     var variantId = $input.data("variant-id") || 0;
+
+    //     $.ajax({
+    //         url: "/wishlist/add",
+    //         type: "POST",
+    //         data: {
+    //             _token: $('meta[name="csrf-token"]').attr("content"),
+    //             product_id: productId,
+    //             variant_id: variantId,
+    //         },
+    //         success: function (res) {
+    //             console.log(res); // kiểm tra response
+
+    //             if (res.status === true) {
+    //                 $("#liton_wishlist_modal-" + productId).modal('show');
+    //                 toastr.success("Đã thêm vào wishlist.");
+    //             } else {
+    //                 toastr.error("Không thể thêm vào wishlist.");
+    //             }
+    //         },
+    //         error: function (xhr) {
+    //             toastr.error(xhr.responseJSON?.message || "Có lỗi xảy ra khi addToWishList.");
+    //         },
+    //     });
+    // });
+
 
     // ****************************
     // HANDLE PAGE CONTACT
