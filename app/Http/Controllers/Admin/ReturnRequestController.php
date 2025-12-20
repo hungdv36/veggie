@@ -34,43 +34,41 @@ class ReturnRequestController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $return = ReturnRequest::findOrFail($id);
+        $return = ReturnRequest::with('orderItem.variant')->findOrFail($id);
         $oldStatus = $return->status;
 
-        // Xác định luồng trạng thái hợp lệ
         $statusFlow = [
-            'requested' => ['reviewing', 'rejected'],
-            'reviewing' => ['approved', 'rejected'],
-            'approved' => ['received_from_customer', 'packaging'], // theo luồng hoàn hoặc đổi
-            'received_from_customer' => ['inspected'],
-            'inspected' => ['packaging', 'done'], // hoàn hoặc đổi
-            'packaging' => ['shipped_to_customer'],
-            'shipped_to_customer' => ['completed_run'],
-            'completed_run' => ['done'],
-            'rejected' => ['done'],
-            'done' => [],
+            'requested'      => ['approved', 'rejected'],
+            'approved'       => ['returning'],
+            'returning'      => ['returned_goods'],
+            'returned_goods' => ['done'],
+            'done'           => [],
+            'rejected'       => [],
         ];
-
-        $newStatus = $request->status;
-
-        // Kiểm tra trạng thái mới có hợp lệ
-        if (!in_array($newStatus, $statusFlow[$oldStatus])) {
-            return back()->with('error', 'Không thể chuyển trạng thái từ "' . $oldStatus . '" sang "' . $newStatus . '"');
-        }
 
         $request->validate([
             'status' => 'required|in:' . implode(',', array_keys($statusFlow)),
-            'staff_note' => 'nullable|string'
+            'staff_note' => 'nullable|string',
+            'reject_reason' => 'nullable|string',
         ]);
 
-        // Cập nhật trạng thái và ghi chú
+        $newStatus = $request->status;
+
+        if (!in_array($newStatus, $statusFlow[$oldStatus])) {
+            return back()->with('error', "Không thể chuyển trạng thái từ [$oldStatus] sang [$newStatus]");
+        }
+
+        if ($newStatus === 'rejected' && empty($request->reject_reason)) {
+            return back()->with('error', 'Vui lòng chọn lý do từ chối hoàn hàng');
+        }
+
         $return->update([
             'status' => $newStatus,
-            'staff_note' => $request->staff_note
+            'staff_note' => $request->staff_note,
+            'reject_reason' => $newStatus === 'rejected' ? $request->reject_reason : null,
         ]);
 
-        // Nếu trạng thái là "shipped_to_customer" tức là hàng đổi/hoàn đã được gửi → tăng tồn kho biến thể trả về
-        if ($newStatus === 'shipped_to_customer') {
+        if ($newStatus === 'done') {
             $variant = $return->orderItem->variant;
             if ($variant) {
                 $variant->quantity += $return->orderItem->quantity;
@@ -78,16 +76,17 @@ class ReturnRequestController extends Controller
             }
         }
 
-        // Lưu lịch sử trạng thái
         DB::table('order_status_history')->insert([
             'order_id' => $return->order_id,
-            'role_id' => auth()->guard('admin')->id() ? 1 : 0,
+            'role_id' => 1, // admin
             'old_status' => $oldStatus,
             'status' => $newStatus,
             'changed_at' => now(),
-            'notes' => $request->staff_note ?? 'Admin cập nhật trạng thái hoàn hàng cho sản phẩm #' . $return->order_item_id,
+            'notes' => $newStatus === 'rejected'
+                ? 'Từ chối hoàn hàng: ' . $request->reject_reason
+                : ($request->staff_note ?? 'Admin cập nhật trạng thái hoàn hàng'),
         ]);
 
-        return back()->with('success', 'Cập nhật trạng thái thành công.');
+        return back()->with('success', 'Cập nhật trạng thái hoàn hàng thành công.');
     }
 }

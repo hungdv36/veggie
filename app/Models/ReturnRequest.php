@@ -14,6 +14,7 @@ class ReturnRequest extends Model
         'images',
         'videos',
         'status',
+        'reject_reason',
         'staff_note'
     ];
 

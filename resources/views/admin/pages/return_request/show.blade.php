@@ -10,15 +10,11 @@
             @php
                 $statusVN = [
                     'requested' => 'Khách gửi yêu cầu',
-                    'reviewing' => 'Shop đang xem xét',
-                    'approved' => 'Shop đồng ý hoàn',
-                    'rejected' => 'Yêu cầu bị từ chối',
-                    'received_from_customer' => 'Hàng trả về shop',
-                    'inspected' => 'Shop kiểm tra hàng',
-                    'packaging' => 'Shop chuẩn bị hàng đổi',
-                    'shipped_to_customer' => 'Hàng đang vận chuyển',
-                    'completed_run' => 'Hoàn tất đổi hàng',
-                    'done' => 'Hoàn tất đơn hàng trả',
+                    'approved' => 'Shop chấp thuận',
+                    'returning' => 'Đang hoàn hàng',
+                    'returned_goods' => 'Đang xử lý hoàn',
+                    'done' => 'Hoàn hàng thành công',
+                    'rejected' => 'Từ chối hoàn',
                 ];
             @endphp
 
@@ -43,14 +39,33 @@
                             <th>Trạng thái</th>
                             <td>
                                 <span
-                                    class="badge 
-                                {{ in_array($return->status, ['requested']) ? 'bg-warning' : '' }}
-                                {{ in_array($return->status, ['reviewing', 'packaging', 'shipped_to_customer', 'received_from_customer', 'inspected']) ? 'bg-primary' : '' }}
-                                {{ $return->status == 'approved' ? 'bg-success' : '' }}
-                                {{ $return->status == 'rejected' ? 'bg-danger' : '' }}
-                                {{ $return->status == 'done' ? 'bg-info' : '' }}
-                                {{ $return->status == 'completed' ? 'bg-success' : '' }}
-                            ">
+                                    class="badge
+                                            @switch($return->status)
+                                                @case('requested')
+                                                    bg-warning
+                                                    @break
+
+                                                @case('approved')
+                                                    bg-primary
+                                                    @break
+
+                                                @case('returning')
+                                                    bg-info
+                                                    @break
+
+                                                @case('returned_goods')
+                                                    bg-secondary
+                                                    @break
+
+                                                @case('done')
+                                                    bg-success
+                                                    @break
+
+                                                @case('rejected')
+                                                    bg-danger
+                                                    @break
+                                            @endswitch
+                                        ">
                                     {{ $statusVN[$return->status] ?? $return->status }}
                                 </span>
                             </td>
@@ -110,57 +125,78 @@
                 </div>
             </div>
 
-            {{-- Trạng thái xử lý yêu cầu --}}
             @php
-                $statusOrder = [
-                    'requested',
-                    'reviewing',
-                    'approved',
-                    'received_from_customer',
-                    'inspected',
-                    'packaging',
-                    'shipped_to_customer',
-                    'completed_run',
-                    'done',
-                    'rejected',
+                $statusOrder = ['requested', 'approved', 'returning', 'returned_goods', 'done', 'rejected'];
+                $reasons = [
+                    'sai_san_pham' => 'Sản phẩm không đúng',
+                    'hong_hang' => 'Sản phẩm hỏng',
+                    'khac' => 'Khác',
                 ];
 
-                $currentStatus = $return->status;
-                $currentIndex = array_search($currentStatus, $statusOrder);
-                $isCompleted = $currentStatus === 'done';
+                $isLocked = in_array($return->status, ['rejected', 'done']); // khóa khi đã hoàn hoặc từ chối
             @endphp
 
             <div class="card mb-4 shadow-sm border-0 rounded-3 p-3">
                 <form action="{{ route('admin.returns.updateStatus', $return->id) }}" method="POST">
                     @csrf
                     @method('PUT')
+
+                    {{-- Chọn trạng thái --}}
                     <div class="mb-3">
                         <label class="form-label">Trạng thái hoàn hàng</label>
-                        <select name="status" class="form-select" {{ $isCompleted ? 'disabled' : '' }}>
-                            @if ($isCompleted)
-                                <option selected>{{ $statusVN[$currentStatus] }}</option>
-                            @else
-                                @foreach ($statusOrder as $index => $statusKey)
-                                    @if ($index >= $currentIndex)
-                                        <option value="{{ $statusKey }}" @selected($currentStatus === $statusKey)>
-                                            {{ $statusVN[$statusKey] ?? $statusKey }}
-                                        </option>
-                                    @endif
-                                @endforeach
-                            @endif
+                        <select name="status" class="form-select" id="statusSelect" {{ $isLocked ? 'disabled' : '' }}>
+                            @foreach ($statusOrder as $statusKey)
+                                <option value="{{ $statusKey }}" @selected($return->status === $statusKey)>
+                                    {{ $statusVN[$statusKey] ?? $statusKey }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
+
+                    {{-- Lý do từ chối --}}
+                    <div class="mb-3" id="rejectReasonContainer"
+                        style="display: {{ $return->status === 'rejected' ? '' : 'none' }}">
+                        <label class="form-label">Lý do từ chối</label>
+                        <select name="reject_reason" class="form-select" id="rejectReasonSelect"
+                            {{ $isLocked ? 'disabled' : '' }}>
+                            <option value="">Chọn lý do</option>
+                            @foreach ($reasons as $key => $label)
+                                <option value="{{ $key }}" @selected($return->reject_reason === $key)>{{ $label }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Ghi chú --}}
                     <div class="mb-3">
                         <label class="form-label">Ghi chú (nếu có)</label>
-                        <textarea name="staff_note" class="form-control" rows="2" {{ $isCompleted ? 'disabled' : '' }}>{{ $return->staff_note }}</textarea>
+                        <textarea name="staff_note" class="form-control" rows="2" {{ $isLocked ? 'disabled' : '' }}>{{ $return->staff_note }}</textarea>
                     </div>
+
                     <div class="d-flex justify-content-start">
-                        <a href="{{ route('admin.returns.index') }}" class="btn btn-outline-secondary">Quay lại</a>
-                        <button type="submit" class="btn btn-primary me-2" {{ $isCompleted ? 'disabled' : '' }}>Cập nhật
-                            trạng thái</button>
+                        <a href="{{ route('admin.returns.index') }}" class="btn btn-outline-secondary me-2">Quay lại</a>
+                        <button type="submit" class="btn btn-primary" {{ $isLocked ? 'disabled' : '' }}>Cập nhật trạng
+                            thái</button>
                     </div>
                 </form>
             </div>
+
+            <script>
+                const statusSelect = document.getElementById('statusSelect');
+                const rejectContainer = document.getElementById('rejectReasonContainer');
+
+                // Khi load form
+                window.addEventListener('DOMContentLoaded', () => {
+                    rejectContainer.style.display = statusSelect.value === 'rejected' ? '' : 'none';
+                });
+
+                // Khi đổi trạng thái
+                if (!statusSelect.disabled) { // chỉ toggle khi chưa khóa
+                    statusSelect.addEventListener('change', () => {
+                        rejectContainer.style.display = statusSelect.value === 'rejected' ? '' : 'none';
+                    });
+                }
+            </script>
         </div>
     </div>
 @endsection
