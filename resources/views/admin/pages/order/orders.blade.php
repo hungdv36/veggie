@@ -69,15 +69,10 @@
                                                             @if ($itemsCount === 1 && $returnItem)
                                                                 @php
                                                                     $returnStatusVN = [
-                                                                        'requested' => 'Khách gửi yêu cầu',
-                                                                        'reviewing' => 'Shop đang xem xét',
-                                                                        'approved' => 'Shop đồng ý',
-                                                                        'rejected' => 'Yêu cầu bị từ chối',
-                                                                        'received_from_customer' => 'Hàng trả về shop',
-                                                                        'inspected' => 'Shop kiểm tra hàng',
-                                                                        'packaging' => 'Shop chuẩn bị hàng đổi',
-                                                                        'shipped_to_customer' => 'Hàng đang vận chuyển',
-                                                                        'completed_run' => 'Hoàn tất đổi hàng',
+                                                                        'requested' => 'Khách hàng gửi yêu cầu',
+                                                                        'approved' => 'Shop chấp thuận',
+                                                                        'returning' => 'Đang xử lý hoàn hàng',
+                                                                        'returned_goods' => 'Đang hoàn hàng',
                                                                         'done' => 'Hoàn tất đơn hàng trả',
                                                                     ];
                                                                 @endphp

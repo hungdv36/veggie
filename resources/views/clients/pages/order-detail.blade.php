@@ -29,26 +29,42 @@
                     <p class="mb-1"><strong>Ngày đặt hàng:</strong> {{ $order->created_at->format('d/m/Y') }}</p>
                     <p class="mb-1"><strong>Trạng thái:</strong>
                         @php
-                            if ($order->payment?->payment_method === 'momo' && $order->status === 'canceled') {
-                                $status = $order->refund?->status ?? 'waiting_info';
-                            } else {
-                                $status = $order->status;
-                            }
+                            $status =
+                                $order->payment?->payment_method === 'momo' && $order->status === 'canceled'
+                                    ? $order->refund?->status ?? 'waiting_info'
+                                    : $order->status;
 
-                            $hasReturn = false;
-                            if (isset($item) && $item->returnRequest) {
-                                $hasReturn = in_array($item->returnRequest->status, [
-                                    'requested',
-                                    'reviewing',
-                                    'approved',
-                                ]);
-                            }
-                            $allReturned = $order->orderItems->every(function ($item) {
-                                return $item->returnRequest && $item->returnRequest->status === 'done';
-                            });
+                            $returnedCount = $order->orderItems
+                                ->filter(fn($item) => $item->returnRequest && $item->returnRequest->status === 'done')
+                                ->count();
+
+                            $rejectedItem = $order->orderItems
+                                ->filter(
+                                    fn($item) => $item->returnRequest && $item->returnRequest->status === 'rejected',
+                                )
+                                ->first();
+
+                            $total = $order->orderItems->count();
                         @endphp
-                        @if ($allReturned)
+
+                        {{-- Từ chối hoàn hàng --}}
+                        @if ($rejectedItem)
+                            <span class="badge bg-danger"
+                                title="Lý do: {{ $rejectedItem->returnRequest->reject_reason ?? 'Không xác định' }}">
+                                Từ chối hoàn 
+                            </span>
+
+                            {{-- Tất cả sản phẩm đã hoàn --}}
+                        @elseif($total > 0 && $returnedCount === $total)
                             <span class="badge bg-secondary">Đã hoàn hàng</span>
+
+                            {{-- Hoàn một phần --}}
+                        @elseif($returnedCount > 0)
+                            <span class="badge bg-info" title="Hoàn {{ $returnedCount }}/{{ $total }} sản phẩm">
+                                Hoàn 1 phần
+                            </span>
+
+                            {{-- Trạng thái đơn hàng bình thường --}}
                         @else
                             @switch($status)
                                 @case('completed')
@@ -67,7 +83,12 @@
                                     <span class="badge bg-info">Đang giao hàng</span>
                                 @break
 
-                                {{-- các case khác giữ nguyên --}}
+                                @case('delivered')
+                                    <span class="badge bg-success">Đã giao hàng</span>
+                                @break
+
+                                @default
+                                    <span class="badge bg-secondary">Không xác định</span>
                             @endswitch
                         @endif
                     </p>
@@ -133,20 +154,24 @@
                                                     <span class="badge bg-warning">Đã gửi yêu cầu hoàn</span>
                                                 @break
 
-                                                @case('reviewing')
-                                                    <span class="badge bg-info">Đang xử lý</span>
-                                                @break
-
                                                 @case('approved')
-                                                    <span class="badge bg-success">Được chấp nhận</span>
+                                                    <span class="badge bg-success">Shop đã chấp nhận hoàn</span>
                                                 @break
 
-                                                @case('rejected')
-                                                    <span class="badge bg-danger">Bị từ chối</span>
+                                                @case('returned_goods')
+                                                    <span class="badge bg-info">Shop đã nhận hàng, đang xử lý</span>
+                                                @break
+
+                                                @case('returning')
+                                                    <span class="badge bg-primary">Đang hoàn tiền / đổi sản phẩm</span>
                                                 @break
 
                                                 @case('done')
-                                                    <span class="badge bg-success">Đã hoàn hàng</span>
+                                                    <span class="badge bg-success">Hoàn hàng thành công</span>
+                                                @break
+
+                                                @case('rejected')
+                                                    <span class="badge bg-danger">Yêu cầu hoàn bị từ chối</span>
                                                 @break
                                             @endswitch
                                         @elseif ($order->status === 'completed')

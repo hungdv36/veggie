@@ -57,25 +57,28 @@
                                                 <td>{{ $return->user?->name ?? 'Khách vãng lai' }}</td>
                                                 <td>{{ $return->reason }}</td>
 
-                                                <td>
-                                                    @php
-                                                        $statusTexts = [
-                                                            'requested' => 'Đã gửi yêu cầu',
-                                                            'reviewing' => 'Đang xem xét',
-                                                            'approved' => 'Đã duyệt',
-                                                            'rejected' => 'Từ chối',
-                                                            'done' => 'Hoàn tất',
-                                                        ];
-                                                    @endphp
+                                                @php
+                                                    $statusTexts = [
+                                                        'requested' => 'Đã gửi yêu cầu',
+                                                        'approved' => 'Shop chấp thuận',
+                                                        'returned_goods' => 'Đang xử lý hoàn',
+                                                        'returning' => 'Đang hoàn hàng',
+                                                        'done' => 'Hoàn hàng thành công',
+                                                    ];
+                                                @endphp
 
+                                                <td>
                                                     <span
-                                                        class="badge 
-                                                        @if ($return->status == 'requested') bg-warning
-                                                        @elseif($return->status == 'reviewing') bg-info
-                                                        @elseif($return->status == 'approved') bg-success
-                                                        @elseif($return->status == 'rejected') bg-danger
-                                                        @elseif($return->status == 'done') bg-secondary @endif">
-                                                        {{ $statusTexts[$return->status] ?? $return->status }}
+                                                        class="badge
+                                                            @switch($return->status)
+                                                                @case('requested') bg-warning @break
+                                                                @case('approved') bg-primary @break
+                                                                @case('returned_goods') bg-secondary @break
+                                                                @case('returning') bg-info @break
+                                                                @case('done') bg-success @break
+                                                            @endswitch
+                                                        ">
+                                                        {{ $statusTexts[$return->status] }}
                                                     </span>
                                                 </td>
 
