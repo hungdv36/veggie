@@ -305,7 +305,7 @@
                                     $completedReturns = $order->orderItems
                                         ->filter(function ($item) {
                                             return $item->returnRequest &&
-                                                in_array($item->returnRequest->status, ['completed_run', 'done']);
+                                                in_array($item->returnRequest->status, ['done']);
                                         })
                                         ->count();
 

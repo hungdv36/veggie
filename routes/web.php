@@ -112,6 +112,10 @@ Route::middleware('auth.custom')->group(function () {
     Route::post('/checkout/paypal', [CheckoutController::class, 'handlePayPal'])->name('checkout.paypal');
     Route::post('/checkout/momo', [CheckoutController::class, 'handleMoMo'])->name('checkout.momo');
     Route::get('/checkout/momo/return', [CheckoutController::class, 'momoReturn'])->name('momo.return');
+    Route::get('/checkout/vnpay', [CheckoutController::class, 'handleVnpay'])
+        ->name('checkout.vnpay');
+    Route::get('checkout/vnpay/return', [CheckoutController::class, 'vnpayReturn'])->name('vnpay.return');
+
 
     /* ORDER */
     Route::get('/order/{id}', [OrderController::class, 'showOrder'])->name('order.show');
