@@ -104,7 +104,9 @@
                         @elseif ($order->payment && $order->payment->payment_method == 'paypal')
                             <span class="badge bg-warning text-dark">Thanh toán bằng PayPal</span>
                         @elseif ($order->payment && $order->payment->payment_method == 'momo')
-                            <span class="badge bg-primary">Thanh toán bằng MoMo</span>
+                            <span class="badge bg-primary">Đã thanh toán bằng MoMo</span>
+                        @elseif ($order->payment && $order->payment->payment_method == 'vnpay')
+                            <span class="badge bg-primary">Đã thanh toán bằng VNPAY</span>
                         @else
                             <span class="badge bg-danger">Chưa xác định</span>
                         @endif

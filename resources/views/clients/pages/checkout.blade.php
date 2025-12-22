@@ -120,6 +120,15 @@
                                         </label>
                                     </h5>
                                 </div>
+                                <div class="card">
+                                    <h5 class="collapsed ltn__card-title">
+                                        <input type="radio" name="payment_method" value="vnpay" id="payment_vnpay">
+                                        <label for="payment_vnpay">
+                                            Thanh toán qua VNPAY
+                                            <img src="{{ asset('assets/clients/img/icons/vnpay.png') }}" alt="VNPAY">
+                                        </label>
+                                    </h5>
+                                </div>
 
                             </div>
 
@@ -338,7 +347,7 @@
             });
 
             /* ============================================================
-                4) THỰC HIỆN THANH TOÁN
+            4) THỰC HIỆN THANH TOÁN
             ============================================================ */
             const form = document.getElementById('checkout-form');
             const button = document.getElementById('order_button_cash');
@@ -346,6 +355,7 @@
 
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
+
                 button.disabled = true;
                 button.innerHTML =
                     `<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...`;
@@ -355,6 +365,8 @@
                 formData.append('amount', totalAmount);
 
                 try {
+
+                    /* ================= PAYPAL ================= */
                     if (method === 'paypal') {
                         const res = await fetch('{{ route('checkout.paypal') }}', {
                             method: 'POST',
@@ -363,10 +375,19 @@
                             },
                             body: formData
                         });
+
                         const data = await res.json();
-                        if (data.redirect_url) window.location.href = data.redirect_url;
-                        else alert('Không thể khởi tạo thanh toán PayPal.');
-                    } else if (method === 'momo') {
+                        if (data.redirect_url) {
+                            window.location.href = data.redirect_url;
+                        } else {
+                            alert('Không thể khởi tạo thanh toán PayPal.');
+                        }
+                    }
+
+                    /* ================= MOMO ================= */
+                    else if (method === 'momo') {
+
+                        // 1. Tạo đơn hàng
                         const res = await fetch('{{ route('checkout.placeOrder') }}', {
                             method: 'POST',
                             headers: {
@@ -374,33 +395,62 @@
                             },
                             body: formData
                         });
+
                         const data = await res.json();
-                        if (data.redirect) {
-                            const url = data.redirect;
-                            const params = new URLSearchParams(url.split('?')[1]);
-                            const order_id = params.get('order_id');
-                            const amount = params.get('amount');
-
-                            const momoForm = new FormData();
-                            momoForm.append('order_id', order_id);
-                            momoForm.append('amount', amount);
-
-                            const momoRes = await fetch('{{ route('checkout.momo') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: momoForm
-                            });
-                            const momoData = await momoRes.json();
-                            if (momoData.redirect_url) window.location.href = momoData.redirect_url;
-                            else alert('Không thể khởi tạo thanh toán MoMo.');
-                        } else {
+                        if (!data.redirect) {
                             alert('Không thể tạo đơn hàng cho MoMo.');
+                            return;
                         }
-                    } else {
+
+                        // 2. Gọi MoMo
+                        const params = new URLSearchParams(data.redirect.split('?')[1]);
+                        const momoForm = new FormData();
+                        momoForm.append('order_id', params.get('order_id'));
+                        momoForm.append('amount', params.get('amount'));
+
+                        const momoRes = await fetch('{{ route('checkout.momo') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: momoForm
+                        });
+
+                        const momoData = await momoRes.json();
+                        if (momoData.redirect_url) {
+                            window.location.href = momoData.redirect_url;
+                        } else {
+                            alert('Không thể khởi tạo thanh toán MoMo.');
+                        }
+                    }
+
+                    /* ================= VNPAY ================= */
+                    else if (method === 'vnpay') {
+                        const res = await fetch('{{ route('checkout.placeOrder') }}', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: new FormData(form)
+                        });
+
+                        const data = await res.json();
+
+                        if (data.error) {
+                            alert(data.error);
+                            return;
+                        }
+
+                        // Redirect sang handleVnpay
+                        window.location.href = "{{ route('checkout.vnpay') }}" + "?order_id=" + data
+                            .order_id;
+                    }
+
+                    /* ================= COD ================= */
+                    else {
                         form.submit();
                     }
+
                 } catch (err) {
                     console.error(err);
                     alert('Có lỗi xảy ra khi xử lý thanh toán.');

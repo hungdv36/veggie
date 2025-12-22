@@ -109,8 +109,9 @@ class CheckoutController extends Controller
         $cartItems = CartItem::where('user_id', $user->id)->with('product', 'variant')->get();
 
         if ($cartItems->isEmpty()) {
-            toastr()->error('Giỏ hàng trống!');
-            return redirect()->route('cart');
+            return response()->json([
+                'error' => 'Giỏ hàng trống!'
+            ], 422);
         }
 
         DB::beginTransaction();
@@ -227,14 +228,23 @@ class CheckoutController extends Controller
                 ]);
             }
 
+            if ($request->payment_method === 'vnpay') {
+                return response()->json([
+                    'order_id' => $order->id
+                ]);
+            }
+
             CartItem::where('user_id', $user->id)->delete();
-            toastr()->success('Đặt hàng thành công!');
-            return redirect()->route('account');
+            return response()->json([
+                'success' => true,
+                'redirect' => route('account')
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Checkout error: ' . $e->getMessage());
-            toastr()->error('Có lỗi xảy ra: ' . $e->getMessage());
-            return redirect()->route('checkout');
+            return response()->json([
+                'error' => 'Có lỗi xảy ra: ' . $e->getMessage()
+            ], 500);
         }
     }
     public function applyCoupon(Request $request)
@@ -412,9 +422,6 @@ class CheckoutController extends Controller
     }
 
 
-
-
-
     // Kết quả trả về từ MoMo
     public function momoReturn(Request $request)
     {
@@ -476,5 +483,94 @@ class CheckoutController extends Controller
             toastr()->error('Thanh toán MoMo thất bại hoặc bị hủy!');
             return redirect()->route('checkout');
         }
+    }
+
+    public function handleVnpay(Request $request)
+    {
+        $order = Order::findOrFail($request->order_id);
+
+        $vnp_TmnCode = "AZDR0GVB";
+        $vnp_HashSecret = "MA4BIXPX5H5M9PBR8HHUMQIA4IH2HB9C";
+        $vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
+        $vnp_Returnurl = route('vnpay.return');
+
+        $vnp_TxnRef = $order->id;
+        $vnp_OrderInfo = "Thanh toán đơn hàng #" . $order->order_code;
+        $vnp_Amount = (int) ($order->total_amount * 100);
+        $vnp_IpAddr = $request->ip();
+
+        $inputData = [
+            "vnp_Version" => "2.1.0",
+            "vnp_TmnCode" => $vnp_TmnCode,
+            "vnp_Amount" => $vnp_Amount,
+            "vnp_Command" => "pay",
+            "vnp_CreateDate" => now()->format('YmdHis'),
+            "vnp_CurrCode" => "VND",
+            "vnp_IpAddr" => $vnp_IpAddr,
+            "vnp_Locale" => "vn",
+            "vnp_OrderInfo" => $vnp_OrderInfo,
+            "vnp_OrderType" => "billpayment",
+            "vnp_ReturnUrl" => $vnp_Returnurl,
+            "vnp_TxnRef" => $vnp_TxnRef,
+        ];
+
+        ksort($inputData);
+
+        $hashData = "";
+        $query = "";
+        foreach ($inputData as $key => $value) {
+            $hashData .= urlencode($key) . "=" . urlencode($value) . "&";
+            $query .= urlencode($key) . "=" . urlencode($value) . "&";
+        }
+
+        $hashData = rtrim($hashData, "&");
+        $vnpSecureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+        $paymentUrl = $vnp_Url . "?" . $query . "vnp_SecureHash=" . $vnpSecureHash;
+
+        return redirect($paymentUrl); // redirect trực tiếp sang VNPAY
+    }
+
+    public function vnpayReturn(Request $request)
+    {
+        $vnp_HashSecret = "MA4BIXPX5H5M9PBR8HHUMQIA4IH2HB9C"; // sandbox
+
+        $inputData = $request->all();
+        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
+
+        unset($inputData['vnp_SecureHash'], $inputData['vnp_SecureHashType']);
+        ksort($inputData);
+
+        $hashData = "";
+        foreach ($inputData as $key => $value) {
+            $hashData .= urlencode($key) . "=" . urlencode($value) . "&";
+        }
+        $hashData = rtrim($hashData, "&");
+
+        $secureHash = hash_hmac('sha512', $hashData, $vnp_HashSecret);
+
+        if ($secureHash !== $vnp_SecureHash) {
+            abort(403, 'Sai chữ ký VNPAY');
+        }
+
+        $order = Order::findOrFail($request->vnp_TxnRef);
+
+        if ($request->vnp_ResponseCode === '00') {
+            // thanh toán thành công
+            $order->update(['status' => 'pending']); // cập nhật trạng thái đơn
+            $order->payment()->update(['status' => 'completed']); // cập nhật trạng thái payment
+
+            // xóa giỏ hàng
+            CartItem::where('user_id', $order->user_id)->delete();
+
+            // chuyển về trang account luôn
+            return redirect()->route('account');
+        }
+
+        // thanh toán thất bại
+        $order->update(['status' => 'failed']);
+        $order->payment()->update(['status' => 'failed']);
+
+        return redirect()->route('account');
     }
 }

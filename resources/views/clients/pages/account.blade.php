@@ -314,7 +314,8 @@
 
                                                                 // Trạng thái chính
                                                                 $status =
-                                                                    $order->payment?->payment_method === 'momo' &&
+                                                                    ($order->payment?->payment_method === 'momo' ||
+                                                                        $order->payment?->payment_method === 'vnpay') &&
                                                                     $order->status === 'canceled'
                                                                         ? trim(
                                                                             $order->refund?->status ?? 'waiting_info',
@@ -423,7 +424,15 @@
                                                                         @break
 
                                                                         @case('paypal')
-                                                                            Thanh toán online (Paypal)
+                                                                            Thanh toán qua ví Paypal
+                                                                        @break
+
+                                                                        @case('momo')
+                                                                            Thanh toán qua ví Momo
+                                                                        @break
+
+                                                                        @case('vnpay')
+                                                                            Thanh toán qua ví VNPAY
                                                                         @break
 
                                                                         @default
