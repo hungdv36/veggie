@@ -133,7 +133,8 @@
                     'khac' => 'Khác',
                 ];
 
-                $isLocked = in_array($return->status, ['rejected', 'done']); // khóa khi đã hoàn hoặc từ chối
+                $isLocked = in_array($return->status, ['rejected', 'done']);
+                $currentIndex = array_search($return->status, $statusOrder);
             @endphp
 
             <div class="card mb-4 shadow-sm border-0 rounded-3 p-3">
@@ -145,10 +146,13 @@
                     <div class="mb-3">
                         <label class="form-label">Trạng thái hoàn hàng</label>
                         <select name="status" class="form-select" id="statusSelect" {{ $isLocked ? 'disabled' : '' }}>
-                            @foreach ($statusOrder as $statusKey)
-                                <option value="{{ $statusKey }}" @selected($return->status === $statusKey)>
-                                    {{ $statusVN[$statusKey] ?? $statusKey }}
-                                </option>
+                            @foreach ($statusOrder as $index => $statusKey)
+                                {{-- Hiển thị trạng thái hiện tại và những trạng thái sau --}}
+                                @if ($index >= $currentIndex)
+                                    <option value="{{ $statusKey }}" @selected($return->status === $statusKey)>
+                                        {{ $statusVN[$statusKey] ?? $statusKey }}
+                                    </option>
+                                @endif
                             @endforeach
                         </select>
                     </div>

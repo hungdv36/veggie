@@ -96,11 +96,11 @@
                              <i class="fa fa-undo"></i> Quản lý hoàn đơn
                          </a>
                      </li>
-                     <li>
+                     {{-- <li>
                          <a href="{{ route('admin.refunds.index') }}">
                              <i class="fa fa-money"></i> Hoàn tiền đơn hàng
                          </a>
-                     </li>
+                     </li> --}}
                      <li>
                          <a>
                              <i class="fa fa-comments"></i> Quản lý bình luận
