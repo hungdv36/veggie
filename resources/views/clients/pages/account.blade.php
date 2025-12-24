@@ -162,7 +162,7 @@
                                                                                 @break
 
                                                                                 @case('completed')
-                                                                                    <span class="badge bg-success">Hoàn thành</span>
+                                                                                    <span class="badge bg-success">Giao thành công</span>
                                                                                 @break
 
                                                                                 @case('received')

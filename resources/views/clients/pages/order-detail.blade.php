@@ -68,7 +68,7 @@
                         @else
                             @switch($status)
                                 @case('completed')
-                                    <span class="badge bg-success">Hoàn thành</span>
+                                    <span class="badge bg-success">Đã giao hàng</span>
                                 @break
 
                                 @case('pending')
@@ -83,8 +83,8 @@
                                     <span class="badge bg-info">Đang giao hàng</span>
                                 @break
 
-                                @case('delivered')
-                                    <span class="badge bg-success">Đã giao hàng</span>
+                                @case('received')
+                                    <span class="badge bg-success">Đã nhận hàng</span>
                                 @break
 
                                 @default
